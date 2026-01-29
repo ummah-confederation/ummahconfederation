@@ -1,0 +1,138 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-29",
+  "documents": [
+    {
+      "id": "book0",
+      "filename": "book0.html",
+      "title": "Book 0 — How to Read Revelation and History",
+      "item": "Book",
+      "institution": "Ummah Cabinet",
+      "jurisdiction": "Ummah Cabinet Members [Profession]",
+      "version": 1,
+      "date": "2026-01-28T09:00:00",
+      "dateFormatted": "28 Jan 2026 | 09:00",
+      "visible": true
+    },
+    {
+      "id": "book1",
+      "filename": "book1.html",
+      "title": "Book I — The Constitution",
+      "item": "Book",
+      "institution": "Ummah Cabinet",
+      "jurisdiction": "Ummah Cabinet Members [Profession]",
+      "version": 2,
+      "date": "2026-01-25T06:00:00",
+      "dateFormatted": "25 Jan 2026 | 06:00",
+      "visible": true
+    },
+    {
+      "id": "book2",
+      "filename": "book2.html",
+      "title": "Book II — Legends and Glossarium",
+      "item": "Book",
+      "institution": "Ummah Cabinet",
+      "jurisdiction": "General Public [Community]",
+      "version": 1,
+      "date": "2026-01-23T07:00:00",
+      "dateFormatted": "23 Jan 2026 | 07:00",
+      "visible": true
+    },
+    {
+      "id": "book3",
+      "filename": "book3.html",
+      "title": "Book III — The Institutions",
+      "item": "Book",
+      "institution": "Ummah Governance",
+      "jurisdiction": "Ummah Governance Members [Profession]",
+      "version": 1,
+      "date": "2026-01-23T08:00:00",
+      "dateFormatted": "23 Jan 2026 | 08:00",
+      "visible": true
+    },
+    {
+      "id": "book4",
+      "filename": "book4.html",
+      "title": "Book IV — The Jurisdictions",
+      "item": "Book",
+      "institution": "Ummah Governance",
+      "jurisdiction": "Ummah Governance Members [Profession]",
+      "version": 1,
+      "date": "2026-01-23T09:00:00",
+      "dateFormatted": "23 Jan 2026 | 09:00",
+      "visible": true
+    },
+    {
+      "id": "book5",
+      "filename": "book5.html",
+      "title": "Book V — Domains of Alignment",
+      "item": "Book",
+      "institution": "Ummah Federal Government",
+      "jurisdiction": "Ummah Federal Government Members [Profession]",
+      "version": 1,
+      "date": "2026-01-27T10:00:00",
+      "dateFormatted": "27 Jan 2026 | 10:00",
+      "visible": true
+    },
+    {
+      "id": "book6",
+      "filename": "book6.html",
+      "title": "Book VI — Spiritual Disease Index",
+      "item": "Policy",
+      "institution": "Ummah Cabinet",
+      "jurisdiction": "General Public [Community]",
+      "version": 1,
+      "date": "2026-01-28T11:00:00",
+      "dateFormatted": "28 Jan 2026 | 11:00",
+      "visible": true
+    },
+    {
+      "id": "policy1",
+      "filename": "policy1.html",
+      "title": "Policy I — Everlife Dhikr",
+      "item": "Policy",
+      "institution": "Ummah Cabinet",
+      "jurisdiction": "Ummah Cabinet Members [Profession]",
+      "version": 2,
+      "date": "2026-01-26T07:00:00",
+      "dateFormatted": "26 Jan 2026 | 07:00",
+      "visible": true
+    },
+    {
+      "id": "policy2",
+      "filename": "policy2.html",
+      "title": "Policy II — Ghaflah Policy",
+      "item": "Policy",
+      "institution": "Ummah Cabinet",
+      "jurisdiction": "Ummah Cabinet Members [Profession]",
+      "version": 2,
+      "date": "2026-01-29T11:00:00",
+      "dateFormatted": "29 Jan 2026 | 11:00",
+      "visible": true
+    },
+    {
+      "id": "policy3",
+      "filename": "policy3.html",
+      "title": "Policy III — Badr Policy",
+      "item": "Policy",
+      "institution": "Ummah Cabinet",
+      "jurisdiction": "Ummah Cabinet Members [Profession]",
+      "version": 1,
+      "date": "2026-01-28T10:00:00",
+      "dateFormatted": "28 Jan 2026 | 10:00",
+      "visible": true
+    },
+    {
+      "id": "decision1",
+      "filename": "decision1.html",
+      "title": "Decision I — Re-Love Decision",
+      "item": "Decision",
+      "institution": "Ummah Personal Counselor",
+      "jurisdiction": "Fathan T. Husna [Individual]",
+      "version": 1,
+      "date": "2026-01-24T09:00:00",
+      "dateFormatted": "24 Jan 2026 | 09:00",
+      "visible": true
+    }
+  ]
+}

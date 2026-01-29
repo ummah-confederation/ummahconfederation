@@ -4,102 +4,7 @@
     <meta charset="UTF-8" />
     <title>DAARUSSALAAM — Library</title>
     <link rel="stylesheet" href="styles.css" />
-
-    <script>
-      const params = new URLSearchParams(window.location.search);
-      const filterItem = params.get("item");
-      const filterInstitution = params.get("institution");
-      const filterJurisdiction = params.get("jurisdiction");
-
-      document.addEventListener("DOMContentLoaded", () => {
-        const rows = document.querySelectorAll(
-          ".library-row:not(.library-header)",
-        );
-
-        const params = new URLSearchParams(window.location.search);
-        const filterItem = params.get("item");
-        const filterInstitution = params.get("institution");
-        const filterJurisdiction = params.get("jurisdiction");
-
-        rows.forEach((row) => {
-          if (
-            filterItem &&
-            row.dataset.item.trim().toLowerCase() !==
-              filterItem.trim().toLowerCase()
-          ) {
-            row.style.display = "none";
-            return;
-          }
-
-          if (
-            filterInstitution &&
-            row.dataset.institution.trim().toLowerCase() !==
-              filterInstitution.trim().toLowerCase()
-          ) {
-            row.style.display = "none";
-            return;
-          }
-
-          if (
-            filterJurisdiction &&
-            row.dataset.jurisdiction.trim().toLowerCase() !==
-              filterJurisdiction.trim().toLowerCase()
-          ) {
-            row.style.display = "none";
-            return;
-          }
-        });
-
-        // ✅ CONTEXT — show only values
-        const context = [];
-
-        if (filterItem) context.push(filterItem);
-        if (filterInstitution) context.push(filterInstitution);
-        if (filterJurisdiction) context.push(filterJurisdiction);
-
-        if (!context.length) context.push("ALL"); // fallback for no filters
-
-        document.getElementById("library-context").textContent =
-          context.join(" · ");
-      });
-
-      function sortLibrary(type, button) {
-        const container = document.getElementById("library");
-        const rows = Array.from(container.children).slice(1); // skip header
-
-        // visual active state
-        document
-          .querySelectorAll(".sort-controls button")
-          .forEach((btn) => btn.classList.remove("active"));
-
-        if (button) button.classList.add("active");
-
-        rows.sort((a, b) => {
-          // TITLE — A → Z
-          if (type === "name") {
-            return a.dataset.name.localeCompare(b.dataset.name);
-          }
-
-          // VERSION — BIG → SMALL, then LATEST DATE
-          if (type === "version") {
-            const versionDiff =
-              parseInt(b.dataset.version, 10) - parseInt(a.dataset.version, 10);
-
-            if (versionDiff !== 0) return versionDiff;
-
-            // tie-breaker: newest date first
-            return new Date(b.dataset.date) - new Date(a.dataset.date);
-          }
-
-          // DATE — LATEST → OLDEST
-          if (type === "date") {
-            return new Date(b.dataset.date) - new Date(a.dataset.date);
-          }
-        });
-
-        rows.forEach((row) => container.appendChild(row));
-      }
-    </script>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
   </head>
 
   <body>
@@ -113,13 +18,14 @@
 
       <h2>DAARUSSALAAM</h2>
 
-      <!-- Sort buttons -->
-      <div id="library-context" class="library-context"></div>
+      <!-- Context display -->
+      <div id="library-context" class="library-context">ALL</div>
 
+      <!-- Sort buttons -->
       <div class="sort-controls">
-        <button onclick="sortLibrary('name', this)">Sort by Title</button>
-        <button onclick="sortLibrary('version', this)">Sort by Version</button>
-        <button onclick="sortLibrary('date', this)">Sort by Date</button>
+        <button data-sort="name">Sort by Title</button>
+        <button data-sort="version">Sort by Version</button>
+        <button data-sort="date">Sort by Date</button>
       </div>
 
       <!-- Library -->
@@ -130,157 +36,10 @@
           <span class="library-version">Version</span>
           <span class="library-date">Updated Date</span>
         </div>
-        <div
-          class="library-row"
-          data-name="Book 0 — How to Read Revelation and History"
-          data-version="1"
-          data-date="2026-01-28T09:00"
-          data-item="Book"
-          data-institution="Ummah Cabinet"
-          data-jurisdiction="Ummah Cabinet Members [Profession]"
-        >
-          <a href="book0.html">Book 0 — How to Read Revelation and History</a>
-          <span class="library-version">1</span>
-          <span class="library-date">28 Jan 2026 | 09:00</span>
-        </div>
-        <div
-          class="library-row"
-          data-name="Book I — The Constitution"
-          data-version="2"
-          data-date="2026-01-25T06:00"
-          data-item="Book"
-          data-institution="Ummah Cabinet"
-          data-jurisdiction="Ummah Cabinet Members [Profession]"
-        >
-          <a href="book1.html">Book I — The Constitution</a>
-          <span class="library-version">2</span>
-          <span class="library-date">25 Jan 2026 | 06:00</span>
-        </div>
-
-        <div
-          class="library-row"
-          data-name="Book II — Legends and Glossarium"
-          data-version="1"
-          data-date="2026-01-23T07:00"
-          data-item="Book"
-          data-institution="Ummah Cabinet"
-          data-jurisdiction="General Public [Community]"
-        >
-          <a href="book2.html">Book II — Legends and Glossarium</a>
-          <span class="library-version">1</span>
-          <span class="library-date">23 Jan 2026 | 07:00</span>
-        </div>
-
-        <div
-          class="library-row"
-          data-name="Book III — The Institutions"
-          data-version="1"
-          data-date="2026-01-23T08:00"
-          data-item="Book"
-          data-institution="Ummah Governance"
-          data-jurisdiction="Ummah Governance Members [Profession]"
-        >
-          <a href="book3.html">Book III — The Institutions</a>
-          <span class="library-version">1</span>
-          <span class="library-date">23 Jan 2026 | 08:00</span>
-        </div>
-
-        <div
-          class="library-row"
-          data-name="Book IV — The Jurisdictions"
-          data-version="1"
-          data-date="2026-01-23T09:00"
-          data-item="Book"
-          data-institution="Ummah Governance"
-          data-jurisdiction="Ummah Governance Members [Profession]"
-        >
-          <a href="book4.html">Book IV — The Jurisdictions</a>
-          <span class="library-version">1</span>
-          <span class="library-date">23 Jan 2026 | 09:00</span>
-        </div>
-        <div
-          class="library-row"
-          data-name="Book V — Domains of Alignment"
-          data-version="1"
-          data-date="2026-01-27T10:00"
-          data-item="Book"
-          data-institution="Ummah Federal Government"
-          data-jurisdiction="Ummah Federal Government Members [Profession]"
-        >
-          <a href="book5.html">Book V — Domains of Alignment</a>
-          <span class="library-version">1</span>
-          <span class="library-date">27 Jan 2026 | 10:00</span>
-        </div>
-        <div
-          class="library-row"
-          data-name="Book VI — Spiritual Disease Index"
-          data-version="1"
-          data-date="2026-01-28T11:00"
-          data-item="Policy"
-          data-institution="Ummah Cabinet"
-          data-jurisdiction="General Public [Community]"
-        >
-          <a href="book6.html">Book VI — Spiritual Disease Index</a>
-          <span class="library-version">1</span>
-          <span class="library-date">28 Jan 2026 | 11:00</span>
-        </div>
-        <div
-          class="library-row"
-          data-name="Policy I — Everlife Dhikr"
-          data-version="2"
-          data-date="2026-01-26T07:00"
-          data-item="Policy"
-          data-institution="Ummah Cabinet"
-          data-jurisdiction="Ummah Cabinet Members [Profession]"
-        >
-          <a href="policy1.html">Policy I — Everlife Dhikr</a>
-          <span class="library-version">2</span>
-          <span class="library-date">26 Jan 2026 | 07:00</span>
-        </div>
-
-
-        <div
-          class="library-row"
-          data-name="Policy II — Ghaflah Policy"
-          data-version="2"
-          data-date="2026-01-29T11:00"
-          data-item="Policy"
-          data-institution="Ummah Cabinet"
-          data-jurisdiction="Ummah Cabinet Members [Profession]"
-        >
-          <a href="policy2.html">Policy II — Ghaflah Policy</a>
-          <span class="library-version">2</span>
-          <span class="library-date">29 Jan 2026 | 11:00</span>
-        </div>
-
-        <div
-          class="library-row"
-          data-name="Policy III — Badr Policy"
-          data-version="1"
-          data-date="2026-01-28T10:00"
-          data-item="Policy"
-          data-institution="Ummah Cabinet"
-          data-jurisdiction="Ummah Cabinet Members [Profession]"
-        >
-          <a href="policy3.html">Policy III — Badr Policy</a>
-          <span class="library-version">1</span>
-          <span class="library-date">28 Jan 2026 | 10:00</span>
-        </div>
-        
-        <div
-          class="library-row"
-          data-name="Decision I — Re-Love Decision"
-          data-version="1"
-          data-date="2026-01-24T09:00"
-          data-item="Decision"
-          data-institution="Ummah Personal Counselor"
-          data-jurisdiction="Fathan T. Husna [Individual]"
-        >
-          <a href="decision1.html">Decision I — Re-Love Decision</a>
-          <span class="library-version">1</span>
-          <span class="library-date">24 Jan 2026 | 09:00</span>
-        </div>
+        <!-- Document rows will be dynamically populated by js/library-ui.js -->
       </div>
     </div>
+
+    <script type="module" src="js/library-main.js"></script>
   </body>
 </html>
