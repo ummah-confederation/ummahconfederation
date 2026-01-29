@@ -21,14 +21,14 @@ function renderList(containerId, values, options = {}) {
 
   container.innerHTML = '';
 
-  // Add "ALL" option if requested
+  // Add "All" option if requested
   if (options.includeAll) {
     const row = document.createElement('div');
     row.className = 'registry-row';
 
     const link = document.createElement('a');
     link.href = 'library.html';
-    link.textContent = 'ALL';
+    link.textContent = 'All';
 
     row.appendChild(link);
     container.appendChild(row);

@@ -100,7 +100,7 @@ function updateContext(filters) {
   if (filters.jurisdiction) context.push(filters.jurisdiction);
 
   if (context.length === 0) {
-    context.push('ALL');
+    context.push('All');
   }
 
   contextElement.textContent = context.join(' · ');
