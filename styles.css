@@ -229,6 +229,7 @@ td {
   align-items: baseline;
   gap: 1rem;
   margin: 0.25rem 0;
+  text-align: left;
 }
 
 .library-header {
@@ -285,22 +286,25 @@ td {
 
 .three-column ol {
   padding-left: 1.2rem;
-  margin: 0;
+
   font-size: 0.8rem; /* smaller font */
   line-height: 1.5;
 }
-
-.three-column li {
-  text-align: left; /* ← key fix */
-  white-space: nowrap; /* ← no wrapping */
+/* Replace separate rules with combined selectors */
+.three-column li,
+.registry-row {
+  text-align: left;
+  white-space: nowrap;
 }
 
-.three-column a {
+.three-column a,
+.registry a {
   text-decoration: none;
   color: inherit;
 }
 
-.three-column a:hover {
+.three-column a:hover,
+.registry a:hover {
   text-decoration: underline;
 }
 
@@ -350,7 +354,6 @@ td {
   text-decoration: underline;
 }
 #jurisdiction-list .registry-row {
-  white-space: nowrap;
   overflow: hidden;
 }
 
