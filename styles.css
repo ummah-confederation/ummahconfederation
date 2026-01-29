@@ -1,0 +1,361 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Spectral", serif;
+  background: #f5f5f0;
+  color: #1a1a1a;
+  line-height: 1.7;
+  padding: 40px 20px;
+}
+
+/* Paper sheet styling */
+.paper-sheet {
+  max-width: 850px;
+  margin: 0 auto 60px auto;
+  background: #ffffff;
+  padding: 80px 100px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  page-break-inside: avoid;
+  break-inside: avoid;
+
+  /* subtle paper texture */
+  background-image:
+    linear-gradient(rgba(245, 245, 240, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 245, 240, 0.2) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.paper-sheet:not(:last-child) {
+  position: relative;
+}
+
+.paper-sheet:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    #ccc 50%,
+    transparent 100%
+  );
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: #000;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+h2 {
+  font-size: 1.8em;
+  border-bottom: 1px solid #000;
+  padding-bottom: 40px;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+h3 {
+  font-size: 1.4em;
+  margin: 40px 0 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+h4 {
+  font-size: 1.1em;
+  margin: 25px 0 15px;
+  font-style: italic;
+}
+
+p {
+  margin-bottom: 15px;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.arabic {
+  margin: 10px 0;
+}
+
+.arabic p:first-child {
+  font-family: "Traditional Arabic", "Arabic Typesetting", "Amiri", serif;
+  font-size: 1.4em;
+  direction: rtl;
+  text-align: right;
+  margin-bottom: 8px;
+}
+
+.arabic p:last-child {
+  font-style: italic;
+  font-size: 0.95em;
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.center {
+  text-align: center;
+}
+
+.right {
+  text-align: right;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 40px 0;
+}
+
+ol,
+ul {
+  margin-left: 40px;
+  margin-bottom: 20px;
+}
+
+li {
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+ol ol,
+ul ul {
+  margin-top: 12px;
+}
+
+strong {
+  font-weight: 700;
+}
+
+em {
+  font-style: italic;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #000;
+}
+
+td {
+  padding: 20px;
+  border: 1px solid #000;
+  text-align: center;
+  vertical-align: middle;
+  height: 260px;
+}
+
+/* Images */
+.visual-img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 150px;
+  object-fit: contain;
+}
+
+.admin-seal {
+  max-width: 140px;
+  margin: 0 auto 20px;
+}
+
+.admin-seal-cell {
+  max-width: 200px;
+  margin: 0 auto 20px;
+}
+
+.diplomatic-front,
+.diplomatic-back {
+  max-width: 300px;
+}
+
+.national-flag {
+  max-width: 250px;
+}
+
+.army-flag {
+  max-width: 300px;
+}
+
+.protected-sign {
+  max-width: 300px;
+}
+
+.flag-pair {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  max-height: 180px;
+}
+
+.flag-label {
+  font-size: 0.8em;
+  font-style: italic;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.visual-cell {
+  background: radial-gradient(circle at top right, #ffffff 0%, #f1f1f1 100%);
+  box-shadow: inset 0 0 0 1px #e0e0e0;
+}
+
+.end-book {
+  text-align: left;
+  font-style: italic;
+  margin: 10px 0;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.library-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 140px;
+  align-items: baseline;
+  gap: 1rem;
+  margin: 0.25rem 0;
+}
+
+.library-header {
+  font-weight: bold;
+  border-bottom: 1px solid #000;
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.library-row a,
+.library-header span:first-child {
+  justify-self: start;
+  text-align: left;
+}
+
+.library-version {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.library-date {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sort-controls {
+  margin: 1rem 0;
+}
+
+.sort-controls button {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #000;
+  background: #fff;
+  cursor: pointer;
+}
+
+.sort-controls button.active {
+  background: #000;
+  color: #fff;
+}
+.three-column {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+.three-column h3 {
+  text-align: left;
+  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+  margin-top: 1rem;
+}
+
+.three-column ol {
+  padding-left: 1.2rem;
+  margin: 0;
+  font-size: 0.8rem; /* smaller font */
+  line-height: 1.5;
+}
+
+.three-column li {
+  text-align: left; /* ← key fix */
+  white-space: nowrap; /* ← no wrapping */
+}
+
+.three-column a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.three-column a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .paper-sheet {
+    padding: 40px 20px;
+  }
+
+  td {
+    height: auto;
+  }
+}
+@media (max-width: 900px) {
+  .three-column {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .three-column {
+    grid-template-columns: 1fr;
+  }
+
+  .registry {
+    text-align: left;
+    max-width: 420px;
+  }
+}
+
+.registry-list {
+  margin-top: 0rem;
+  margin-bottom: 0rem;
+}
+
+.registry-row {
+  line-height: 1.5;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.registry a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.registry a:hover {
+  text-decoration: underline;
+}
+#jurisdiction-list .registry-row {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.library-context {
+  font-weight: bold;
+  margin-bottom: 1em;
+  display: block; /* ensure visible */
+}
