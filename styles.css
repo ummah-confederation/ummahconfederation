@@ -319,13 +319,15 @@ td {
 }
 @media (max-width: 900px) {
   .three-column {
-    grid-template-columns: repeat(2, 1fr);
+   
+     padding-left: 40 ;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .three-column {
-    grid-template-columns: 1fr;
+    
+     padding-left: 40px;
   }
 
   .registry {
