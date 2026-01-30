@@ -1,42 +1,142 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DAARUSSALAAM — Library</title>
-    <link rel="stylesheet" href="styles.css" />
     <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ['Spectral', 'serif'],
+              arabic: ['Traditional Arabic', 'Arabic Typesetting', 'Amiri', 'serif'],
+            },
+            colors: {
+              paper: '#f5f5f0',
+              ink: '#1a1a1a',
+            },
+            backgroundImage: {
+              'paper-texture': 'linear-gradient(rgba(245, 245, 240, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(245, 245, 240, 0.2) 1px, transparent 1px)',
+            },
+            backgroundSize: {
+              paper: '20px 20px',
+            },
+          },
+        },
+      }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+      /* Base styles */
+      body {
+        font-family: 'Spectral', serif;
+        background-color: #f5f5f0;
+        color: #1a1a1a;
+        line-height: 1.7;
+      }
+      
+      /* Paper texture background */
+      .paper-sheet {
+        background-image: linear-gradient(rgba(245, 245, 240, 0.2) 1px, transparent 1px), 
+                          linear-gradient(90deg, rgba(245, 245, 240, 0.2) 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      
+      /* Library row styling */
+      .library-row a {
+        text-decoration: none;
+        color: inherit;
+      }
+      .library-row a:hover {
+        text-decoration: underline;
+      }
+      
+      /* Sort button active state */
+      .sort-controls button.active {
+        background-color: #000;
+        color: #fff;
+      }
+      
+      /* H2 underline styling */
+      h2 {
+        border-bottom: 1px solid #000;
+        padding-bottom: 2rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      /* Mobile card-style rows */
+      @media (max-width: 639px) {
+        .library-row:not(.library-header) {
+          display: block;
+          border: 1px solid #e5e5e5;
+          border-radius: 0.5rem;
+          padding: 1rem;
+          margin-bottom: 0.75rem;
+          background: #fafafa;
+        }
+        .library-row:not(.library-header) > span,
+        .library-row:not(.library-header) > a {
+          display: block;
+          text-align: left !important;
+          margin-bottom: 0.25rem;
+        }
+        .library-header {
+          display: none;
+        }
+      }
+    </style>
   </head>
 
-  <body>
-    <div class="paper-sheet center">
+  <body class="py-10 px-5">
+    <div class="paper-sheet max-w-4xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 lg:px-20 lg:py-20 mb-16">
       <!-- Administrative Seal -->
       <img
         src="images/admin-seal.png"
         alt="Administrative Seal"
-        class="visual-img admin-seal"
+        class="block mx-auto w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 object-contain mb-5"
       />
 
-      <h2>DAARUSSALAAM</h2>
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-wider uppercase text-center text-black">
+        DAARUSSALAAM
+      </h2>
 
       <!-- Context display -->
-      <div id="library-context" class="library-context">All</div>
+      <div id="library-context" class="font-bold mb-4 block text-center text-lg">All</div>
 
-      <!-- Sort buttons -->
-      <div class="sort-controls">
-        <button data-sort="name">Sort by Title</button>
-        <button data-sort="version">Sort by Version</button>
-        <button data-sort="date">Sort by Date</button>
+      <!-- Sort buttons - stack on mobile, inline on desktop -->
+      <div class="sort-controls flex flex-col sm:flex-row gap-2 sm:gap-4 my-4 justify-center">
+        <button data-sort="name" class="px-3 py-2 border border-black bg-white cursor-pointer min-h-12 hover:bg-gray-100 transition-colors">
+          Sort by Title
+        </button>
+        <button data-sort="version" class="px-3 py-2 border border-black bg-white cursor-pointer min-h-12 hover:bg-gray-100 transition-colors">
+          Sort by Version
+        </button>
+        <button data-sort="date" class="px-3 py-2 border border-black bg-white cursor-pointer min-h-12 hover:bg-gray-100 transition-colors">
+          Sort by Date
+        </button>
       </div>
 
       <!-- Library -->
-      <div id="library">
-        <!-- Header -->
-        <div class="library-row library-header">
+      <div id="library" class="mt-6">
+        <!-- Header - hidden on mobile, shown on sm+ -->
+        <div class="library-row library-header hidden sm:grid sm:grid-cols-[1fr_auto_auto] gap-4 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
           <span>Title</span>
-          <span class="library-version">Version</span>
-          <span class="library-date">Updated Date</span>
+          <span class="text-center font-variant-tabular-nums">Version</span>
+          <span class="text-right whitespace-nowrap">Updated Date</span>
         </div>
+        
         <!-- Document rows will be dynamically populated by js/library-ui.js -->
+        <!-- Mobile: Card-style rows, Tablet/Desktop: Grid layout -->
       </div>
     </div>
 

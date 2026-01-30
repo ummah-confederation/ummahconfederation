@@ -1,40 +1,121 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DAARUSSALAAM — Index</title>
-    <link rel="stylesheet" href="styles.css" />
-      <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ['Spectral', 'serif'],
+              arabic: ['Traditional Arabic', 'Arabic Typesetting', 'Amiri', 'serif'],
+            },
+            colors: {
+              paper: '#f5f5f0',
+              ink: '#1a1a1a',
+            },
+            backgroundImage: {
+              'paper-texture': 'linear-gradient(rgba(245, 245, 240, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(245, 245, 240, 0.2) 1px, transparent 1px)',
+            },
+            backgroundSize: {
+              paper: '20px 20px',
+            },
+          },
+        },
+      }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+      /* Base styles */
+      body {
+        font-family: 'Spectral', serif;
+        background-color: #f5f5f0;
+        color: #1a1a1a;
+        line-height: 1.7;
+      }
+      
+      /* Paper texture background */
+      .paper-sheet {
+        background-image: linear-gradient(rgba(245, 245, 240, 0.2) 1px, transparent 1px), 
+                          linear-gradient(90deg, rgba(245, 245, 240, 0.2) 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      
+      /* Registry link hover effects */
+      .registry a {
+        text-decoration: none;
+        color: inherit;
+      }
+      .registry a:hover {
+        text-decoration: underline;
+      }
+      
+      /* Registry row text handling */
+      .registry-row {
+        white-space: nowrap;
+        text-align: left;
+      }
+      
+      /* H2 underline styling */
+      h2 {
+        border-bottom: 1px solid #000;
+        padding-bottom: 2rem;
+        margin-bottom: 1.5rem;
+      }
+    </style>
   </head>
 
-  <body>
-    <div class="paper-sheet center">
+  <body class="py-10 px-5">
+    <div class="paper-sheet max-w-4xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 lg:px-20 lg:py-20 mb-16">
       <img
         src="images/admin-seal.png"
         alt="Administrative Seal"
-        class="visual-img admin-seal"
+        class="block mx-auto w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 object-contain mb-5"
       />
 
-      <h2>DAARUSSALAAM</h2>
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-wider uppercase text-center text-black">
+        DAARUSSALAAM
+      </h2>
 
-      <div class="three-column">
+      <!-- Registry Layout: Always one column, three rows on ALL devices -->
+      <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 mt-10">
+        <!-- ITEMS -->
         <div class="registry">
-          <h3>ITEMS</h3>
-          <div class="registry-list" id="item-list">
+          <h3 class="text-xl sm:text-2xl lg:text-3xl font-medium tracking-wide uppercase text-left mb-4 mt-4 text-black">
+            ITEMS
+          </h3>
+          <div class="registry-list text-sm sm:text-base" id="item-list">
             <!-- Dynamically populated by js/registry.js -->
           </div>
         </div>
 
+        <!-- INSTITUTIONS -->
         <div class="registry">
-          <h3>INSTITUTIONS</h3>
-          <div class="registry-list" id="institution-list">
+          <h3 class="text-xl sm:text-2xl lg:text-3xl font-medium tracking-wide uppercase text-left mb-4 mt-4 text-black">
+            INSTITUTIONS
+          </h3>
+          <div class="registry-list text-sm sm:text-base" id="institution-list">
             <!-- Dynamically populated by js/registry.js -->
           </div>
         </div>
 
+        <!-- JURISDICTIONS -->
         <div class="registry">
-          <h3>JURISDICTIONS</h3>
-          <div class="registry-list" id="jurisdiction-list">
+          <h3 class="text-xl sm:text-2xl lg:text-3xl font-medium tracking-wide uppercase text-left mb-4 mt-4 text-black">
+            JURISDICTIONS
+          </h3>
+          <div class="registry-list text-sm sm:text-base overflow-hidden" id="jurisdiction-list">
             <!-- Dynamically populated by js/registry.js -->
           </div>
         </div>
