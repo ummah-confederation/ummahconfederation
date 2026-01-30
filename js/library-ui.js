@@ -27,9 +27,11 @@ function createLibraryRow(doc) {
 
   // Title cell with link
   const titleCell = document.createElement('span');
+  titleCell.className = 'overflow-hidden text-ellipsis whitespace-nowrap';
   const link = document.createElement('a');
   link.href = doc.filename;
   link.textContent = doc.title;
+  link.className = 'block overflow-hidden text-ellipsis whitespace-nowrap';
   titleCell.appendChild(link);
 
   // Version cell
@@ -71,7 +73,7 @@ function renderLibraryTable(documents) {
     const headerRow = document.createElement('div');
     headerRow.className = 'library-row library-header hidden sm:grid sm:grid-cols-[1fr_120px_140px] gap-4 items-baseline text-left font-bold border-b border-black pb-1 mb-3';
     headerRow.innerHTML = `
-      <span>Title</span>
+      <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
       <span class="text-center tabular-nums">Version</span>
       <span class="text-right whitespace-nowrap">Updated Date</span>
     `;
