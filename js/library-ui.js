@@ -17,7 +17,7 @@ let currentDocuments = [];
  */
 function createLibraryRow(doc) {
   const row = document.createElement('div');
-  row.className = 'library-row';
+  row.className = 'library-row sm:grid sm:grid-cols-[1fr_auto_auto] gap-4 items-baseline border-b border-gray-200 py-2';
   row.dataset.name = doc.title;
   row.dataset.version = doc.version;
   row.dataset.date = doc.date;
@@ -34,12 +34,12 @@ function createLibraryRow(doc) {
 
   // Version cell
   const versionCell = document.createElement('span');
-  versionCell.className = 'library-version';
+  versionCell.className = 'library-version text-center tabular-nums';
   versionCell.textContent = doc.version;
 
   // Date cell
   const dateCell = document.createElement('span');
-  dateCell.className = 'library-date';
+  dateCell.className = 'library-date text-right whitespace-nowrap';
   dateCell.textContent = doc.dateFormatted;
 
   row.appendChild(titleCell);
@@ -69,11 +69,11 @@ function renderLibraryTable(documents) {
   } else {
     // Create header if not present
     const headerRow = document.createElement('div');
-    headerRow.className = 'library-row library-header';
+    headerRow.className = 'library-row library-header hidden sm:grid sm:grid-cols-[1fr_auto_auto] gap-4 items-baseline text-left font-bold border-b border-black pb-1 mb-3';
     headerRow.innerHTML = `
       <span>Title</span>
-      <span class="library-version">Version</span>
-      <span class="library-date">Updated Date</span>
+      <span class="text-center tabular-nums">Version</span>
+      <span class="text-right whitespace-nowrap">Updated Date</span>
     `;
     container.appendChild(headerRow);
   }
