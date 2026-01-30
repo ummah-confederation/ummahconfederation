@@ -35,7 +35,7 @@ function createLibraryRow(doc) {
   // Version cell
   const versionCell = document.createElement('span');
   versionCell.className = 'library-version text-center tabular-nums';
-  versionCell.textContent = doc.version;
+  versionCell.innerHTML = `<span class="sm:hidden text-base">Version </span>${doc.version}`;
 
   // Date cell
   const dateCell = document.createElement('span');
