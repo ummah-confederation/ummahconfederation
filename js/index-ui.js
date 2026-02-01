@@ -204,12 +204,11 @@ async function renderAccountGallery(institutions, documents) {
     const coverImageUrl = coverUrl || './images/default-cover.jpg';
     const avatarImageUrl = avatarUrl || './images/default-avatar.jpg';
 
- // Replace in renderAccountGallery:
-link.innerHTML = `
-<div
-  class="id-card-cover"
-  style="background-image: linear-gradient(to top, #e0e0e0 0%, #ffffff 100%), url('${coverImageUrl}'); background-size: cover; background-position: center;"
->
+    link.innerHTML = `
+      <div
+        class="id-card-cover"
+        style="background-image: url('${coverImageUrl}'); background-size: cover; background-position: center;"
+      >
         <div class="id-card-avatar">
           <img src="${avatarImageUrl}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
         </div>
@@ -258,12 +257,11 @@ async function renderSpaceGallery(jurisdictions, documents) {
     const coverImageUrl = coverUrl || './images/default-cover.jpg';
     const avatarImageUrl = avatarUrl || './images/default-avatar.jpg';
 
-// Replace in renderSpaceGallery:
-link.innerHTML = `
-<div
-  class="id-card-cover"
-  style="background-image: linear-gradient(to top, #e0e0e0 0%, #ffffff 100%), url('${coverImageUrl}'); background-size: cover; background-position: center;"
->
+    link.innerHTML = `
+      <div
+        class="id-card-cover"
+        style="background-image: url('${coverImageUrl}'); background-size: cover; background-position: center;"
+      >
         <div class="id-card-avatar">
           <img src="${avatarImageUrl}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
         </div>
