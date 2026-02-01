@@ -6,6 +6,7 @@
 let configCache = null;
 let institutionConfigCache = null;
 let jurisdictionConfigCache = null;
+let squircleIconsConfigCache = null;
 
 /**
  * Load the documents configuration from JSON file
@@ -141,10 +142,46 @@ export async function getJurisdictions() {
 }
 
 /**
+ * Load the squircle icons configuration from JSON file
+ * @returns {Promise<Object>} The squircle icons configuration object
+ */
+export async function loadSquircleIconsConfig() {
+  if (squircleIconsConfigCache) {
+    return squircleIconsConfigCache;
+  }
+
+  try {
+    const response = await fetch('squircle-icons-config.json');
+    if (!response.ok) {
+      throw new Error(`Failed to load squircle icons config: ${response.status} ${response.statusText}`);
+    }
+
+    const config = await response.json();
+    squircleIconsConfigCache = config;
+    return config;
+  } catch (error) {
+    console.error('Error loading squircle icons config:', error);
+    // Return empty config on error to prevent breaking the UI
+    return { icons: {} };
+  }
+}
+
+/**
+ * Get squircle icon metadata by item name
+ * @param {string} itemName - The item name (e.g., "Book", "Policy", "Decision")
+ * @returns {Promise<Object|null>} The icon metadata or null if not found
+ */
+export async function getSquircleIconMetadata(itemName) {
+  const config = await loadSquircleIconsConfig();
+  return config.icons?.[itemName] || null;
+}
+
+/**
  * Clear the config cache (useful for testing or hot-reload)
  */
 export function clearConfigCache() {
   configCache = null;
   institutionConfigCache = null;
   jurisdictionConfigCache = null;
+  squircleIconsConfigCache = null;
 }

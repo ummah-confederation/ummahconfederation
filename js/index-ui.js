@@ -3,7 +3,7 @@
  * Handles mode switching, tab navigation, and UI Mode gallery rendering
  */
 
-import { getItems, getInstitutions, getJurisdictions, getDocuments, getInstitutionMetadata, getJurisdictionMetadata } from './config.js';
+import { getItems, getInstitutions, getJurisdictions, getDocuments, getInstitutionMetadata, getJurisdictionMetadata, getSquircleIconMetadata } from './config.js';
 import { buildFilterUrl } from './utils.js';
 
 // State
@@ -120,7 +120,7 @@ async function loadUIGalleries() {
       getDocuments()
     ]);
 
-    renderContentGallery(items);
+    await renderContentGallery(items);
     await renderAccountGallery(institutions, documents);
     await renderSpaceGallery(jurisdictions, documents);
   } catch (error) {
@@ -131,30 +131,37 @@ async function loadUIGalleries() {
 /**
  * Render Content tab gallery with squircle items
  */
-function renderContentGallery(items) {
+async function renderContentGallery(items) {
   const gallery = document.getElementById('content-gallery');
   if (!gallery) return;
 
   gallery.innerHTML = '';
 
-  items.forEach(item => {
+  for (const item of items) {
     const link = document.createElement('a');
     link.href = buildFilterUrl('item', item);
     link.className = 'squircle-item';
 
+    // Get icon metadata from config
+    const iconMetadata = await getSquircleIconMetadata(item);
+    const iconSrc = iconMetadata?.src || null;
+    const iconAlt = iconMetadata?.alt || item;
+    const iconFallback = iconMetadata?.fallback || `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-blue-400"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>`;
+
+    // Build icon HTML - use img if src exists, otherwise use fallback SVG
+    const iconHtml = iconSrc
+      ? `<img src="${iconSrc}" alt="${iconAlt}" class="w-8 h-8 object-contain" onerror="this.outerHTML='${iconFallback.replace(/"/g, '&quot;')}'">`
+      : iconFallback;
+
     link.innerHTML = `
       <div class="squircle">
-        <!-- EDIT SQUIRCLE ICON: Replace the SVG below with an <img> tag for custom icons -->
-        <!-- Example: <img src="images/items/${item.toLowerCase()}.png" alt="${item}"> -->
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-blue-400">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-        </svg>
+        ${iconHtml}
       </div>
       <span class="squircle-label">${item}</span>
     `;
 
     gallery.appendChild(link);
-  });
+  }
 }
 
 /**
