@@ -8,7 +8,7 @@
     },
     "General Public [Community]": {
       "avatar": "./images/jurisdictions/general-public.png",
-      "cover": "./images/covers/general-public.jpg"
+      "cover": "./images/covers/general-public.png"
     },
     "Ummah Governance Members [Memberhood]": {
       "avatar": "./images/jurisdictions/governance-members.png",
@@ -20,7 +20,7 @@
     },
     "Fathan's Space  [Personal Space]": {
       "avatar": "./images/jurisdictions/fathan-husna.jpg",
-      "cover": "./images/covers/fathan-husna.jpg"
+      "cover": "./images/covers/fathan-husna.png"
     }
   }
 }

@@ -166,7 +166,7 @@ async function renderContentGallery(items) {
 
 /**
  * Extract label and display name from institution name with square brackets
- * e.g., "Ummah Cabinet [Government]" -> { displayName: "Ummah Cabinet", label: "Government" }
+ * e.g., "Ummah Cabinet [Institution]" -> { displayName: "Ummah Cabinet", label: "Government" }
  */
 function parseInstitution(institution) {
   const bracketMatch = institution.match(/\[(.*?)\]/);
