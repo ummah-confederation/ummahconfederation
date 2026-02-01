@@ -198,7 +198,14 @@ async function renderAccountGallery(institutions, documents) {
     const avatarImageUrl = avatarUrl || './images/default-avatar.jpg';
 
     link.innerHTML = `
-      <div class="id-card-cover" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) center/cover, url('${coverImageUrl}') center/cover;">
+<div
+  class="id-card-cover"
+  style="
+    background:
+      linear-gradient(to top, #e0e0e0 0%, #ffffff 100%),
+      url('${coverImageUrl}') center/cover;
+  "
+>
         <div class="id-card-avatar">
           <img src="${avatarImageUrl}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
         </div>
@@ -248,7 +255,14 @@ async function renderSpaceGallery(jurisdictions, documents) {
     const avatarImageUrl = avatarUrl || './images/default-avatar.jpg';
 
     link.innerHTML = `
-      <div class="id-card-cover" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) center/cover, url('${coverImageUrl}') center/cover;">
+<div
+  class="id-card-cover"
+  style="
+    background:
+      linear-gradient(to top, #e0e0e0 0%, #ffffff 100%),
+      url('${coverImageUrl}') center/cover;
+  "
+>
         <div class="id-card-avatar">
           <img src="${avatarImageUrl}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
         </div>
