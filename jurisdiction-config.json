@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-01",
+  "jurisdictions": {
+    "Ummah Cabinet Members [Profession]": {
+      "avatar": "images/jurisdictions/cabinet-members.png",
+      "cover": "images/covers/cabinet-members.jpg"
+    },
+    "General Public [Community]": {
+      "avatar": "images/jurisdictions/general-public.png",
+      "cover": "images/covers/general-public.jpg"
+    },
+    "Ummah Governance Members [Profession]": {
+      "avatar": "images/jurisdictions/governance-members.png",
+      "cover": "images/covers/governance-members.jpg"
+    },
+    "Ummah Federal Government Members [Profession]": {
+      "avatar": "images/jurisdictions/federal-members.png",
+      "cover": "images/covers/federal-members.jpg"
+    },
+    "Fathan's Space  [iSpace]": {
+      "avatar": "images/jurisdictions/fathan-husna.jpg",
+      "cover": "images/covers/fathan-husna.jpg"
+    }
+  }
+}

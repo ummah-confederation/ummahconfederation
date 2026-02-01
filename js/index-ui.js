@@ -3,7 +3,7 @@
  * Handles mode switching, tab navigation, and UI Mode gallery rendering
  */
 
-import { getItems, getInstitutions, getJurisdictions, getDocuments } from './config.js';
+import { getItems, getInstitutions, getJurisdictions, getDocuments, getInstitutionMetadata, getJurisdictionMetadata } from './config.js';
 import { buildFilterUrl } from './utils.js';
 
 // State
@@ -57,11 +57,22 @@ function toggleMode() {
 function initTabs() {
   const tabButtons = document.querySelectorAll('.tab-btn');
   tabButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const tab = btn.dataset.tab;
       currentTab = tab;
       showTab(tab);
       updateTabButtons(tab);
+      
+      // Load gallery data when switching to Account or Space tabs
+      if (tab === 'account') {
+        const institutions = await getInstitutions();
+        const documents = await getDocuments();
+        await renderAccountGallery(institutions, documents);
+      } else if (tab === 'space') {
+        const jurisdictions = await getJurisdictions();
+        const documents = await getDocuments();
+        await renderSpaceGallery(jurisdictions, documents);
+      }
     });
   });
 }
@@ -110,8 +121,8 @@ async function loadUIGalleries() {
     ]);
 
     renderContentGallery(items);
-    renderAccountGallery(institutions, documents);
-    renderSpaceGallery(jurisdictions, documents);
+    await renderAccountGallery(institutions, documents);
+    await renderSpaceGallery(jurisdictions, documents);
   } catch (error) {
     console.error('Failed to load UI galleries:', error);
   }
@@ -160,31 +171,36 @@ function parseInstitution(institution) {
 /**
  * Render Account tab gallery with ID cards
  */
-function renderAccountGallery(institutions, documents) {
+async function renderAccountGallery(institutions, documents) {
   const gallery = document.getElementById('account-gallery');
   if (!gallery) return;
 
   gallery.innerHTML = '';
 
-  institutions.forEach(institution => {
+  for (const institution of institutions) {
     // Count documents for this institution
     const docCount = documents.filter(doc => doc.institution === institution).length;
 
     // Parse institution name to get display name and label
     const { displayName, label } = parseInstitution(institution);
 
+    // Get institution metadata for avatar and cover images
+    const metadata = await getInstitutionMetadata(institution);
+    const avatarUrl = metadata?.avatar || null;
+    const coverUrl = metadata?.cover || null;
+
     const link = document.createElement('a');
     link.href = buildFilterUrl('institution', institution);
     link.className = 'id-card';
 
+    // Use proper relative paths for fallback images
+    const coverImageUrl = coverUrl || './images/default-cover.jpg';
+    const avatarImageUrl = avatarUrl || './images/default-avatar.jpg';
+
     link.innerHTML = `
-      <div class="id-card-cover">
+      <div class="id-card-cover" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) center/cover, url('${coverImageUrl}') center/cover;">
         <div class="id-card-avatar">
-          <!-- EDIT AVATAR: Replace the SVG below with an <img> tag pointing to your avatar image -->
-          <!-- Example: <img src="images/institutions/${displayName.toLowerCase().replace(/\s+/g, '-')}.png" alt="${displayName}"> -->
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-400">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-          </svg>
+          <img src="${avatarImageUrl}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
         </div>
       </div>
       <div class="id-card-content">
@@ -195,19 +211,19 @@ function renderAccountGallery(institutions, documents) {
     `;
 
     gallery.appendChild(link);
-  });
+  }
 }
 
 /**
  * Render Space tab gallery with ID cards
  */
-function renderSpaceGallery(jurisdictions, documents) {
+async function renderSpaceGallery(jurisdictions, documents) {
   const gallery = document.getElementById('space-gallery');
   if (!gallery) return;
 
   gallery.innerHTML = '';
 
-  jurisdictions.forEach(jurisdiction => {
+  for (const jurisdiction of jurisdictions) {
     // Extract label from square brackets if present
     const bracketMatch = jurisdiction.match(/\[(.*?)\]/);
     const label = bracketMatch ? bracketMatch[1] : 'Community';
@@ -218,20 +234,23 @@ function renderSpaceGallery(jurisdictions, documents) {
     const uniqueInstitutions = new Set(docsInJurisdiction.map(doc => doc.institution));
     const contributorCount = uniqueInstitutions.size;
 
+    // Get jurisdiction metadata for avatar and cover images
+    const metadata = await getJurisdictionMetadata(jurisdiction);
+    const avatarUrl = metadata?.avatar || null;
+    const coverUrl = metadata?.cover || null;
+
     const link = document.createElement('a');
     link.href = buildFilterUrl('jurisdiction', jurisdiction);
     link.className = 'id-card';
 
+    // Use proper relative paths for fallback images
+    const coverImageUrl = coverUrl || './images/default-cover.jpg';
+    const avatarImageUrl = avatarUrl || './images/default-avatar.jpg';
+
     link.innerHTML = `
-      <!-- EDIT COVER: Change the gradient colors or replace with an image -->
-      <!-- Example with image: <div class="id-card-cover" style="background-image: url('images/covers/${displayName.toLowerCase().replace(/\s+/g, '-')}.jpg'); background-size: cover;"> -->
-      <div class="id-card-cover" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+      <div class="id-card-cover" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) center/cover, url('${coverImageUrl}') center/cover;">
         <div class="id-card-avatar">
-          <!-- EDIT AVATAR: Replace the SVG below with an <img> tag pointing to your avatar image -->
-          <!-- Example: <img src="images/jurisdictions/${displayName.toLowerCase().replace(/\s+/g, '-')}.png" alt="${displayName}"> -->
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-400">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-          </svg>
+          <img src="${avatarImageUrl}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
         </div>
       </div>
       <div class="id-card-content">
@@ -242,5 +261,5 @@ function renderSpaceGallery(jurisdictions, documents) {
     `;
 
     gallery.appendChild(link);
-  });
+  }
 }

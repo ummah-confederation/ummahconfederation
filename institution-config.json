@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-01",
+  "institutions": {
+    "Ummah Cabinet [Government]": {
+      "avatar": "images/institutions/ummah-cabinet.png",
+      "cover": "images/covers/ummah-cabinet.jpg"
+    },
+    "Ummah Governance [Government]": {
+      "avatar": "images/institutions/ummah-governance.jpg",
+      "cover": "images/covers/ummah-governance.jpg"
+    },
+    "Ummah Federal Government [Government]": {
+      "avatar": "images/institutions/ummah-federal.png",
+      "cover": "images/covers/ummah-federal.jpg"
+    },
+    "Ummah Personal Counselor [Service]": {
+      "avatar": "images/institutions/ummah-counselor.png",
+      "cover": "images/covers/ummah-counselor.jpg"
+    }
+  }
+}
