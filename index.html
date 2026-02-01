@@ -44,14 +44,14 @@
         color: #1a1a1a;
         line-height: 1.7;
       }
-      
+
       /* Paper texture background */
       .paper-sheet {
-        background-image: linear-gradient(rgba(245, 245, 240, 0.2) 1px, transparent 1px), 
+        background-image: linear-gradient(rgba(245, 245, 240, 0.2) 1px, transparent 1px),
                           linear-gradient(90deg, rgba(245, 245, 240, 0.2) 1px, transparent 1px);
         background-size: 20px 20px;
       }
-      
+
       /* Registry link hover effects */
       .registry a {
         text-decoration: none;
@@ -60,24 +60,207 @@
       .registry a:hover {
         text-decoration: underline;
       }
-      
+
       /* Registry row text handling */
       .registry-row {
         white-space: nowrap;
         text-align: left;
       }
-      
+
       /* H2 underline styling */
       h2 {
         border-bottom: 1px solid #000;
         padding-bottom: 2rem;
         margin-bottom: 1.5rem;
       }
+
+      /* UI Mode Styles */
+      /* Content Gallery - iOS Squircle Grid */
+      .content-gallery {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        padding: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .content-gallery {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .content-gallery {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.75rem;
+        }
+      }
+
+      .squircle-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease;
+      }
+
+      .squircle-item:hover {
+        transform: scale(1.05);
+      }
+
+      .squircle {
+        width: 100%;
+        aspect-ratio: 1;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-radius: 22%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+      }
+
+      .squircle img {
+        width: 50%;
+        height: 50%;
+        object-fit: contain;
+        opacity: 0.6;
+      }
+
+      /* EDIT SQUIRCLE TEXT: Adjust this to change item name size */
+      .squircle-label {
+        margin-top: 0.5rem;
+        font-size: 0.75rem;  /* EDIT: Item name size under squircle */
+        color: #3b82f6;
+        text-align: center;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+
+      /* Card Gallery - Account/Space Cards */
+      .card-gallery {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+        padding: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .card-gallery {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .card-gallery {
+          grid-template-columns: repeat(1, 1fr);
+          gap: 1rem;
+        }
+      }
+
+      .id-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+      }
+
+      .id-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      }
+
+      .id-card-cover {
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+      }
+
+      .id-card-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: white;
+        position: absolute;
+        bottom: -32px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+
+      .id-card-avatar img {
+        width: 80%;
+        height: 80%;
+        object-fit: contain;
+        opacity: 0.5;
+      }
+
+      .id-card-content {
+        padding: 2.5rem 1rem 1rem;
+        text-align: center;
+      }
+
+      /* EDIT TEXT SIZES: Adjust these values to change card text sizes */
+      .id-card-name {
+        font-weight: 600;
+        font-size: 0.95rem;  /* EDIT: Institution/Jurisdiction name size */
+        color: #111827;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .id-card-label {
+        font-size: 0.8rem;  /* EDIT: Label text size */
+        color: #6b7280;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .id-card-count {
+        font-size: 0.75rem;  /* EDIT: Count text size */
+        color: #9ca3af;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Tab Button Styles */
+      .tab-btn.active {
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        color: #111827;
+      }
     </style>
   </head>
 
   <body class="py-10 px-5">
-    <div class="paper-sheet max-w-4xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 lg:px-20 lg:py-20 mb-16">
+    <!-- Mode Switcher -->
+    <div class="max-w-4xl mx-auto mb-4 flex justify-end">
+      <button id="mode-switcher" class="px-4 py-2 bg-white shadow-md rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors border border-gray-200">
+        Switch to UI Mode
+      </button>
+    </div>
+
+    <div class="paper-sheet max-w-4xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 lg:px-20 lg:py-20 mb-16" id="main-container">
       <img
         src="images/admin-seal.png"
         alt="Administrative Seal"
@@ -88,8 +271,8 @@
         DAARUSSALAAM
       </h2>
 
-      <!-- Registry Layout: Always one column, three rows on ALL devices -->
-      <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 mt-6">
+      <!-- Lite Mode: Registry Layout -->
+      <div id="lite-mode" class="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 mt-6">
         <!-- ITEMS -->
         <div class="registry">
           <h3 class="text-xl sm:text-2xl lg:text-3xl font-medium tracking-wide uppercase text-left mb-4 mt-4 text-black">
@@ -117,6 +300,48 @@
           </h3>
           <div class="registry-list text-base sm:text-lg overflow-hidden" id="jurisdiction-list">
             <!-- Dynamically populated by js/registry.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- UI Mode: Tabbed Interface -->
+      <div id="ui-mode" class="hidden">
+        <!-- Tab Navigation -->
+        <div class="flex justify-center mb-8 mt-6">
+          <div class="inline-flex bg-gray-100 rounded-lg p-1">
+            <button class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all bg-white shadow-sm text-gray-900" data-tab="content">
+              Content
+            </button>
+            <button class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all text-gray-600 hover:text-gray-900" data-tab="account">
+              Account
+            </button>
+            <button class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all text-gray-600 hover:text-gray-900" data-tab="space">
+              Space
+            </button>
+          </div>
+        </div>
+
+        <!-- Content Tab -->
+        <div id="content-tab" class="tab-content">
+          <h3 class="text-2xl font-semibold text-gray-900 mb-6">All Content</h3>
+          <div id="content-gallery" class="content-gallery">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Account Tab -->
+        <div id="account-tab" class="tab-content hidden">
+          <h3 class="text-2xl font-semibold text-gray-900 mb-6">All Accounts</h3>
+          <div id="account-gallery" class="card-gallery">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Space Tab -->
+        <div id="space-tab" class="tab-content hidden">
+          <h3 class="text-2xl font-semibold text-gray-900 mb-6">All Spaces</h3>
+          <div id="space-gallery" class="card-gallery">
+            <!-- Dynamically populated -->
           </div>
         </div>
       </div>
