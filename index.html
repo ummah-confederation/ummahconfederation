@@ -78,21 +78,21 @@
       /* Content Gallery - iOS Squircle Grid */
       .content-gallery {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         gap: 1.5rem;
         padding: 0.5rem;
       }
 
       @media (max-width: 768px) {
         .content-gallery {
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(4, 1fr);
           gap: 1rem;
         }
       }
 
       @media (max-width: 480px) {
         .content-gallery {
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(4, 1fr);
           gap: 0.75rem;
         }
       }
@@ -129,24 +129,19 @@
         opacity: 0.6;
       }
 
-      /* EDIT SQUIRCLE TEXT: Adjust this to change item name size */
       .squircle-label {
         margin-top: 0.5rem;
-        font-size: 0.75rem;  /* EDIT: Item name size under squircle */
+        font-size: 1rem;
         color: #3b82f6;
         text-align: center;
         font-weight: 500;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
       }
 
       /* Card Gallery - Account/Space Cards */
       .card-gallery {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1.25rem;
+        gap: 1.5rem;
         padding: 0.5rem;
       }
 
@@ -159,8 +154,8 @@
 
       @media (max-width: 480px) {
         .card-gallery {
-          grid-template-columns: repeat(1, 1fr);
-          gap: 1rem;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.75rem;
         }
       }
 
@@ -218,16 +213,16 @@
       /* EDIT TEXT SIZES: Adjust these values to change card text sizes */
       .id-card-name {
         font-weight: 600;
-        font-size: 0.95rem;  /* EDIT: Institution/Jurisdiction name size */
+        font-size: 1rem;  /* EDIT: Institution/Jurisdiction name size */
         color: #111827;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.3rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
       .id-card-label {
-        font-size: 0.8rem;  /* EDIT: Label text size */
+        font-size: 1rem;  /* EDIT: Label text size */
         color: #6b7280;
         margin-bottom: 0.25rem;
         white-space: nowrap;
@@ -236,8 +231,8 @@
       }
 
       .id-card-count {
-        font-size: 0.75rem;  /* EDIT: Count text size */
-        color: #9ca3af;
+        font-size: 1rem;  /* EDIT: Count text size */
+        color: #6b7280;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -350,3 +345,4 @@
     <script type="module" src="js/index-main.js"></script>
   </body>
 </html>
+
