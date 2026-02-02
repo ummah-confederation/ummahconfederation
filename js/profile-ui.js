@@ -756,7 +756,7 @@ function renderFilterPills() {
  */
 function getTypeIcon(type) {
   const icons = {
-    all: '◈',
+    all: '📂',
     book: '📚',
     policy: '📋',
     decision: '⚖️'
