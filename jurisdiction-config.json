@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "lastUpdated": "2026-02-01",
   "jurisdictions": {
-    "Ummah Cabinet Members [Memberhood]": {
+    "Ummah Cabinet's Space [Team Space]": {
       "avatar": "./images/jurisdictions/cabinet-members.png",
       "cover": "./images/covers/cabinet-members.jpg"
     },
@@ -10,11 +10,11 @@
       "avatar": "./images/jurisdictions/general-public.png",
       "cover": "./images/covers/general-public.png"
     },
-    "Ummah Governance Members [Memberhood]": {
+    "Ummah Governance's Space [Team Space]": {
       "avatar": "./images/jurisdictions/governance-members.png",
       "cover": "./images/covers/governance-members.jpg"
     },
-    "Ummah Federal Government Members [Memberhood]": {
+    "Ummah Federal Government's Space [Team Space]": {
       "avatar": "./images/jurisdictions/federal-members.png",
       "cover": "./images/covers/federal-members.jpg"
     },
