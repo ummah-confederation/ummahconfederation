@@ -1,14 +1,17 @@
 /**
  * Index Page UI Mode Module
  * Handles mode switching, tab navigation, and UI Mode gallery rendering
+ * Optimized to reduce network requests through batching and caching
  */
 
-import { getItems, getInstitutions, getJurisdictions, getDocuments, getInstitutionMetadata, getJurisdictionMetadata, getSquircleIconMetadata } from './config.js';
+import { getItems, getInstitutions, getJurisdictions, getDocuments, getInstitutionMetadata, getJurisdictionMetadata, getSquircleIconMetadata, preloadAllConfigs } from './config.js';
 import { buildFilterUrl } from './utils.js';
 
 // State
 let isUIMode = false;
 let currentTab = 'content';
+let preloadedData = null;
+let galleriesLoaded = false;
 
 /**
  * Initialize the UI mode functionality
@@ -22,8 +25,21 @@ export function initUIMode() {
   // Initialize tab buttons
   initTabs();
 
-  // Load initial data for UI mode
-  loadUIGalleries();
+  // Preload all data on initial load to reduce subsequent requests
+  preloadData();
+}
+
+/**
+ * Preload all configuration data
+ */
+async function preloadData() {
+  try {
+    preloadedData = await preloadAllConfigs();
+    // Load galleries once data is preloaded
+    await loadUIGalleries();
+  } catch (error) {
+    console.error('Failed to preload data:', error);
+  }
 }
 
 /**
@@ -41,8 +57,14 @@ function toggleMode() {
     liteMode.classList.add('hidden');
     uiMode.classList.remove('hidden');
 
-    // Show current tab
+    // Show current tab and ensure galleries are loaded
     showTab(currentTab);
+    updateTabButtons(currentTab);
+    
+    // Load galleries if not already loaded
+    if (!galleriesLoaded) {
+      loadUIGalleries();
+    }
   } else {
     // Switch to Lite Mode
     modeSwitcher.textContent = 'Switch to UI Mode';
@@ -64,14 +86,28 @@ function initTabs() {
       updateTabButtons(tab);
       
       // Load gallery data when switching to Account or Space tabs
+      // Use preloaded data if available
       if (tab === 'account') {
-        const institutions = await getInstitutions();
-        const documents = await getDocuments();
+        const institutions = preloadedData ? 
+          [...new Set(preloadedData.documents.documents.filter(doc => doc.visible !== false).map(doc => doc.institution))].sort() : 
+          await getInstitutions();
+        const documents = preloadedData ? 
+          preloadedData.documents.documents.filter(doc => doc.visible !== false) : 
+          await getDocuments();
         await renderAccountGallery(institutions, documents);
       } else if (tab === 'space') {
-        const jurisdictions = await getJurisdictions();
-        const documents = await getDocuments();
+        const jurisdictions = preloadedData ? 
+          [...new Set(preloadedData.documents.documents.filter(doc => doc.visible !== false).map(doc => doc.jurisdiction))].sort() : 
+          await getJurisdictions();
+        const documents = preloadedData ? 
+          preloadedData.documents.documents.filter(doc => doc.visible !== false) : 
+          await getDocuments();
         await renderSpaceGallery(jurisdictions, documents);
+      } else if (tab === 'content') {
+        const items = preloadedData ? 
+          [...new Set(preloadedData.documents.documents.filter(doc => doc.visible !== false).map(doc => doc.item))].sort() : 
+          await getItems();
+        await renderContentGallery(items);
       }
     });
   });
@@ -113,16 +149,25 @@ function updateTabButtons(activeTab) {
  */
 async function loadUIGalleries() {
   try {
-    const [items, institutions, jurisdictions, documents] = await Promise.all([
-      getItems(),
-      getInstitutions(),
-      getJurisdictions(),
-      getDocuments()
-    ]);
+    // Use preloaded data if available
+    const items = preloadedData ? 
+      [...new Set(preloadedData.documents.documents.filter(doc => doc.visible !== false).map(doc => doc.item))].sort() : 
+      await getItems();
+    const institutions = preloadedData ? 
+      [...new Set(preloadedData.documents.documents.filter(doc => doc.visible !== false).map(doc => doc.institution))].sort() : 
+      await getInstitutions();
+    const jurisdictions = preloadedData ? 
+      [...new Set(preloadedData.documents.documents.filter(doc => doc.visible !== false).map(doc => doc.jurisdiction))].sort() : 
+      await getJurisdictions();
+    const documents = preloadedData ? 
+      preloadedData.documents.documents.filter(doc => doc.visible !== false) : 
+      await getDocuments();
 
     await renderContentGallery(items);
     await renderAccountGallery(institutions, documents);
     await renderSpaceGallery(jurisdictions, documents);
+    
+    galleriesLoaded = true;
   } catch (error) {
     console.error('Failed to load UI galleries:', error);
   }
@@ -153,20 +198,25 @@ async function renderContentGallery(items) {
 
   gallery.appendChild(allLink);
 
+  // Batch fetch all icon metadata at once to reduce requests
+  const iconMetadataMap = preloadedData?.squircleIcons?.icons || {};
+
   for (const item of items) {
     const link = document.createElement('a');
     link.href = buildFilterUrl('item', item);
     link.className = 'squircle-item';
 
-    // Get icon metadata from config
-    const iconMetadata = await getSquircleIconMetadata(item);
+    // Get icon metadata from preloaded data or cache
+    const iconMetadata = iconMetadataMap[item] || null;
     const iconSrc = iconMetadata?.src || null;
     const iconAlt = iconMetadata?.alt || item;
     const iconFallback = iconMetadata?.fallback || `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-blue-400"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>`;
 
     // Build icon HTML - use img if src exists, otherwise use fallback SVG
-    const iconHtml = iconSrc
-      ? `<img src="${iconSrc}" alt="${iconAlt}" class="w-8 h-8 object-contain" onerror="this.outerHTML='${iconFallback.replace(/"/g, '&quot;')}'">`
+    // Ensure proper path resolution for icons (add ./ prefix if missing)
+    const resolvedIconSrc = iconSrc ? (iconSrc.startsWith('./') || iconSrc.startsWith('/') ? iconSrc : `./${iconSrc}`) : null;
+    const iconHtml = resolvedIconSrc
+      ? `<img src="${resolvedIconSrc}" alt="${iconAlt}" class="w-8 h-8 object-contain" onerror="this.outerHTML='${iconFallback.replace(/"/g, '&quot;')}'">`
       : iconFallback;
 
     link.innerHTML = `
@@ -200,6 +250,9 @@ async function renderAccountGallery(institutions, documents) {
 
   gallery.innerHTML = '';
 
+  // Get all metadata from preloaded data
+  const institutionMeta = preloadedData?.institutions?.institutions || {};
+
   for (const institution of institutions) {
     // Count documents for this institution
     const docCount = documents.filter(doc => doc.institution === institution).length;
@@ -207,8 +260,8 @@ async function renderAccountGallery(institutions, documents) {
     // Parse institution name to get display name and label
     const { displayName, label } = parseInstitution(institution);
 
-    // Get institution metadata for avatar and cover images
-    const metadata = await getInstitutionMetadata(institution);
+    // Get institution metadata from preloaded data
+    const metadata = institutionMeta[institution] || null;
     const avatarUrl = metadata?.avatar || null;
     const coverUrl = metadata?.cover || null;
 
@@ -249,6 +302,9 @@ async function renderSpaceGallery(jurisdictions, documents) {
 
   gallery.innerHTML = '';
 
+  // Get all metadata from preloaded data
+  const jurisdictionMeta = preloadedData?.jurisdictions?.jurisdictions || {};
+
   for (const jurisdiction of jurisdictions) {
     // Extract label from square brackets if present
     const bracketMatch = jurisdiction.match(/\[(.*?)\]/);
@@ -260,8 +316,8 @@ async function renderSpaceGallery(jurisdictions, documents) {
     const uniqueInstitutions = new Set(docsInJurisdiction.map(doc => doc.institution));
     const contributorCount = uniqueInstitutions.size;
 
-    // Get jurisdiction metadata for avatar and cover images
-    const metadata = await getJurisdictionMetadata(jurisdiction);
+    // Get jurisdiction metadata from preloaded data
+    const metadata = jurisdictionMeta[jurisdiction] || null;
     const avatarUrl = metadata?.avatar || null;
     const coverUrl = metadata?.cover || null;
 

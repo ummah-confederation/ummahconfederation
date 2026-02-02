@@ -1,6 +1,7 @@
 /**
  * Configuration Module
  * Loads and provides access to documents-config.json, institution-config.json, and jurisdiction-config.json
+ * Optimized with aggressive caching to reduce network requests
  */
 
 let configCache = null;
@@ -8,23 +9,65 @@ let institutionConfigCache = null;
 let jurisdictionConfigCache = null;
 let squircleIconsConfigCache = null;
 
+// Cache timestamps for TTL-based invalidation
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+let cacheTimestamps = {
+  documents: 0,
+  institutions: 0,
+  jurisdictions: 0,
+  squircleIcons: 0
+};
+
+/**
+ * Check if cache is still valid based on TTL
+ * @param {string} cacheType - Type of cache to check
+ * @returns {boolean} True if cache is valid
+ */
+function isCacheValid(cacheType) {
+  const now = Date.now();
+  return cacheTimestamps[cacheType] && (now - cacheTimestamps[cacheType] < CACHE_TTL);
+}
+
+/**
+ * Update cache timestamp
+ * @param {string} cacheType - Type of cache to update
+ */
+function updateCacheTimestamp(cacheType) {
+  cacheTimestamps[cacheType] = Date.now();
+}
+
+/**
+ * Fetch with caching headers
+ * @param {string} url - URL to fetch
+ * @returns {Promise<Response>} Fetch response
+ */
+async function fetchWithCache(url) {
+  return fetch(url, {
+    cache: 'force-cache', // Use browser cache when available
+    headers: {
+      'Accept': 'application/json'
+    }
+  });
+}
+
 /**
  * Load the documents configuration from JSON file
  * @returns {Promise<Object>} The configuration object
  */
 export async function loadDocumentsConfig() {
-  if (configCache) {
+  if (configCache && isCacheValid('documents')) {
     return configCache;
   }
 
   try {
-    const response = await fetch('documents-config.json');
+    const response = await fetchWithCache('documents-config.json');
     if (!response.ok) {
       throw new Error(`Failed to load config: ${response.status} ${response.statusText}`);
     }
 
     const config = await response.json();
     configCache = config;
+    updateCacheTimestamp('documents');
     return config;
   } catch (error) {
     console.error('Error loading documents config:', error);
@@ -37,18 +80,19 @@ export async function loadDocumentsConfig() {
  * @returns {Promise<Object>} The institution configuration object
  */
 export async function loadInstitutionConfig() {
-  if (institutionConfigCache) {
+  if (institutionConfigCache && isCacheValid('institutions')) {
     return institutionConfigCache;
   }
 
   try {
-    const response = await fetch('institution-config.json');
+    const response = await fetchWithCache('institution-config.json');
     if (!response.ok) {
       throw new Error(`Failed to load institution config: ${response.status} ${response.statusText}`);
     }
 
     const config = await response.json();
     institutionConfigCache = config;
+    updateCacheTimestamp('institutions');
     return config;
   } catch (error) {
     console.error('Error loading institution config:', error);
@@ -62,18 +106,19 @@ export async function loadInstitutionConfig() {
  * @returns {Promise<Object>} The jurisdiction configuration object
  */
 export async function loadJurisdictionConfig() {
-  if (jurisdictionConfigCache) {
+  if (jurisdictionConfigCache && isCacheValid('jurisdictions')) {
     return jurisdictionConfigCache;
   }
 
   try {
-    const response = await fetch('jurisdiction-config.json');
+    const response = await fetchWithCache('jurisdiction-config.json');
     if (!response.ok) {
       throw new Error(`Failed to load jurisdiction config: ${response.status} ${response.statusText}`);
     }
 
     const config = await response.json();
     jurisdictionConfigCache = config;
+    updateCacheTimestamp('jurisdictions');
     return config;
   } catch (error) {
     console.error('Error loading jurisdiction config:', error);
@@ -146,18 +191,19 @@ export async function getJurisdictions() {
  * @returns {Promise<Object>} The squircle icons configuration object
  */
 export async function loadSquircleIconsConfig() {
-  if (squircleIconsConfigCache) {
+  if (squircleIconsConfigCache && isCacheValid('squircleIcons')) {
     return squircleIconsConfigCache;
   }
 
   try {
-    const response = await fetch('squircle-icons-config.json');
+    const response = await fetchWithCache('squircle-icons-config.json');
     if (!response.ok) {
       throw new Error(`Failed to load squircle icons config: ${response.status} ${response.statusText}`);
     }
 
     const config = await response.json();
     squircleIconsConfigCache = config;
+    updateCacheTimestamp('squircleIcons');
     return config;
   } catch (error) {
     console.error('Error loading squircle icons config:', error);
@@ -177,6 +223,27 @@ export async function getSquircleIconMetadata(itemName) {
 }
 
 /**
+ * Preload all configurations at once
+ * Useful for initial page load to batch requests
+ * @returns {Promise<Object>} Object containing all configs
+ */
+export async function preloadAllConfigs() {
+  const [documents, institutions, jurisdictions, squircleIcons] = await Promise.all([
+    loadDocumentsConfig(),
+    loadInstitutionConfig(),
+    loadJurisdictionConfig(),
+    loadSquircleIconsConfig()
+  ]);
+
+  return {
+    documents,
+    institutions,
+    jurisdictions,
+    squircleIcons
+  };
+}
+
+/**
  * Clear the config cache (useful for testing or hot-reload)
  */
 export function clearConfigCache() {
@@ -184,4 +251,10 @@ export function clearConfigCache() {
   institutionConfigCache = null;
   jurisdictionConfigCache = null;
   squircleIconsConfigCache = null;
+  cacheTimestamps = {
+    documents: 0,
+    institutions: 0,
+    jurisdictions: 0,
+    squircleIcons: 0
+  };
 }

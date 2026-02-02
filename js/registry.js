@@ -1,10 +1,25 @@
 /**
  * Registry Builder Module
  * Builds the registry lists on the index page
+ * Optimized to use preloaded data when available
  */
 
-import { getItems, getInstitutions, getJurisdictions } from './config.js';
+import { getItems, getInstitutions, getJurisdictions, preloadAllConfigs } from './config.js';
 import { buildFilterUrl, showError } from './utils.js';
+
+// Cache for preloaded data
+let preloadedData = null;
+
+/**
+ * Preload registry data
+ * Call this early to batch all config requests
+ */
+export async function preloadRegistryData() {
+  if (!preloadedData) {
+    preloadedData = await preloadAllConfigs();
+  }
+  return preloadedData;
+}
 
 /**
  * Render a registry list
@@ -66,11 +81,23 @@ function renderList(containerId, values, options = {}) {
  */
 export async function buildRegistries() {
   try {
-    const [items, institutions, jurisdictions] = await Promise.all([
-      getItems(),
-      getInstitutions(),
-      getJurisdictions()
-    ]);
+    // Use preloaded data if available
+    let items, institutions, jurisdictions;
+    
+    if (preloadedData) {
+      // Extract data from preloaded config
+      const documents = preloadedData.documents.documents.filter(doc => doc.visible !== false);
+      items = [...new Set(documents.map(doc => doc.item))].sort((a, b) => a.localeCompare(b));
+      institutions = [...new Set(documents.map(doc => doc.institution))].sort((a, b) => a.localeCompare(b));
+      jurisdictions = [...new Set(documents.map(doc => doc.jurisdiction))].sort((a, b) => a.localeCompare(b));
+    } else {
+      // Fall back to individual requests
+      [items, institutions, jurisdictions] = await Promise.all([
+        getItems(),
+        getInstitutions(),
+        getJurisdictions()
+      ]);
+    }
 
     renderList('item-list', items, { includeAll: true });
     renderList('institution-list', institutions);
