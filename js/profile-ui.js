@@ -340,23 +340,28 @@ function injectStyles() {
     
     /* Filter Container */
     #profile-filters {
-      width: 100%;
-    }
+  width: 100%;
+  background: var(--profile-card-bg);        /* Add this */
+  border-radius: 16px;                        /* Add this */
+  box-shadow: var(--profile-shadow);          /* Add this */
+  overflow: hidden;                           /* Add this */
+}
     
-    .filter-pills-container {
-      background: var(--profile-card-bg);
-      border-radius: 16px;
-      padding: 16px;
-      display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      box-shadow: var(--profile-shadow);
-      -webkit-overflow-scrolling: touch;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none;
-      width: 100%;
-    }
+  .filter-pills-container {
+  /* Remove the duplicated styles from here */
+  /* border-radius: 16px; */  /* REMOVE - now on parent */
+  /* background: var(--profile-card-bg); */  /* REMOVE - now on parent */
+  /* box-shadow: var(--profile-shadow); */   /* REMOVE - now on parent */
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  width: 100%;
+}
     
     .filter-pills-container::-webkit-scrollbar {
       display: none;
