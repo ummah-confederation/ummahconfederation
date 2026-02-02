@@ -2,21 +2,21 @@
   "version": "1.0.0",
   "lastUpdated": "2026-02-01",
   "jurisdictions": {
-    "Ummah Cabinet's Space [Team Space]": {
-      "avatar": "./images/jurisdictions/cabinet-members.png",
-      "cover": "./images/covers/cabinet-members.jpg"
+    "Ummah Cabinet's Space [Member Space]": {
+      "avatar": "./images/default-avatar.jpg",
+      "cover": "./images/default-cover.jpg"
     },
     "General Public [Community]": {
       "avatar": "./images/jurisdictions/general-public.png",
       "cover": "./images/covers/general-public.png"
     },
-    "Ummah Governance's Space [Team Space]": {
-      "avatar": "./images/jurisdictions/governance-members.png",
-      "cover": "./images/covers/governance-members.jpg"
+    "Ummah Governance's Space [Member Space]": {
+      "avatar": "./images/default-avatar.jpg",
+      "cover": "./images/default-cover.jpg"
     },
-    "Ummah Federal Government's Space [Team Space]": {
-      "avatar": "./images/jurisdictions/federal-members.png",
-      "cover": "./images/covers/federal-members.jpg"
+    "Ummah Federal Government's Space [Member Space]": {
+      "avatar": "./images/default-avatar.jpg",
+      "cover": "./images/default-cover.jpg"
     },
     "Fathan's Space  [Personal Space]": {
       "avatar": "./images/jurisdictions/fathan-husna.jpg",
