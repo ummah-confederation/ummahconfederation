@@ -176,33 +176,34 @@ function injectStyles() {
       padding: 20px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 16px;
+      gap: 20px;
       max-width: 1200px;
       margin: 0 auto;
     }
     
-    .hidden {
+    .hidden { 
       display: none !important;
     }
     
     /* Profile Header Container */
     #profile-header {
       width: 100%;
-      max-width: 600px;
+      max-width: 700px;
       background: var(--profile-card-bg);
-      border-radius: 12px;
-      overflow: hidden;
+      border-radius: 16px;
+      overflow: visible;
       box-shadow: var(--profile-shadow);
+      flex-shrink: 0;
     }
     
     /* Cover Image */
     .profile-cover {
       width: 100%;
-      height: 240px;
+      height: 200px;
       overflow: hidden;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       position: relative;
+      border-radius: 16px 16px 0 0;
     }
     
     .profile-cover img {
@@ -216,26 +217,33 @@ function injectStyles() {
     .profile-info {
       padding: 0 24px 24px 24px;
       position: relative;
+      width: 100%;
     }
     
     .profile-header-row {
       display: flex;
-      align-items: flex-start;
+      align-items: flex-end;
       justify-content: space-between;
       margin-bottom: 16px;
-      min-height: 60px;
+      min-height: 90px;
+      width: 100%;
+    }
+    
+    .profile-details-section {
+      width: 100%;
+      display: block;
     }
     
     .profile-avatar {
-      width: 168px;
-      height: 168px;
+      width: 160px;
+      height: 160px;
       border-radius: 50%;
       overflow: hidden;
       background: var(--profile-card-bg);
-      border: 5px solid var(--profile-card-bg);
-      margin-top: -84px;
+      border: 4px solid var(--profile-card-bg);
+      margin-top: -80px;
       flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     
     .profile-avatar img {
@@ -248,20 +256,21 @@ function injectStyles() {
     .profile-actions {
       display: flex;
       gap: 8px;
-      align-items: center;
-      padding-top: 16px;
+      align-items: flex-end;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
     }
     
     .profile-button {
-      padding: 9px 20px;
+      padding: 10px 24px;
       background: var(--profile-accent);
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.1s;
       white-space: nowrap;
     }
     
@@ -269,10 +278,14 @@ function injectStyles() {
       background: #166fe5;
     }
     
+    .profile-button:active {
+      transform: scale(0.98);
+    }
+    
     .profile-menu-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 6px;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
       background: #e4e6eb;
       border: none;
       color: var(--profile-text-primary);
@@ -281,7 +294,7 @@ function injectStyles() {
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.1s;
       flex-shrink: 0;
     }
     
@@ -289,55 +302,65 @@ function injectStyles() {
       background: #d8dadf;
     }
     
+    .profile-menu-btn:active {
+      transform: scale(0.95);
+    }
+    
     .profile-name {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 700;
       line-height: 1.2;
       margin: 0 0 4px 0;
       color: var(--profile-text-primary);
+      word-break: break-word;
     }
     
     .profile-label {
       font-size: 15px;
-      font-weight: 400;
+      font-weight: 500;
       color: var(--profile-text-secondary);
-      display: block;
+      display: inline-block;
       margin-bottom: 4px;
     }
     
     .profile-count {
-      display: block;
-      font-size: 15px;
+      display: inline-block;
+      font-size: 14px;
       color: var(--profile-text-secondary);
       margin-bottom: 8px;
+      margin-left: 8px;
     }
     
     .profile-bio {
       font-size: 15px;
-      line-height: 1.4;
+      line-height: 1.5;
       color: var(--profile-text-primary);
-      margin: 8px 0 0 0;
+      margin: 12px 0 0 0;
+      word-wrap: break-word;
     }
     
     /* Filter Container */
     #profile-filters {
       width: 100%;
-      max-width: 600px;
+      max-width: 700px;
     }
     
     .filter-pills-container {
       background: var(--profile-card-bg);
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 16px;
       display: flex;
       gap: 12px;
       overflow-x: auto;
+      overflow-y: hidden;
       box-shadow: var(--profile-shadow);
       -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
     }
     
     .filter-pills-container::-webkit-scrollbar {
-      height: 0;
+      display: none;
     }
     
     .filter-pill {
@@ -346,17 +369,19 @@ function injectStyles() {
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      padding: 12px 20px;
+      padding: 12px 16px;
       background: transparent;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: background 0.2s;
-      min-width: 90px;
+      transition: all 0.2s ease;
+      min-width: 85px;
+      scroll-snap-align: start;
     }
     
     .filter-pill:hover {
       background: #f0f2f5;
+      transform: translateY(-2px);
     }
     
     .filter-pill.active {
@@ -364,21 +389,21 @@ function injectStyles() {
     }
     
     .filter-pill-icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 14px;
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
       background: #e4e6eb;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      transition: all 0.2s;
+      font-size: 26px;
+      transition: all 0.2s ease;
     }
     
     .filter-pill.active .filter-pill-icon {
       background: var(--profile-accent);
       color: white;
-      transform: scale(1.05);
+      transform: scale(1.08);
     }
     
     .filter-pill-label {
@@ -394,91 +419,89 @@ function injectStyles() {
       font-weight: 600;
     }
     
-    /* Tablet Responsive */
+    /* Large Desktop */
+    @media (min-width: 1400px) {
+      #profile-container {
+        max-width: 1400px;
+      }
+      
+      #profile-header,
+      #profile-filters {
+        max-width: 800px;
+      }
+      
+      .profile-cover {
+        height: 220px;
+      }
+      
+      .profile-avatar {
+        width: 180px;
+        height: 180px;
+        margin-top: -90px;
+      }
+      
+      .profile-name {
+        font-size: 32px;
+      }
+    }
+    
+    /* Desktop */
+    @media (max-width: 1200px) {
+      #profile-header,
+      #profile-filters {
+        max-width: 700px;
+      }
+    }
+    
+    /* Tablet */
     @media (max-width: 768px) {
       #profile-container {
         padding: 16px;
-        gap: 12px;
+        gap: 16px;
       }
       
-      #profile-header {
-        max-width: 100%;
-      }
-      
+      #profile-header,
       #profile-filters {
         max-width: 100%;
       }
       
       .profile-cover {
-        height: 180px;
+        height: 160px;
       }
       
       .profile-avatar {
-        width: 140px;
-        height: 140px;
-        margin-top: -70px;
-      }
-      
-      .profile-name {
-        font-size: 28px;
-      }
-      
-      .filter-pill {
-        min-width: 80px;
-        padding: 10px 16px;
-      }
-      
-      .filter-pill-icon {
-        width: 56px;
-        height: 56px;
-        font-size: 26px;
-      }
-    }
-    
-    /* Mobile Responsive */
-    @media (max-width: 480px) {
-      #profile-container {
-        padding: 12px;
-        gap: 8px;
-      }
-      
-      .profile-cover {
-        height: 140px;
-      }
-      
-      .profile-avatar {
-        width: 110px;
-        height: 110px;
-        margin-top: -55px;
+        width: 130px;
+        height: 130px;
+        margin-top: -65px;
+        border-width: 3px;
       }
       
       .profile-info {
-        padding: 0 16px 16px 16px;
+        padding: 0 20px 20px 20px;
+      }
+      
+      .profile-header-row {
+        min-height: 75px;
       }
       
       .profile-name {
-        font-size: 22px;
+        font-size: 24px;
       }
       
       .profile-button {
-        padding: 7px 16px;
+        padding: 8px 20px;
         font-size: 14px;
       }
       
       .profile-menu-btn {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         font-size: 18px;
       }
       
-      .filter-pills-container {
-        padding: 12px;
-        gap: 8px;
-      }
-      
       .filter-pill {
-        min-width: 70px;
-        padding: 8px 12px;
+        min-width: 75px;
+        padding: 10px 14px;
       }
       
       .filter-pill-icon {
@@ -489,6 +512,151 @@ function injectStyles() {
       
       .filter-pill-label {
         font-size: 12px;
+      }
+    }
+    
+    /* Mobile Large */
+    @media (max-width: 576px) {
+      #profile-container {
+        padding: 12px;
+        gap: 12px;
+      }
+      
+      .profile-cover {
+        height: 140px;
+      }
+      
+      .profile-avatar {
+        width: 110px;
+        height: 110px;
+        margin-top: -55px;
+        border-width: 3px;
+      }
+      
+      .profile-info {
+        padding: 0 16px 16px 16px;
+      }
+      
+      .profile-header-row {
+        min-height: 65px;
+        margin-bottom: 12px;
+      }
+      
+      .profile-name {
+        font-size: 20px;
+      }
+      
+      .profile-label,
+      .profile-count {
+        font-size: 13px;
+      }
+      
+      .profile-bio {
+        font-size: 14px;
+      }
+      
+      .profile-button {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+      
+      .profile-menu-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+      }
+      
+      .filter-pills-container {
+        padding: 12px;
+        gap: 10px;
+      }
+      
+      .filter-pill {
+        min-width: 70px;
+        padding: 8px 12px;
+      }
+      
+      .filter-pill-icon {
+        width: 46px;
+        height: 46px;
+        font-size: 22px;
+      }
+      
+      .filter-pill-label {
+        font-size: 11px;
+      }
+    }
+    
+    /* Mobile Small */
+    @media (max-width: 375px) {
+      #profile-container {
+        padding: 10px;
+        gap: 10px;
+      }
+      
+      .profile-cover {
+        height: 120px;
+      }
+      
+      .profile-avatar {
+        width: 100px;
+        height: 100px;
+        margin-top: -50px;
+        border-width: 3px;
+      }
+      
+      .profile-info {
+        padding: 0 14px 14px 14px;
+      }
+      
+      .profile-header-row {
+        min-height: 55px;
+        margin-bottom: 10px;
+      }
+      
+      .profile-name {
+        font-size: 18px;
+      }
+      
+      .profile-label,
+      .profile-count {
+        font-size: 12px;
+      }
+      
+      .profile-bio {
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      
+      .profile-button {
+        padding: 7px 14px;
+        font-size: 12px;
+      }
+      
+      .profile-menu-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+      }
+      
+      .filter-pills-container {
+        padding: 10px;
+        gap: 8px;
+      }
+      
+      .filter-pill {
+        min-width: 65px;
+        padding: 8px 10px;
+      }
+      
+      .filter-pill-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 20px;
+      }
+      
+      .filter-pill-label {
+        font-size: 10px;
       }
     }
   `;
@@ -557,10 +725,12 @@ function renderProfile() {
           <button class="profile-menu-btn">⋮</button>
         </div>
       </div>
-      <h1 class="profile-name">${escapeHtml(name)}</h1>
-      ${label ? `<span class="profile-label">${escapeHtml(label)}</span>` : ''}
-      <span class="profile-count">${escapeHtml(countText)}</span>
-      ${bio ? `<p class="profile-bio">${escapeHtml(bio)}</p>` : ''}
+      <div class="profile-details-section">
+        <h1 class="profile-name">${escapeHtml(name)}</h1>
+        ${label ? `<span class="profile-label">${escapeHtml(label)}</span>` : ''}
+        <span class="profile-count">${escapeHtml(countText)}</span>
+        ${bio ? `<p class="profile-bio">${escapeHtml(bio)}</p>` : ''}
+      </div>
     </div>
   `;
 }
