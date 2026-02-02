@@ -389,26 +389,25 @@ function injectStyles() {
     }
     
     .filter-pill.active {
-      background: #e7f3ff;
+      background: #ededed;
     }
     
-    .filter-pill-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 12px;
-      background: #e4e6eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      transition: all 0.2s ease;
-    }
+.filter-pill-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 22%;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+
     
-    .filter-pill.active .filter-pill-icon {
-      background: var(--profile-accent);
-      color: white;
-      transform: scale(1.08);
-    }
+  
     
     .filter-pill-label {
       font-size: 13px;
@@ -732,7 +731,9 @@ function renderFilterPills() {
           class="filter-pill ${type === profileState.currentFilter ? 'active' : ''}" 
           data-type="${escapeHtml(type)}"
         >
-          <span class="filter-pill-icon">${getTypeIcon(type)}</span>
+<span class="filter-pill-icon">
+  ${getTypeIcon(type)}
+</span>
           <span class="filter-pill-label">${escapeHtml(capitalizeFirst(type))}</span>
         </button>
       `).join('')}
