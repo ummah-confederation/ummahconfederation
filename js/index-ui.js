@@ -1,6 +1,6 @@
 /**
- * Index Page UI Mode Module
- * Handles mode switching, tab navigation, and UI Mode gallery rendering
+ * Index Page UI Module
+ * Handles tab navigation and gallery rendering
  * Optimized to reduce network requests through batching and caching
  */
 
@@ -8,20 +8,14 @@ import { getItems, getInstitutions, getJurisdictions, getDocuments, getInstituti
 import { buildFilterUrl } from './utils.js';
 
 // State
-let isUIMode = false;
 let currentTab = 'content';
 let preloadedData = null;
 let galleriesLoaded = false;
 
 /**
- * Initialize the UI mode functionality
+ * Initialize the UI functionality
  */
 export function initUIMode() {
-  const modeSwitcher = document.getElementById('mode-switcher');
-  if (modeSwitcher) {
-    modeSwitcher.addEventListener('click', toggleMode);
-  }
-
   // Initialize tab buttons
   initTabs();
 
@@ -39,37 +33,6 @@ async function preloadData() {
     await loadUIGalleries();
   } catch (error) {
     console.error('Failed to preload data:', error);
-  }
-}
-
-/**
- * Toggle between Lite Mode and UI Mode
- */
-function toggleMode() {
-  isUIMode = !isUIMode;
-  const modeSwitcher = document.getElementById('mode-switcher');
-  const liteMode = document.getElementById('lite-mode');
-  const uiMode = document.getElementById('ui-mode');
-
-  if (isUIMode) {
-    // Switch to UI Mode
-    modeSwitcher.textContent = 'Switch to Lite Mode';
-    liteMode.classList.add('hidden');
-    uiMode.classList.remove('hidden');
-
-    // Show current tab and ensure galleries are loaded
-    showTab(currentTab);
-    updateTabButtons(currentTab);
-    
-    // Load galleries if not already loaded
-    if (!galleriesLoaded) {
-      loadUIGalleries();
-    }
-  } else {
-    // Switch to Lite Mode
-    modeSwitcher.textContent = 'Switch to UI Mode';
-    liteMode.classList.remove('hidden');
-    uiMode.classList.add('hidden');
   }
 }
 

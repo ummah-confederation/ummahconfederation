@@ -225,13 +225,6 @@
   </head>
 
   <body class="py-10 px-5">
-    <!-- Mode Switcher -->
-    <div class="max-w-4xl mx-auto mb-4 flex justify-center">
-      <button id="mode-switcher" class="px-4 py-2 bg-white shadow-md rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors border border-gray-200">
-        Switch to UI Mode
-      </button>
-    </div>
-
     <div class="paper-sheet max-w-4xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 lg:px-20 lg:py-20 mb-16" id="main-container">
       <img
         src="images/admin-seal.png"
@@ -243,49 +236,16 @@
         DAARUSSALAAM
       </h2>
 
-      <!-- Lite Mode: Registry Layout -->
-      <div id="lite-mode" class="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 mt-6">
-        <!-- ITEMS -->
-        <div class="registry">
-          <h3 class="text-xl sm:text-2xl lg:text-3xl font-medium tracking-wide uppercase text-left mb-4 mt-4 text-black">
-            ITEMS
-          </h3>
-          <div class="registry-list text-base sm:text-lg " id="item-list">
-            <!-- Dynamically populated by js/registry.js -->
-          </div>
-        </div>
-
-        <!-- INSTITUTIONS -->
-        <div class="registry">
-          <h3 class="text-xl sm:text-2xl lg:text-3xl font-medium tracking-wide uppercase text-left mb-4 mt-4 text-black">
-            INSTITUTIONS
-          </h3>
-          <div class="registry-list text-base sm:text-lg " id="institution-list">
-            <!-- Dynamically populated by js/registry.js -->
-          </div>
-        </div>
-
-        <!-- JURISDICTIONS -->
-        <div class="registry">
-          <h3 class="text-xl sm:text-2xl lg:text-3xl font-medium tracking-wide uppercase text-left mb-4 mt-4 text-black">
-            JURISDICTIONS
-          </h3>
-          <div class="registry-list text-base sm:text-lg overflow-hidden" id="jurisdiction-list">
-            <!-- Dynamically populated by js/registry.js -->
-          </div>
-        </div>
-      </div>
-
       <!-- UI Mode: Tabbed Interface -->
-      <div id="ui-mode" class="hidden">
+      <div id="ui-mode">
         <!-- Tab Navigation -->
         <div class="flex justify-center mb-8 mt-6">
           <div class="inline-flex bg-gray-100 rounded-lg p-1">
-            <button class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all bg-white shadow-sm text-gray-900" data-tab="content">
-              Content
-            </button>
             <button class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all text-gray-600 hover:text-gray-900" data-tab="account">
               Account
+            </button>
+            <button class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all bg-white shadow-sm text-gray-900" data-tab="content">
+              Content
             </button>
             <button class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all text-gray-600 hover:text-gray-900" data-tab="space">
               Space
