@@ -17,6 +17,22 @@ export function parseQueryParams() {
 }
 
 /**
+ * Parse hash-based URL parameters (for client-side routing compatibility)
+ * @returns {Object} Object containing filter parameters
+ */
+export function parseHashParams() {
+  const hash = window.location.hash.slice(1); // Remove #
+  if (!hash) return { item: null, institution: null, jurisdiction: null };
+  
+  const params = new URLSearchParams(hash);
+  return {
+    item: params.get('item'),
+    institution: params.get('institution'),
+    jurisdiction: params.get('jurisdiction')
+  };
+}
+
+/**
  * Build a filter URL for the library page
  * @param {string} type - Filter type (item, institution, jurisdiction)
  * @param {string} value - Filter value

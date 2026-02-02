@@ -4,11 +4,13 @@
  */
 
 import { getDocuments } from './config.js';
-import { parseQueryParams, sortDocuments, filterDocuments, escapeHtml, showError } from './utils.js';
+import { parseQueryParams, parseHashParams, sortDocuments, filterDocuments, escapeHtml, showError } from './utils.js';
+import { getFilteredDocuments, detectProfileMode } from './profile-ui.js';
 
 // Current sort state
 let currentSort = 'name';
 let currentDocuments = [];
+let isProfileMode = false;
 
 /**
  * Create a library row element
@@ -137,17 +139,26 @@ export function sortLibrary(type) {
  */
 export async function initializeLibrary() {
   try {
-    // Load all documents
-    const allDocuments = await getDocuments();
+    // Check if we're in profile mode
+    isProfileMode = !!detectProfileMode();
 
-    // Get filter parameters
-    const filters = parseQueryParams();
+    // Get filter parameters (try both query and hash params)
+    let filters = parseQueryParams();
+    if (!filters.institution && !filters.jurisdiction) {
+      filters = parseHashParams();
+    }
 
-    // Filter documents
-    currentDocuments = filterDocuments(allDocuments, filters);
+    // Only load and filter documents if not already set (e.g., by profile mode in main.js)
+    if (currentDocuments.length === 0) {
+      // Load all documents
+      const allDocuments = await getDocuments();
 
-    // Sort by default
-    currentDocuments = sortDocuments(currentDocuments, currentSort);
+      // Filter documents
+      currentDocuments = filterDocuments(allDocuments, filters);
+
+      // Sort by default
+      currentDocuments = sortDocuments(currentDocuments, currentSort);
+    }
 
     // Render
     renderLibraryTable(currentDocuments);
@@ -168,4 +179,30 @@ export async function initializeLibrary() {
     console.error('Failed to initialize library:', error);
     showError('Unable to load document library. Please try again later.');
   }
+}
+
+/**
+ * Set documents from external filter (e.g., profile UI)
+ * @param {Array} documents - Filtered documents to display
+ */
+export function setDocumentsFilter(documents) {
+  currentDocuments = sortDocuments(documents, currentSort);
+  renderLibraryTable(currentDocuments);
+  updateSortButtons(currentSort);
+}
+
+/**
+ * Get current documents (for profile UI integration)
+ * @returns {Array} Current documents array
+ */
+export function getCurrentDocuments() {
+  return currentDocuments;
+}
+
+/**
+ * Set current documents directly
+ * @param {Array} documents - Documents to set
+ */
+export function setCurrentDocuments(documents) {
+  currentDocuments = documents;
 }

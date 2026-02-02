@@ -4,19 +4,23 @@
   "institutions": {
     "Ummah Cabinet [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-cabinet.png",
-      "cover": "./images/covers/ummah-cabinet.jpg"
+      "cover": "./images/covers/ummah-cabinet.jpg",
+      "bio": "The executive body responsible for coordinating Ummah-wide initiatives and policies."
     },
     "Ummah Governance [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-governance.png",
-      "cover": "./images/covers/ummah-governance.jpg"
+      "cover": "./images/covers/ummah-governance.jpg",
+      "bio": "Oversees institutional frameworks and governance structures within the Ummah."
     },
     "Ummah Federal Government [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-federal.png",
-      "cover": "./images/covers/ummah-federal.jpg"
+      "cover": "./images/covers/ummah-federal.jpg",
+      "bio": "Manages federal-level administration and cross-jurisdictional coordination."
     },
     "Ummah Personal Counselor [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-counselor.png",
-      "cover": "./images/covers/ummah-counselor.jpg"
+      "cover": "./images/covers/ummah-counselor.jpg",
+      "bio": "Provides spiritual guidance and personal counseling services to community members."
     }
   }
 }
