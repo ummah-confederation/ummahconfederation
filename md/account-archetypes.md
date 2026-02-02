@@ -1,0 +1,5 @@
+[Non-Profit • Private]
+[Profit • Private]
+[User-Paid  •  At-Cost]
+[Non-Profit • Public]
+[Profit • Public]
