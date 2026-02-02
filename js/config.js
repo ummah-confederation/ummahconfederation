@@ -129,7 +129,7 @@ export async function loadJurisdictionConfig() {
 
 /**
  * Get institution metadata by full institution name
- * @param {string} institutionName - The full institution name (e.g., "Ummah Cabinet [Institution]")
+ * @param {string} institutionName - The full institution name (e.g., "Ummah Cabinet [Non-Profit • Private]")
  * @returns {Promise<Object|null>} The institution metadata or null if not found
  */
 export async function getInstitutionMetadata(institutionName) {
