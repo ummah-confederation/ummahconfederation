@@ -61,10 +61,77 @@
         text-decoration: underline;
       }
       
-      /* Sort button active state */
-      .sort-controls button.active {
-        background-color: #000;
-        color: #fff;
+      /* Sort button styles - Modern segmented control */
+      .sort-controls {
+        display: inline-flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 0.25rem;
+        background: #f3f4f6;
+        border-radius: 9999px;
+        padding: 0.25rem;
+        width: auto;
+      }
+      
+      .sort-btn {
+        border: none;
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 9999px;
+        background: transparent;
+        color: #6b7280;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      
+      .sort-btn.active {
+        background: #fff;
+        color: #111827;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      .sort-btn:hover:not(.active) {
+        color: #374151;
+      }
+      
+      .sort-btn:active {
+        transform: scale(0.98);
+      }
+      
+      /* Mobile: Keep horizontal segmented control */
+      @media (max-width: 639px) {
+        .sort-controls {
+          gap: 0.125rem;
+          padding: 0.25rem;
+        }
+        
+        .sort-btn {
+          padding: 0.375rem 0.875rem;
+          font-size: 0.8125rem;
+        }
+      }
+      
+      /* Hide header elements when profile is active (UI mode) */
+      body.has-profile #admin-seal,
+      body.has-profile #daarussalaam-header {
+        display: none;
+      }
+      
+      body.has-profile #main-container {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+      }
+      
+      @media (min-width: 640px) {
+        body.has-profile #main-container {
+          padding-top: 2rem;
+          padding-bottom: 2rem;
+        }
       }
       
       /* H2 underline styling */
@@ -298,15 +365,16 @@
   </head>
 
   <body class="py-10 px-5">
-    <div class="paper-sheet max-w-4xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 lg:px-20 lg:py-20 mb-16">
-      <!-- Administrative Seal -->
+    <div class="paper-sheet max-w-4xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 lg:px-20 lg:py-20 mb-16" id="main-container">
+      <!-- Administrative Seal - Hidden in UI mode when profile is shown -->
       <img
         src="images/admin-seal.png"
         alt="Administrative Seal"
+        id="admin-seal"
         class="block mx-auto w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 object-contain mb-5"
       />
 
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-wider uppercase text-center text-black mb-6">
+      <h2 id="daarussalaam-header" class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-wider uppercase text-center text-black mb-6">
         DAARUSSALAAM
       </h2>
 
@@ -319,16 +387,16 @@
       <!-- Context display (hidden when profile is shown) -->
       <div id="library-context" class="font-bold mb-4 block text-center text-lg">All</div>
 
-      <!-- Sort buttons - stack on mobile, inline on desktop -->
-      <div class="sort-controls flex flex-col sm:flex-row gap-2 sm:gap-4 my-4 justify-center">
-        <button data-sort="name" class="px-3 py-2 border border-black bg-white cursor-pointer min-h-12 hover:bg-gray-100 transition-colors">
-          Sort by Title
+      <!-- Sort buttons - Modern segmented control design -->
+      <div class="sort-controls my-4">
+        <button data-sort="name" class="sort-btn active">
+          Title
         </button>
-        <button data-sort="version" class="px-3 py-2 border border-black bg-white cursor-pointer min-h-12 hover:bg-gray-100 transition-colors">
-          Sort by Version
+        <button data-sort="version" class="sort-btn">
+          Version
         </button>
-        <button data-sort="date" class="px-3 py-2 border border-black bg-white cursor-pointer min-h-12 hover:bg-gray-100 transition-colors">
-          Sort by Date
+        <button data-sort="date" class="sort-btn">
+          Date
         </button>
       </div>
 

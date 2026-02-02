@@ -135,12 +135,27 @@ export function sortLibrary(type) {
 }
 
 /**
+ * Update body class based on profile mode
+ * @param {boolean} hasProfile - Whether profile mode is active
+ */
+function updateBodyProfileClass(hasProfile) {
+  if (hasProfile) {
+    document.body.classList.add('has-profile');
+  } else {
+    document.body.classList.remove('has-profile');
+  }
+}
+
+/**
  * Initialize the library page
  */
 export async function initializeLibrary() {
   try {
     // Check if we're in profile mode
     isProfileMode = !!detectProfileMode();
+    
+    // Update body class for UI mode styling
+    updateBodyProfileClass(isProfileMode);
 
     // Get filter parameters (try both query and hash params)
     let filters = parseQueryParams();
