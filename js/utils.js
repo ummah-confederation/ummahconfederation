@@ -20,9 +20,13 @@ export function parseQueryParams() {
  * Build a filter URL for the library page
  * @param {string} type - Filter type (item, institution, jurisdiction)
  * @param {string} value - Filter value
+ * @param {boolean} isAll - Whether this is the "All" option (no filter)
  * @returns {string} URL with query parameters
  */
-export function buildFilterUrl(type, value) {
+export function buildFilterUrl(type, value, isAll = false) {
+  if (isAll) {
+    return 'library.html';
+  }
   return `library.html?${type}=${encodeURIComponent(value)}`;
 }
 
