@@ -171,24 +171,23 @@ function injectStyles() {
     
     #profile-container {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--profile-bg);
+      background: transparent;
       width: 100%;
-      padding: 20px;
+      padding: 0;
       display: flex;
       flex-direction: column;
       gap: 20px;
-      max-width: 1200px;
+      max-width: 100%;
       margin: 0 auto;
     }
     
-    .hidden { 
+    .hidden {
       display: none !important;
     }
     
     /* Profile Header Container */
     #profile-header {
       width: 100%;
-      max-width: 700px;
       background: var(--profile-card-bg);
       border-radius: 16px;
       overflow: visible;
@@ -232,6 +231,7 @@ function injectStyles() {
     .profile-details-section {
       width: 100%;
       display: block;
+      text-align: left;
     }
     
     .profile-avatar {
@@ -319,16 +319,15 @@ function injectStyles() {
       font-size: 15px;
       font-weight: 500;
       color: var(--profile-text-secondary);
-      display: inline-block;
+      display: block;
       margin-bottom: 4px;
     }
     
     .profile-count {
-      display: inline-block;
+      display: block;
       font-size: 14px;
       color: var(--profile-text-secondary);
       margin-bottom: 8px;
-      margin-left: 8px;
     }
     
     .profile-bio {
@@ -342,7 +341,6 @@ function injectStyles() {
     /* Filter Container */
     #profile-filters {
       width: 100%;
-      max-width: 700px;
     }
     
     .filter-pills-container {
@@ -357,6 +355,7 @@ function injectStyles() {
       -webkit-overflow-scrolling: touch;
       scroll-snap-type: x mandatory;
       scrollbar-width: none;
+      width: 100%;
     }
     
     .filter-pills-container::-webkit-scrollbar {
@@ -421,15 +420,6 @@ function injectStyles() {
     
     /* Large Desktop */
     @media (min-width: 1400px) {
-      #profile-container {
-        max-width: 1400px;
-      }
-      
-      #profile-header,
-      #profile-filters {
-        max-width: 800px;
-      }
-      
       .profile-cover {
         height: 220px;
       }
@@ -445,24 +435,10 @@ function injectStyles() {
       }
     }
     
-    /* Desktop */
-    @media (max-width: 1200px) {
-      #profile-header,
-      #profile-filters {
-        max-width: 700px;
-      }
-    }
-    
     /* Tablet */
     @media (max-width: 768px) {
       #profile-container {
-        padding: 16px;
         gap: 16px;
-      }
-      
-      #profile-header,
-      #profile-filters {
-        max-width: 100%;
       }
       
       .profile-cover {

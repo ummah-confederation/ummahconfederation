@@ -62,6 +62,12 @@
       }
       
       /* Sort button styles - Modern segmented control */
+      .sort-controls-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+      
       .sort-controls {
         display: inline-flex;
         flex-direction: row;
@@ -168,7 +174,7 @@
       /* Squircle Selector Row Styles */
       .profile-filters {
         margin-top: 1rem;
-        padding: 0 1.5rem;
+        padding: 0;
       }
 
       .squircle-selector-row {
@@ -308,16 +314,18 @@
       <div id="library-context" class="font-bold mb-4 block text-center text-lg">All</div>
 
       <!-- Sort buttons - Modern segmented control design -->
-      <div class="sort-controls my-4">
-        <button data-sort="name" class="sort-btn active">
-          Title
-        </button>
-        <button data-sort="version" class="sort-btn">
-          Version
-        </button>
-        <button data-sort="date" class="sort-btn">
-          Date
-        </button>
+      <div class="sort-controls-wrapper my-4">
+        <div class="sort-controls">
+          <button data-sort="name" class="sort-btn active">
+            Title
+          </button>
+          <button data-sort="version" class="sort-btn">
+            Version
+          </button>
+          <button data-sort="date" class="sort-btn">
+            Date
+          </button>
+        </div>
       </div>
 
       <!-- Library -->
