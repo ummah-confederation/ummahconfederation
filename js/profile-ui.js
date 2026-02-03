@@ -166,7 +166,7 @@ function injectStyles() {
       --profile-text-secondary: #65676b;
       --profile-accent: #1877f2;
       --profile-border: #e4e6eb;
-      --profile-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+--profile-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
     
     #profile-container {
@@ -307,36 +307,37 @@ function injectStyles() {
     }
     
     .profile-name {
-      font-size: 28px;
-      font-weight: 700;
-      line-height: 1.2;
-      margin: 0 0 4px 0;
-      color: var(--profile-text-primary);
-      word-break: break-word;
-    }
-    
-    .profile-label {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--profile-text-secondary);
-      display: block;
-      margin-bottom: 4px;
-    }
-    
-    .profile-count {
-      display: block;
-      font-size: 14px;
-      color: var(--profile-text-secondary);
-      margin-bottom: 8px;
-    }
-    
-    .profile-bio {
-      font-size: 15px;
-      line-height: 1.5;
-      color: var(--profile-text-primary);
-      margin: 12px 0 0 0;
-      word-wrap: break-word;
-    }
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 8px 0; /* consistent spacing below */
+  color: var(--profile-text-primary);
+  word-break: break-word;
+}
+
+.profile-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--profile-text-secondary);
+  display: block;
+  margin: 0 0 6px 0; /* spacing below label */
+}
+
+.profile-count {
+  display: block;
+  font-size: 14px;
+  color: var(--profile-text-secondary);
+  margin: 0 0 6px 0; /* spacing below count, consistent with label */
+}
+
+.profile-bio {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--profile-text-primary);
+  margin: 0; /* no top/bottom margin; spacing is handled by previous elements */
+  word-break: break-word;
+}
+
     
     /* Filter Container */
     #profile-filters {
