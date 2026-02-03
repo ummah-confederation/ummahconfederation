@@ -66,5 +66,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 3️⃣ Final sort + render
   docs = sortDocuments(docs, 'name');
   setCurrentDocuments(docs);
-  initializeLibrary();
+  initializeLibrary(urlFilters, profileInfo);
 });

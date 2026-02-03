@@ -148,28 +148,25 @@ function updateBodyProfileClass(hasProfile) {
 
 /**
  * Initialize the library page
+ * @param {Object} urlFilters - URL-derived filters to use for context display
+ * @param {Object} profileInfo - Profile mode info
  */
-export async function initializeLibrary() {
+export async function initializeLibrary(urlFilters = {}, profileInfo = null) {
   try {
     // Check if we're in profile mode
-    isProfileMode = !!detectProfileMode();
+    isProfileMode = !!profileInfo || !!detectProfileMode();
     
     // Update body class for UI mode styling
     updateBodyProfileClass(isProfileMode);
 
-    // Get filter parameters (try both query and hash params)
-    let filters = parseQueryParams();
-    if (!filters.institution && !filters.jurisdiction) {
-      filters = parseHashParams();
-    }
-
+    // Use provided URL filters for context display
     // Only load and filter documents if not already set (e.g., by profile mode in main.js)
     if (currentDocuments.length === 0) {
       // Load all documents
       const allDocuments = await getDocuments();
 
       // Filter documents
-      currentDocuments = filterDocuments(allDocuments, filters);
+      currentDocuments = filterDocuments(allDocuments, urlFilters);
 
       // Sort by default
       currentDocuments = sortDocuments(currentDocuments, currentSort);
@@ -177,7 +174,7 @@ export async function initializeLibrary() {
 
     // Render
     renderLibraryTable(currentDocuments);
-    updateContext(filters);
+    updateContext(urlFilters);
     updateSortButtons(currentSort);
 
     // Setup sort button handlers
