@@ -4,17 +4,21 @@
  * Used on library.html when institution or jurisdiction filter is active
  */
 
-import { getInstitutionMetadata, getJurisdictionMetadata, getDocuments } from './config.js';
-import { parseQueryParams, parseHashParams, escapeHtml } from './utils.js';
+import {
+  getInstitutionMetadata,
+  getJurisdictionMetadata,
+  getDocuments,
+} from "./config.js";
+import { parseQueryParams, parseHashParams, escapeHtml } from "./utils.js";
 
 // Profile state
 const profileState = {
   profileType: null, // 'institution' or 'jurisdiction'
   profileName: null, // institution or jurisdiction name
-  currentFilter: 'all', // 'all', 'Book', 'Policy', 'Decision', etc.
+  currentFilter: "all", // 'all', 'Book', 'Policy', 'Decision', etc.
   documents: [],
   profileData: null,
-  availableTypes: []
+  availableTypes: [],
 };
 
 // Callback for filter changes
@@ -30,10 +34,10 @@ function extractLabel(name) {
   if (match) {
     return {
       name: match[1].trim(),
-      label: match[2].trim()
+      label: match[2].trim(),
     };
   }
-  return { name: name.trim(), label: '' };
+  return { name: name.trim(), label: "" };
 }
 
 /**
@@ -43,7 +47,7 @@ function extractLabel(name) {
  * @returns {number} Document count
  */
 function countInstitutionDocuments(documents, institutionName) {
-  return documents.filter(doc => doc.institution === institutionName).length;
+  return documents.filter((doc) => doc.institution === institutionName).length;
 }
 
 /**
@@ -55,8 +59,8 @@ function countInstitutionDocuments(documents, institutionName) {
 function countJurisdictionContributors(documents, jurisdictionName) {
   const institutions = new Set(
     documents
-      .filter(doc => doc.jurisdiction === jurisdictionName)
-      .map(doc => doc.institution)
+      .filter((doc) => doc.jurisdiction === jurisdictionName)
+      .map((doc) => doc.institution),
   );
   return institutions.size;
 }
@@ -67,8 +71,8 @@ function countJurisdictionContributors(documents, jurisdictionName) {
  * @returns {Array} Sorted array of unique types
  */
 function getDocumentTypes(documents) {
-  const types = new Set(documents.map(doc => doc.item));
-  return ['all', ...[...types].sort((a, b) => a.localeCompare(b))];
+  const types = new Set(documents.map((doc) => doc.item));
+  return ["all", ...[...types].sort((a, b) => a.localeCompare(b))];
 }
 
 /**
@@ -78,26 +82,26 @@ function getDocumentTypes(documents) {
 export function detectProfileMode() {
   // Try query params first
   let params = parseQueryParams();
-  
+
   // If no params in query, try hash params
   if (!params.institution && !params.jurisdiction) {
     params = parseHashParams();
   }
-  
+
   if (params.institution) {
     return {
-      type: 'institution',
-      name: params.institution
+      type: "institution",
+      name: params.institution,
     };
   }
-  
+
   if (params.jurisdiction) {
     return {
-      type: 'jurisdiction',
-      name: params.jurisdiction
+      type: "jurisdiction",
+      name: params.jurisdiction,
     };
   }
-  
+
   return null;
 }
 
@@ -107,36 +111,40 @@ export function detectProfileMode() {
  */
 export async function initializeProfileUI(onFilterChange) {
   onFilterChangeCallback = onFilterChange;
-  
+
   const profileInfo = detectProfileMode();
   if (!profileInfo) {
     // No profile mode, hide profile container
     hideProfileContainer();
     return;
   }
-  
+
   profileState.profileType = profileInfo.type;
   profileState.profileName = profileInfo.name;
-  
+
   // Load all documents to calculate counts and get types
   const allDocuments = await getDocuments();
-  profileState.documents = allDocuments.filter(doc => {
-    if (profileState.profileType === 'institution') {
+  profileState.documents = allDocuments.filter((doc) => {
+    if (profileState.profileType === "institution") {
       return doc.institution === profileState.profileName;
     } else {
       return doc.jurisdiction === profileState.profileName;
     }
   });
-  
+
   profileState.availableTypes = getDocumentTypes(profileState.documents);
-  
+
   // Load profile metadata
-  if (profileState.profileType === 'institution') {
-    profileState.profileData = await getInstitutionMetadata(profileState.profileName);
+  if (profileState.profileType === "institution") {
+    profileState.profileData = await getInstitutionMetadata(
+      profileState.profileName,
+    );
   } else {
-    profileState.profileData = await getJurisdictionMetadata(profileState.profileName);
+    profileState.profileData = await getJurisdictionMetadata(
+      profileState.profileName,
+    );
   }
-  
+
   // Render profile
   renderProfile();
   renderFilterPills();
@@ -148,10 +156,10 @@ export async function initializeProfileUI(onFilterChange) {
  */
 function injectStyles() {
   // Check if styles already injected
-  if (document.getElementById('profile-custom-styles')) return;
-  
-  const style = document.createElement('style');
-  style.id = 'profile-custom-styles';
+  if (document.getElementById("profile-custom-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "profile-custom-styles";
   style.textContent = `
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
@@ -166,17 +174,17 @@ function injectStyles() {
       --profile-text-secondary: #65676b;
       --profile-accent: #1877f2;
       --profile-border: #e4e6eb;
---profile-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      --profile-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
     
     #profile-container {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: transparent;
       width: 100%;
-      padding: 0;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 12px;
       max-width: 100%;
       margin: 0 auto;
     }
@@ -224,7 +232,7 @@ function injectStyles() {
       align-items: flex-end;
       justify-content: space-between;
       margin-bottom: 16px;
-      min-height: 90px;
+      min-height: 60px;
       width: 100%;
     }
     
@@ -235,13 +243,13 @@ function injectStyles() {
     }
     
     .profile-avatar {
-      width: 160px;
-      height: 160px;
+      width: 90px;
+      height: 90px;
       border-radius: 50%;
       overflow: hidden;
       background: var(--profile-card-bg);
       border: 4px solid var(--profile-card-bg);
-      margin-top: -80px;
+      margin-top: -45px;
       flex-shrink: 0;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
@@ -258,16 +266,15 @@ function injectStyles() {
       gap: 8px;
       align-items: flex-end;
       padding-bottom: 8px;
-      margin-bottom: 8px;
     }
     
     .profile-button {
-      padding: 10px 24px;
+      padding: 8px 18px;
       background: var(--profile-accent);
       color: white;
       border: none;
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.2s, transform 0.1s;
@@ -283,13 +290,13 @@ function injectStyles() {
     }
     
     .profile-menu-btn {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 8px;
       background: #e4e6eb;
       border: none;
       color: var(--profile-text-primary);
-      font-size: 20px;
+      font-size: 18px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -307,62 +314,57 @@ function injectStyles() {
     }
     
     .profile-name {
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 0 0 8px 0; /* consistent spacing below */
-  color: var(--profile-text-primary);
-  word-break: break-word;
-}
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0 0 6px 0;
+      color: var(--profile-text-primary);
+      word-break: break-word;
+    }
 
-.profile-label {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--profile-text-secondary);
-  display: block;
-  margin: 0 0 6px 0; /* spacing below label */
-}
+    .profile-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--profile-text-secondary);
+      display: block;
+      margin: 0 0 10px 0;
+    }
 
-.profile-count {
-  display: block;
-  font-size: 14px;
-  color: var(--profile-text-secondary);
-  margin: 0 0 6px 0; /* spacing below count, consistent with label */
-}
+    .profile-count {
+      display: block;
+      font-size: 13px;
+      color: var(--profile-text-secondary);
+      margin: 0 0 6px 0;
+    }
 
-.profile-bio {
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--profile-text-primary);
-  margin: 0; /* no top/bottom margin; spacing is handled by previous elements */
-  word-break: break-word;
-}
-
+    .profile-bio {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--profile-text-primary);
+      margin: 0;
+      word-break: break-word;
+    }
     
     /* Filter Container */
     #profile-filters {
-  width: 100%;
-  background: var(--profile-card-bg);        /* Add this */
-  border-radius: 16px;                        /* Add this */
-  box-shadow: var(--profile-shadow);          /* Add this */
-  overflow: hidden;                           /* Add this */
-}
+      width: 100%;
+      background: var(--profile-card-bg);
+      border-radius: 16px;
+      box-shadow: var(--profile-shadow);
+      overflow: hidden;
+    }
     
-  .filter-pills-container {
-  /* Remove the duplicated styles from here */
-  /* border-radius: 16px; */  /* REMOVE - now on parent */
-  /* background: var(--profile-card-bg); */  /* REMOVE - now on parent */
-  /* box-shadow: var(--profile-shadow); */   /* REMOVE - now on parent */
-  padding: 16px;
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  width: 100%;
-}
+    .filter-pills-container {
+      padding: 16px;
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      width: 100%;
+    }
     
     .filter-pills-container::-webkit-scrollbar {
       display: none;
@@ -374,13 +376,13 @@ function injectStyles() {
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      padding: 12px 16px;
+      padding: 12px 12px;
       background: transparent;
       border: none;
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.2s ease;
-      min-width: 85px;
+      min-width: 80px;
       scroll-snap-align: start;
     }
     
@@ -393,22 +395,19 @@ function injectStyles() {
       background: #ededed;
     }
     
-.filter-pill-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 22%;
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease;
-}
-
-
-    
-  
+    .filter-pill-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
     
     .filter-pill-label {
       font-size: 13px;
@@ -430,20 +429,21 @@ function injectStyles() {
       }
       
       .profile-avatar {
-        width: 180px;
-        height: 180px;
-        margin-top: -90px;
+        width: 110px;
+        height: 110px;
+        margin-top: -55px;
       }
       
       .profile-name {
-        font-size: 32px;
+        font-size: 28px;
       }
     }
     
     /* Tablet */
     @media (max-width: 768px) {
       #profile-container {
-        gap: 16px;
+        padding: 12px;
+        gap: 12px;
       }
       
       .profile-cover {
@@ -451,9 +451,9 @@ function injectStyles() {
       }
       
       .profile-avatar {
-        width: 130px;
-        height: 130px;
-        margin-top: -65px;
+        width: 80px;
+        height: 80px;
+        margin-top: -40px;
         border-width: 3px;
       }
       
@@ -462,37 +462,42 @@ function injectStyles() {
       }
       
       .profile-header-row {
-        min-height: 75px;
+        min-height: 50px;
       }
       
       .profile-name {
-        font-size: 24px;
+        font-size: 20px;
       }
       
       .profile-button {
-        padding: 8px 20px;
-        font-size: 14px;
+        padding: 7px 16px;
+        font-size: 13px;
       }
       
       .profile-menu-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 18px;
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
       }
       
       .filter-pill {
-        min-width: 75px;
-        padding: 10px 14px;
+        min-width: 70px;
+        padding: 10px 10px;
       }
       
       .filter-pill-icon {
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
       }
       
       .filter-pill-label {
         font-size: 12px;
+      }
+      
+      .filter-pills-container {
+        padding: 14px;
+        gap: 10px;
       }
     }
     
@@ -508,9 +513,9 @@ function injectStyles() {
       }
       
       .profile-avatar {
-        width: 110px;
-        height: 110px;
-        margin-top: -55px;
+        width: 70px;
+        height: 70px;
+        margin-top: -35px;
         border-width: 3px;
       }
       
@@ -519,48 +524,48 @@ function injectStyles() {
       }
       
       .profile-header-row {
-        min-height: 65px;
+        min-height: 45px;
         margin-bottom: 12px;
       }
       
       .profile-name {
-        font-size: 20px;
+        font-size: 18px;
       }
       
       .profile-label,
       .profile-count {
-        font-size: 13px;
+        font-size: 12px;
       }
       
       .profile-bio {
-        font-size: 14px;
-      }
-      
-      .profile-button {
-        padding: 8px 16px;
         font-size: 13px;
       }
       
+      .profile-button {
+        padding: 6px 14px;
+        font-size: 12px;
+      }
+      
       .profile-menu-btn {
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
         font-size: 16px;
       }
       
       .filter-pills-container {
         padding: 12px;
-        gap: 10px;
+        gap: 8px;
       }
       
       .filter-pill {
-        min-width: 70px;
-        padding: 8px 12px;
+        min-width: 65px;
+        padding: 8px 8px;
       }
       
       .filter-pill-icon {
-        width: 46px;
-        height: 46px;
-        font-size: 22px;
+        width: 38px;
+        height: 38px;
+        font-size: 19px;
       }
       
       .filter-pill-label {
@@ -580,9 +585,9 @@ function injectStyles() {
       }
       
       .profile-avatar {
-        width: 100px;
-        height: 100px;
-        margin-top: -50px;
+        width: 65px;
+        height: 65px;
+        margin-top: -32px;
         border-width: 3px;
       }
       
@@ -591,49 +596,49 @@ function injectStyles() {
       }
       
       .profile-header-row {
-        min-height: 55px;
+        min-height: 40px;
         margin-bottom: 10px;
       }
       
       .profile-name {
-        font-size: 18px;
+        font-size: 16px;
       }
       
       .profile-label,
       .profile-count {
-        font-size: 12px;
+        font-size: 11px;
       }
       
       .profile-bio {
-        font-size: 13px;
+        font-size: 12px;
         line-height: 1.4;
       }
       
       .profile-button {
-        padding: 7px 14px;
-        font-size: 12px;
+        padding: 6px 12px;
+        font-size: 11px;
       }
       
       .profile-menu-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 16px;
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
       }
       
       .filter-pills-container {
         padding: 10px;
-        gap: 8px;
+        gap: 6px;
       }
       
       .filter-pill {
-        min-width: 65px;
-        padding: 8px 10px;
+        min-width: 60px;
+        padding: 8px 8px;
       }
       
       .filter-pill-icon {
-        width: 42px;
-        height: 42px;
-        font-size: 20px;
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
       }
       
       .filter-pill-label {
@@ -641,7 +646,7 @@ function injectStyles() {
       }
     }
   `;
-  
+
   document.head.appendChild(style);
 }
 
@@ -649,9 +654,9 @@ function injectStyles() {
  * Hide the profile container
  */
 function hideProfileContainer() {
-  const container = document.getElementById('profile-container');
+  const container = document.getElementById("profile-container");
   if (container) {
-    container.classList.add('hidden');
+    container.classList.add("hidden");
   }
 }
 
@@ -659,9 +664,9 @@ function hideProfileContainer() {
  * Show the profile container
  */
 function showProfileContainer() {
-  const container = document.getElementById('profile-container');
+  const container = document.getElementById("profile-container");
   if (container) {
-    container.classList.remove('hidden');
+    container.classList.remove("hidden");
   }
 }
 
@@ -670,28 +675,34 @@ function showProfileContainer() {
  */
 function renderProfile() {
   showProfileContainer();
-  
-  const container = document.getElementById('profile-header');
+
+  const container = document.getElementById("profile-header");
   if (!container) return;
-  
+
   const { name, label } = extractLabel(profileState.profileName);
   const metadata = profileState.profileData || {};
-  
+
   // Get cover and avatar with fallbacks
-  const coverUrl = metadata.cover || './images/default-cover.jpg';
-  const avatarUrl = metadata.avatar || './images/default-avatar.jpg';
-  const bio = metadata.bio || '';
-  
+  const coverUrl = metadata.cover || "./images/default-cover.jpg";
+  const avatarUrl = metadata.avatar || "./images/default-avatar.jpg";
+  const bio = metadata.bio || "";
+
   // Calculate count
-  let countText = '';
-  if (profileState.profileType === 'institution') {
-    const count = countInstitutionDocuments(profileState.documents, profileState.profileName);
+  let countText = "";
+  if (profileState.profileType === "institution") {
+    const count = countInstitutionDocuments(
+      profileState.documents,
+      profileState.profileName,
+    );
     countText = `${count} Contributions`;
   } else {
-    const count = countJurisdictionContributors(profileState.documents, profileState.profileName);
+    const count = countJurisdictionContributors(
+      profileState.documents,
+      profileState.profileName,
+    );
     countText = `${count} Contributors`;
   }
-  
+
   container.innerHTML = `
     <div class="profile-cover">
       <img src="${escapeHtml(coverUrl)}" alt="Cover" />
@@ -708,9 +719,9 @@ function renderProfile() {
       </div>
       <div class="profile-details-section">
         <h1 class="profile-name">${escapeHtml(name)}</h1>
-        ${label ? `<span class="profile-label">${escapeHtml(label)}</span>` : ''}
+        ${label ? `<span class="profile-label">${escapeHtml(label)}</span>` : ""}
         <span class="profile-count">${escapeHtml(countText)}</span>
-        ${bio ? `<p class="profile-bio">${escapeHtml(bio)}</p>` : ''}
+        ${bio ? `<p class="profile-bio">${escapeHtml(bio)}</p>` : ""}
       </div>
     </div>
   `;
@@ -720,30 +731,34 @@ function renderProfile() {
  * Render the filter pills
  */
 function renderFilterPills() {
-  const container = document.getElementById('profile-filters');
+  const container = document.getElementById("profile-filters");
   if (!container) return;
-  
+
   const types = profileState.availableTypes;
-  
+
   container.innerHTML = `
     <div class="filter-pills-container">
-      ${types.map(type => `
+      ${types
+        .map(
+          (type) => `
         <button 
-          class="filter-pill ${type === profileState.currentFilter ? 'active' : ''}" 
+          class="filter-pill ${type === profileState.currentFilter ? "active" : ""}" 
           data-type="${escapeHtml(type)}"
         >
-<span class="filter-pill-icon">
-  ${getTypeIcon(type)}
-</span>
+          <span class="filter-pill-icon">
+            ${getTypeIcon(type)}
+          </span>
           <span class="filter-pill-label">${escapeHtml(capitalizeFirst(type))}</span>
         </button>
-      `).join('')}
+      `,
+        )
+        .join("")}
     </div>
   `;
-  
+
   // Add click handlers
-  container.querySelectorAll('.filter-pill').forEach(btn => {
-    btn.addEventListener('click', () => {
+  container.querySelectorAll(".filter-pill").forEach((btn) => {
+    btn.addEventListener("click", () => {
       const type = btn.dataset.type;
       setFilter(type);
     });
@@ -757,12 +772,12 @@ function renderFilterPills() {
  */
 function getTypeIcon(type) {
   const icons = {
-    all: '📂',
-    book: '📚',
-    policy: '📋',
-    decision: '⚖️'
+    all: "📂",
+    book: "📚",
+    policy: "📋",
+    decision: "⚖️",
   };
-  return icons[type.toLowerCase()] || '📄';
+  return icons[type.toLowerCase()] || "📄";
 }
 
 /**
@@ -780,12 +795,12 @@ function capitalizeFirst(str) {
  */
 function setFilter(type) {
   profileState.currentFilter = type;
-  
+
   // Update UI
-  document.querySelectorAll('.filter-pill').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.type === type);
+  document.querySelectorAll(".filter-pill").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.type === type);
   });
-  
+
   // Notify callback
   if (onFilterChangeCallback) {
     onFilterChangeCallback(type);
@@ -805,11 +820,12 @@ export function getCurrentFilter() {
  * @returns {Array} Filtered documents
  */
 export function getFilteredDocuments() {
-  if (profileState.currentFilter === 'all') {
+  if (profileState.currentFilter === "all") {
     return profileState.documents;
   }
-  return profileState.documents.filter(doc => 
-    doc.item.toLowerCase() === profileState.currentFilter.toLowerCase()
+  return profileState.documents.filter(
+    (doc) =>
+      doc.item.toLowerCase() === profileState.currentFilter.toLowerCase(),
   );
 }
 
