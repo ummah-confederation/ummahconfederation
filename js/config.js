@@ -2,7 +2,11 @@
  * Configuration Module
  * Loads and provides access to documents-config.json, institution-config.json, and jurisdiction-config.json
  * Optimized with aggressive caching to reduce network requests
+ * Includes cache-busting for development
  */
+
+// Cache version - increment this when config files change to bust cache
+const CACHE_VERSION = '1.0.0';
 
 let configCache = null;
 let institutionConfigCache = null;
@@ -37,13 +41,19 @@ function updateCacheTimestamp(cacheType) {
 }
 
 /**
- * Fetch with caching headers
+ * Fetch with caching and cache-busting
  * @param {string} url - URL to fetch
+ * @param {boolean} useCacheBusting - Whether to add cache-busting query param
  * @returns {Promise<Response>} Fetch response
  */
-async function fetchWithCache(url) {
-  return fetch(url, {
-    cache: 'force-cache', // Use browser cache when available
+async function fetchWithCache(url, useCacheBusting = true) {
+  // Add cache-busting query param based on version and timestamp
+  const cacheBuster = useCacheBusting 
+    ? `?v=${CACHE_VERSION}&t=${Date.now()}` 
+    : `?t=${Date.now()}`;
+  
+  return fetch(url + cacheBuster, {
+    cache: 'no-store', // Use no-store to let cache-busting query param control caching
     headers: {
       'Accept': 'application/json'
     }
@@ -244,6 +254,23 @@ export async function preloadAllConfigs() {
 }
 
 /**
+ * Get the current cache version
+ * @returns {string} Current cache version
+ */
+export function getCacheVersion() {
+  return CACHE_VERSION;
+}
+
+/**
+ * Set a new cache version to bust all caches
+ * @param {string} version - New version string
+ */
+export function setCacheVersion(version) {
+  // Clear all caches when version changes
+  clearConfigCache();
+}
+
+/**
  * Clear the config cache (useful for testing or hot-reload)
  */
 export function clearConfigCache() {
@@ -257,4 +284,11 @@ export function clearConfigCache() {
     jurisdictions: 0,
     squircleIcons: 0
   };
+}
+
+// Expose cache utilities globally for development (can be called from browser console)
+if (typeof window !== 'undefined') {
+  window.clearConfigCache = clearConfigCache;
+  window.getCacheVersion = getCacheVersion;
+  window.setCacheVersion = setCacheVersion;
 }
