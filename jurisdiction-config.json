@@ -3,28 +3,28 @@
   "lastUpdated": "2026-02-01",
   "jurisdictions": {
     "Ummah Cabinet Members [ Team Space]": {
-      "avatar": "./images/default-avatar.jpg",
-      "cover": "./images/default-cover.jpg",
+      "avatar": "./images/jurisdictions/default-avatar.jpg",
+      "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     },
     "General Public [Community]": {
-      "avatar": "./images/jurisdictions/general-public.png",
-      "cover": "./images/covers/general-public.png",
+      "avatar": "./images/jurisdictions/general-public.webp",
+      "cover": "./images/covers/general-public.webp",
       "bio": "Peace be upon you."
     },
     "Ummah Governance Members [ Team Space]": {
-      "avatar": "./images/default-avatar.jpg",
-      "cover": "./images/default-cover.jpg",
+      "avatar": "./images/jurisdictions/default-avatar.jpg",
+      "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     },
     "Ummah Federal Government Members [ Team Space]": {
-      "avatar": "./images/default-avatar.jpg",
-      "cover": "./images/default-cover.jpg",
+      "avatar": "./images/jurisdictions/default-avatar.jpg",
+      "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     },
     "Fathan's Space  [Personal Space]": {
-      "avatar": "./images/jurisdictions/fathan-husna.jpg",
-      "cover": "./images/covers/fathan-husna.png",
+      "avatar": "./images/jurisdictions/fathan-husna.webp",
+      "cover": "./images/covers/fathan-husna.webp",
       "bio": "Peace be upon you."
     }
   }
