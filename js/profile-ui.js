@@ -387,12 +387,13 @@ function injectStyles() {
     }
     
     .filter-pill:hover {
-      background: #f0f2f5;
+      background: #f5f5f5;
       transform: translateY(-2px);
     }
     
     .filter-pill.active {
-      background: #ededed;
+      
+      transform: translateY(-2px)
     }
     
     .filter-pill-icon {
