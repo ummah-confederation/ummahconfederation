@@ -17,6 +17,21 @@
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     },
+    "Ummah Media Worldwide [Non-Profit • Private]": {
+      "avatar": "./images/institutions/ummah-media-worldwide.webp",
+      "cover": "./images/covers/default-cover.webp",
+      "bio": "Peace be upon you."
+    },
+    "Ummah Education Ministry [Non-Profit • Private]": {
+      "avatar": "./images/jurisdictions/default-avatar.jpg",
+      "cover": "./images/covers/default-cover.webp",
+      "bio": "Peace be upon you."
+    },
+    "101 FnB [Profit • Public]": {
+      "avatar": "./images/institutions/101-FnB.webp",
+      "cover": "./images/covers/default-cover.webp",
+      "bio": "Peace be upon you."
+    },
     "Ummah Court [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-court.png",
       "cover": "./images/covers/default-cover.webp",
