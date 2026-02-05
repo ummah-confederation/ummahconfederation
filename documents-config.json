@@ -133,6 +133,42 @@
       "date": "2026-02-03T09:00:00",
       "dateFormatted": "03 Feb 2026 | 09:00",
       "visible": true
+    },
+    {
+      "id": "decision2",
+      "filename": "decision2.html",
+      "title": "Decision II — Education Ministry Establishment",
+      "item": "Decision",
+      "institution": "Ummah Education Ministry [Non-Profit • Private]",
+      "jurisdiction": "General Public [Community]",
+      "version": 1,
+      "date": "2026-02-03T09:00:00",
+      "dateFormatted": "03 Feb 2026 | 09:00",
+      "visible": true
+    },
+    {
+      "id": "decision3",
+      "filename": "decision3.html",
+      "title": "Decision III — Media Establishment",
+      "item": "Decision",
+      "institution": "Ummah Media Worldwide [Non-Profit • Private]",
+      "jurisdiction": "General Public [Community]",
+      "version": 1,
+      "date": "2026-02-03T09:00:00",
+      "dateFormatted": "03 Feb 2026 | 09:00",
+      "visible": true
+    },
+    {
+      "id": "decision4",
+      "filename": "decision4.html",
+      "title": "Decision IV — FnB Industry Establishment",
+      "item": "Decision",
+      "institution": "101 FnB [Profit • Public]",
+      "jurisdiction": "General Public [Community]",
+      "version": 1,
+      "date": "2026-02-03T09:00:00",
+      "dateFormatted": "03 Feb 2026 | 09:00",
+      "visible": true
     }
   ]
 }
