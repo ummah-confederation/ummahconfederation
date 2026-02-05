@@ -32,6 +32,11 @@
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     },
+    "Techplaza [Profit • Private]": {
+      "avatar": "./images/institutions/tech-plaza.webp",
+      "cover": "./images/covers/default-cover.webp",
+      "bio": "Peace be upon you."
+    },
     "Ummah Court [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-court.png",
       "cover": "./images/covers/default-cover.webp",
