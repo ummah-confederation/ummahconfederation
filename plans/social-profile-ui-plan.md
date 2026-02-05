@@ -74,7 +74,7 @@ flowchart TB
 // jurisdiction-config.json
 {
   "jurisdictions": {
-    "Ummah Cabinet Members [ Team Space]": {
+    "Ummah Cabinet Members [Team Space]": {
       "avatar": "./images/jurisdictions/ummah-cabinet.jpg",
       "cover": "./images/covers/ummah-cabinet.jpg",
       "bio": "This is for bio."

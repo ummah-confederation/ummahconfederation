@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "lastUpdated": "2026-02-01",
   "jurisdictions": {
-    "Ummah Cabinet Members [ Team Space]": {
+    "Ummah Cabinet Members [Team Space]": {
       "avatar": "./images/jurisdictions/default-avatar.jpg",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
@@ -12,19 +12,24 @@
       "cover": "./images/covers/general-public.webp",
       "bio": "Peace be upon you."
     },
-    "Ummah Governance Members [ Team Space]": {
+    "Ummah Governance Members [Team Space]": {
       "avatar": "./images/jurisdictions/default-avatar.jpg",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     },
-    "Ummah Confederation Members [ Team Space]": {
+    "Ummah Confederation Members [Team Space]": {
       "avatar": "./images/jurisdictions/default-avatar.jpg",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     },
-    "Fathan's Space  [Personal Space]": {
+    "Fathan's Space [Personal Space]": {
       "avatar": "./images/jurisdictions/fathan-husna.webp",
       "cover": "./images/covers/fathan-husna.webp",
+      "bio": "Peace be upon you."
+    },
+    "Education [Sector]": {
+      "avatar": "./images/jurisdictions/default-avatar.jpg",
+      "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     }
   }

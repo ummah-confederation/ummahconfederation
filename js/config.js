@@ -127,6 +127,7 @@ export async function loadJurisdictionConfig() {
     }
 
     const config = await response.json();
+    
     jurisdictionConfigCache = config;
     updateCacheTimestamp('jurisdictions');
     return config;
