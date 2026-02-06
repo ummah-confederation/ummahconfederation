@@ -193,6 +193,18 @@
       "date": "2026-02-03T09:00:00",
       "dateFormatted": "03 Feb 2026 | 09:00",
       "visible": true
+    },
+    {
+      "id": "Book8",
+      "filename": "book8.html",
+      "title": "Book VIII — Segment Design Guideline",
+      "item": "Book",
+      "institution": "Ummah Media Worldwide [Non-Profit • Private]",
+      "jurisdiction": "General Public [Community]",
+      "version": 1,
+      "date": "2026-02-03T09:00:00",
+      "dateFormatted": "03 Feb 2026 | 09:00",
+      "visible": true
     }
   ]
 }
