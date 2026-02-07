@@ -4,20 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DAARUSSALAAM — Index</title>
-    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
-    
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png" />
+
     <!-- Tailwind CSS - Compiled for Production -->
-    <link rel="stylesheet" href="./dist/output.css">
-    
+    <link rel="stylesheet" href="./dist/output.css" />
+
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
       /* Base styles */
       body {
-        font-family: 'Spectral', serif;
+        font-family: "Spectral", serif;
         background-color: #f5f5f0;
         color: #1a1a1a;
         line-height: 1.7;
@@ -25,8 +28,9 @@
 
       /* Paper texture background */
       .paper-sheet {
-        background-image: linear-gradient(rgba(245, 245, 240, 0.2) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(245, 245, 240, 0.2) 1px, transparent 1px);
+        background-image:
+          linear-gradient(rgba(245, 245, 240, 0.2) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(245, 245, 240, 0.2) 1px, transparent 1px);
         background-size: 20px 20px;
       }
 
@@ -51,10 +55,10 @@
         padding-bottom: 2rem;
         margin-bottom: 1.5rem;
       }
-.squircle-emoji {
-  font-size: 2.25rem;
-  line-height: 1;
-}
+      .squircle-emoji {
+        font-size: 2.25rem;
+        line-height: 1;
+      }
 
       /* UI Mode Styles */
       /* Content Gallery - iOS Squircle Grid */
@@ -69,13 +73,23 @@
         .content-gallery {
           grid-template-columns: repeat(4, 1fr);
           gap: 1rem;
+          padding: 0.25rem;
         }
       }
 
       @media (max-width: 480px) {
         .content-gallery {
-          grid-template-columns: repeat(4, 1fr);
-          gap: 0.75rem;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.5rem;
+          padding: 0;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .content-gallery {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.375rem;
+          padding: 0;
         }
       }
 
@@ -86,6 +100,7 @@
         text-decoration: none;
         color: inherit;
         transition: transform 0.2s ease;
+        min-width: 0; /* Allow flex items to shrink below content size */
       }
 
       .squircle-item:hover {
@@ -102,6 +117,7 @@
         justify-content: center;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         overflow: hidden;
+        flex-shrink: 0; /* Prevent squircle from shrinking */
       }
 
       .squircle img {
@@ -112,10 +128,33 @@
 
       .squircle-label {
         margin-top: 0.5rem;
-        font-size: 1rem;
+        font-size: 0.875rem;
         color: #1a1a1a;
         text-align: center;
-     
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Limit to 2 lines */
+        -webkit-box-orient: vertical;
+        line-height: 1.3;
+        max-height: 2.6em; /* 2 lines × 1.3 line-height */
+      }
+
+      @media (max-width: 480px) {
+        .squircle-label {
+          font-size: 0.75rem;
+          margin-top: 0.375rem;
+          -webkit-line-clamp: 2;
+          max-height: 2.6em;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .squircle-label {
+          font-size: 0.7rem;
+          margin-top: 0.25rem;
+        }
       }
 
       /* Card Gallery - Account/Space Cards */
@@ -146,7 +185,9 @@
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         border: 1px solid #e5e7eb;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
         text-decoration: none;
         color: inherit;
         display: block;
@@ -183,7 +224,6 @@
         width: 80%;
         height: 80%;
         object-fit: contain;
-
       }
 
       .id-card-content {
@@ -194,7 +234,7 @@
       /* EDIT TEXT SIZES: Adjust these values to change card text sizes */
       .id-card-name {
         font-weight: 600;
-        font-size: 1rem;  /* EDIT: Institution/Jurisdiction name size */
+        font-size: 1rem; /* EDIT: Institution/Jurisdiction name size */
         color: #111827;
         margin-bottom: 0.3rem;
         white-space: nowrap;
@@ -203,7 +243,7 @@
       }
 
       .id-card-label {
-        font-size: 1rem;  /* EDIT: Label text size */
+        font-size: 1rem; /* EDIT: Label text size */
         color: #6b7280;
         margin-bottom: 0.25rem;
         white-space: nowrap;
@@ -212,7 +252,7 @@
       }
 
       .id-card-count {
-        font-size: 1rem;  /* EDIT: Count text size */
+        font-size: 1rem; /* EDIT: Count text size */
         color: #6b7280;
         white-space: nowrap;
         overflow: hidden;
@@ -229,14 +269,19 @@
   </head>
 
   <body class="py-10 px-5">
-    <div class="paper-sheet max-w-4xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 lg:px-20 lg:py-20 mb-16" id="main-container">
+    <div
+      class="paper-sheet max-w-4xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 lg:px-20 lg:py-20 mb-16"
+      id="main-container"
+    >
       <img
         src="images/admin-seal.webp"
         alt="Administrative Seal"
         class="block mx-auto w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 object-contain mb-5"
       />
 
-      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-wider uppercase text-center text-black">
+      <h2
+        class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-wider uppercase text-center text-black"
+      >
         DAARUSSALAAM
       </h2>
 
@@ -245,13 +290,22 @@
         <!-- Tab Navigation -->
         <div class="flex justify-center mb-8 mt-6">
           <div class="inline-flex bg-gray-100 rounded-lg p-1">
-            <button class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all text-gray-600 hover:text-gray-900" data-tab="account">
+            <button
+              class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all text-gray-600 hover:text-gray-900"
+              data-tab="account"
+            >
               Account
             </button>
-            <button class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all bg-white shadow-sm text-gray-900" data-tab="content">
+            <button
+              class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all bg-white shadow-sm text-gray-900"
+              data-tab="content"
+            >
               Content
             </button>
-            <button class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all text-gray-600 hover:text-gray-900" data-tab="space">
+            <button
+              class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all text-gray-600 hover:text-gray-900"
+              data-tab="space"
+            >
               Space
             </button>
           </div>
@@ -267,7 +321,9 @@
 
         <!-- Account Tab -->
         <div id="account-tab" class="tab-content hidden">
-          <h3 class="text-2xl font-semibold text-gray-900 mb-6">All Accounts</h3>
+          <h3 class="text-2xl font-semibold text-gray-900 mb-6">
+            All Accounts
+          </h3>
           <div id="account-gallery" class="card-gallery">
             <!-- Dynamically populated -->
           </div>
@@ -286,4 +342,3 @@
     <script type="module" src="js/index-main.js"></script>
   </body>
 </html>
-
