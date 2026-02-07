@@ -217,10 +217,18 @@ async function renderAccountGallery(institutions, documents) {
   // Get all metadata from preloaded data
   const institutionMeta = preloadedData?.institutions?.institutions || {};
 
+  // Build array of institutions with contribution counts
+  const institutionCounts = [];
   for (const institution of institutions) {
     // Count documents for this institution
     const docCount = documents.filter(doc => doc.institution === institution).length;
+    institutionCounts.push({ institution, docCount });
+  }
+  
+  // Sort by contribution count in descending order
+  institutionCounts.sort((a, b) => b.docCount - a.docCount);
 
+  for (const { institution, docCount } of institutionCounts) {
     // Parse institution name to get display name and label
     const { displayName, label } = parseInstitution(institution);
 
@@ -269,6 +277,8 @@ async function renderSpaceGallery(jurisdictions, documents) {
   // Get all metadata from preloaded data
   const jurisdictionMeta = preloadedData?.jurisdictions?.jurisdictions || {};
 
+  // Build array of jurisdictions with contributor counts
+  const jurisdictionCounts = [];
   for (const jurisdiction of jurisdictions) {
     // Extract label from square brackets if present
     const bracketMatch = jurisdiction.match(/\[(.*?)\]/);
@@ -280,6 +290,13 @@ async function renderSpaceGallery(jurisdictions, documents) {
     const uniqueInstitutions = new Set(docsInJurisdiction.map(doc => doc.institution));
     const contributorCount = uniqueInstitutions.size;
 
+    jurisdictionCounts.push({ jurisdiction, displayName, label, contributorCount });
+  }
+  
+  // Sort by contributor count in descending order
+  jurisdictionCounts.sort((a, b) => b.contributorCount - a.contributorCount);
+
+  for (const { jurisdiction, displayName, label, contributorCount } of jurisdictionCounts) {
     // Get jurisdiction metadata from preloaded data
     const metadata = jurisdictionMeta[jurisdiction] || null;
     const avatarUrl = metadata?.avatar || null;
