@@ -171,10 +171,10 @@
       "visible": true
     },
     {
-      "id": "Book7",
-      "filename": "book7.html",
-      "title": "Book VII — Curriculum Design Guideline",
-      "item": "Book",
+      "id": "Guideline1",
+      "filename": "guideline1.html",
+      "title": "Guideline I — Curriculum Design Guideline",
+      "item": "Guideline",
       "institution": "Ummah Education Ministry [Non-Profit • Private]",
       "jurisdiction": "Education [Sector]",
       "version": 1,
@@ -195,10 +195,10 @@
       "visible": true
     },
     {
-      "id": "Book8",
-      "filename": "book8.html",
-      "title": "Book VIII — SSC Design Guideline",
-      "item": "Book",
+      "id": "Guideline2",
+      "filename": "Guideline2.html",
+      "title": "Guideline II — SSC Design Guideline",
+      "item": "Guideline",
       "institution": "Ummah Media Worldwide [Non-Profit • Private]",
       "jurisdiction": "General Public [Community]",
       "version": 1,

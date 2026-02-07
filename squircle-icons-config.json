@@ -3,6 +3,7 @@
   "lastUpdated": "2026-02-01",
   "icons": {
     "Book": { "emoji": "📚" },
+    "Guideline": { "emoji": "💎" },
     "Policy": { "emoji": "📋" },
     "Decision": { "emoji": "⚖️" }
   }
