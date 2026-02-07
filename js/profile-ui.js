@@ -775,6 +775,7 @@ function getTypeIcon(type) {
   const icons = {
     all: "📂",
     book: "📚",
+    guideline: "💎",
     policy: "📋",
     decision: "⚖️",
   };
