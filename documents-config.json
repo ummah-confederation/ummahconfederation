@@ -205,6 +205,18 @@
       "date": "2026-02-03T09:00:00",
       "dateFormatted": "03 Feb 2026 | 09:00",
       "visible": true
+    },
+    {
+      "id": "Decision6",
+      "filename": "Decision6.html",
+      "title": "Decision VI — Protector Military Establishment",
+      "item": "Decision",
+      "institution": "Ummah Military [Non-Profit • Private]",
+      "jurisdiction": "General Public [Community]",
+      "version": 1,
+      "date": "2026-02-03T09:00:00",
+      "dateFormatted": "03 Feb 2026 | 09:00",
+      "visible": true
     }
   ]
 }

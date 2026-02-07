@@ -41,6 +41,11 @@
       "avatar": "./images/institutions/ummah-court.png",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
+    },
+    "Ummah Military [Non-Profit • Private]": {
+      "avatar": "./images/institutions/ummah-military.webp",
+      "cover": "./images/covers/default-cover.webp",
+      "bio": "Peace be upon you."
     }
   }
 }
