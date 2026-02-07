@@ -5,6 +5,7 @@
     "Book": { "emoji": "📚" },
     "Guideline": { "emoji": "💎" },
     "Policy": { "emoji": "📋" },
-    "Decision": { "emoji": "⚖️" }
+    "Decision": { "emoji": "ℹ️" },
+    "Verdict": {"emoji": "⚖️" }
   }
 }

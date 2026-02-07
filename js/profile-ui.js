@@ -777,7 +777,8 @@ function getTypeIcon(type) {
     book: "📚",
     guideline: "💎",
     policy: "📋",
-    decision: "⚖️",
+    decision: "ℹ️",
+    verdict: "⚖️",
   };
   return icons[type.toLowerCase()] || "📄";
 }
