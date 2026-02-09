@@ -3,7 +3,7 @@
   "lastUpdated": "2026-02-01",
   "jurisdictions": {
     "Ummah Cabinet Members [Team Space]": {
-      "avatar": "./images/jurisdictions/default-avatar.jpg",
+      "avatar": "./images/institutions/ummah-cabinet.png",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     },
@@ -13,12 +13,12 @@
       "bio": "Peace be upon you."
     },
     "Ummah Governance Members [Team Space]": {
-      "avatar": "./images/jurisdictions/default-avatar.jpg",
+      "avatar": "./images/institutions/ummah-governance.png",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     },
     "Ummah Confederation Members [Team Space]": {
-      "avatar": "./images/jurisdictions/default-avatar.jpg",
+      "avatar": "./images/institutions/ummah-confederation.png",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     },
@@ -28,7 +28,7 @@
       "bio": "Peace be upon you."
     },
     "Education [Sector]": {
-      "avatar": "./images/jurisdictions/default-avatar.jpg",
+      "avatar": "./images/jurisdictions/education.jpg",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     }

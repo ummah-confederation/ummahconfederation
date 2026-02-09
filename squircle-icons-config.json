@@ -6,6 +6,7 @@
     "Guideline": { "emoji": "💎" },
     "Policy": { "emoji": "📋" },
     "Decision": { "emoji": "ℹ️" },
-    "Verdict": {"emoji": "⚖️" }
+    "Verdict": {"emoji": "⚖️" },
+     "Note": {"emoji": "📎" }
   }
 }

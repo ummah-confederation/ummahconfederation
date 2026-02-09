@@ -779,6 +779,7 @@ function getTypeIcon(type) {
     policy: "📋",
     decision: "ℹ️",
     verdict: "⚖️",
+    note: "📎",
   };
   return icons[type.toLowerCase()] || "📄";
 }

@@ -46,6 +46,11 @@
       "avatar": "./images/institutions/ummah-military.webp",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
+    },
+    "Fathan Husna [Individual]": {
+      "avatar": "./images/jurisdictions/fathan-husna.webp",
+      "cover": "./images/covers/fathan-husna.webp",
+      "bio": "Peace be upon you."
     }
   }
 }

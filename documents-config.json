@@ -217,6 +217,18 @@
       "date": "2026-02-03T09:00:00",
       "dateFormatted": "03 Feb 2026 | 09:00",
       "visible": true
+    },
+    {
+      "id": "Note1",
+      "filename": "note1.html",
+      "title": "Note 1 — Productive Worry",
+      "item": "Note",
+      "institution": "Fathan Husna [Individual]",
+      "jurisdiction": "Fathan's Space [Personal Space]",
+      "version": 1,
+      "date": "2026-02-03T09:00:00",
+      "dateFormatted": "03 Feb 2026 | 09:00",
+      "visible": true
     }
   ]
 }
