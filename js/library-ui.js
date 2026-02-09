@@ -18,8 +18,15 @@ let isProfileMode = false;
  * @returns {HTMLElement} Row element
  */
 function createLibraryRow(doc) {
+  const profileInfo = detectProfileMode();
+  const isInstitutionProfile = profileInfo?.type === 'institution';
+  const isJurisdictionProfile = profileInfo?.type === 'jurisdiction';
+  const isProfileMode = isInstitutionProfile || isJurisdictionProfile;
+
   const row = document.createElement('div');
-  row.className = 'library-row sm:grid sm:grid-cols-[1fr_120px_140px] gap-4 items-baseline border-b border-gray-200 py-2';
+  // Use 2-column layout for profile mode with smaller gap, 3-column for non-profile
+  const gridClass = isProfileMode ? 'sm:grid sm:grid-cols-[1fr_auto]' : 'sm:grid sm:grid-cols-[1fr_120px_140px]';
+  row.className = `library-row ${gridClass} gap-3 items-baseline border-b border-gray-200 py-2`;
   row.dataset.name = doc.title;
   row.dataset.version = doc.version;
   row.dataset.date = doc.date;
@@ -29,26 +36,43 @@ function createLibraryRow(doc) {
 
   // Title cell with link
   const titleCell = document.createElement('span');
-  titleCell.className = 'overflow-hidden text-ellipsis whitespace-nowrap';
+  titleCell.className = 'overflow-hidden text-ellipsis whitespace-nowrap min-w-0';
   const link = document.createElement('a');
   link.href = doc.filename;
   link.textContent = doc.title;
   link.className = 'block overflow-hidden text-ellipsis whitespace-nowrap';
   titleCell.appendChild(link);
 
-  // Version cell
-  const versionCell = document.createElement('span');
-  versionCell.className = 'library-version text-center tabular-nums';
-  versionCell.innerHTML = `<span class="sm:hidden text-base">Version </span>${doc.version}`;
+  // Metadata cell - conditionally rendered based on profile mode
+  const metadataCell = document.createElement('span');
 
-  // Date cell
-  const dateCell = document.createElement('span');
-  dateCell.className = 'library-date text-right whitespace-nowrap';
-  dateCell.textContent = doc.dateFormatted;
+  if (isInstitutionProfile) {
+    // Institution Profile: Show "Posted in {Jurisdiction Name}"
+    metadataCell.className = 'library-metadata text-right whitespace-nowrap overflow-hidden text-ellipsis shrink-0';
+    metadataCell.innerHTML = `<span class="sm:hidden text-base">Posted in </span>${escapeHtml(doc.jurisdiction || '')}`;
+  } else if (isJurisdictionProfile) {
+    // Jurisdiction Profile: Show "Posted by {Institution Name}"
+    metadataCell.className = 'library-metadata text-right whitespace-nowrap overflow-hidden text-ellipsis shrink-0';
+    metadataCell.innerHTML = `<span class="sm:hidden text-base">Posted by </span>${escapeHtml(doc.institution || '')}`;
+  } else {
+    // Non-profile mode: Show version and date (default behavior)
+    const versionCell = document.createElement('span');
+    versionCell.className = 'library-version text-center tabular-nums';
+    versionCell.innerHTML = `<span class="sm:hidden text-base">Version </span>${doc.version}`;
+
+    const dateCell = document.createElement('span');
+    dateCell.className = 'library-date text-right whitespace-nowrap';
+    dateCell.textContent = doc.dateFormatted;
+
+    row.appendChild(titleCell);
+    row.appendChild(versionCell);
+    row.appendChild(dateCell);
+
+    return row;
+  }
 
   row.appendChild(titleCell);
-  row.appendChild(versionCell);
-  row.appendChild(dateCell);
+  row.appendChild(metadataCell);
 
   return row;
 }
@@ -64,23 +88,48 @@ function renderLibraryTable(documents) {
     return;
   }
 
+  // Detect profile mode for header
+  const profileInfo = detectProfileMode();
+  const isInstitutionProfile = profileInfo?.type === 'institution';
+  const isJurisdictionProfile = profileInfo?.type === 'jurisdiction';
+  const isProfileMode = isInstitutionProfile || isJurisdictionProfile;
+
   // Keep the header row, remove data rows
   const header = container.querySelector('.library-header');
   container.innerHTML = '';
 
-  if (header) {
-    container.appendChild(header);
+  // Build header based on profile mode
+  let headerHTML = '';
+
+  if (isProfileMode) {
+    // Profile mode: Show "Title | Posted in/by" with proper grid layout
+    if (isInstitutionProfile) {
+      headerHTML = `
+        <div class="library-row library-header grid grid-cols-[1fr_auto] gap-3 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
+          <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
+          <span class="text-right whitespace-nowrap">Posted in</span>
+        </div>
+      `;
+    } else {
+      headerHTML = `
+        <div class="library-row library-header grid grid-cols-[1fr_auto] gap-3 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
+          <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
+          <span class="text-right whitespace-nowrap">Posted by</span>
+        </div>
+      `;
+    }
   } else {
-    // Create header if not present
-    const headerRow = document.createElement('div');
-    headerRow.className = 'library-row library-header hidden sm:grid sm:grid-cols-[1fr_120px_140px] gap-4 items-baseline text-left font-bold border-b border-black pb-1 mb-3';
-    headerRow.innerHTML = `
-      <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
-      <span class="text-center tabular-nums">Version</span>
-      <span class="text-right whitespace-nowrap">Updated Date</span>
+    // Non-profile mode header: Title | Version | Updated Date (inline)
+    headerHTML = `
+      <div class="library-row library-header hidden sm:grid sm:grid-cols-[1fr_120px_140px] gap-4 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
+        <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
+        <span class="text-center tabular-nums">Version</span>
+        <span class="text-right whitespace-nowrap">Updated Date</span>
+      </div>
     `;
-    container.appendChild(headerRow);
   }
+
+  container.innerHTML = headerHTML;
 
   // Add document rows
   documents.forEach(doc => {
@@ -159,6 +208,16 @@ export async function initializeLibrary(urlFilters = {}, profileInfo = null) {
     // Update body class for UI mode styling
     updateBodyProfileClass(isProfileMode);
 
+    // Hide sort controls in profile mode
+    const sortControls = document.querySelector('.sort-controls-wrapper');
+    if (sortControls) {
+      if (isProfileMode) {
+        sortControls.classList.add('hidden');
+      } else {
+        sortControls.classList.remove('hidden');
+      }
+    }
+
     // Use provided URL filters for context display
     // Only load and filter documents if not already set (e.g., by profile mode in main.js)
     if (currentDocuments.length === 0) {
@@ -177,15 +236,17 @@ export async function initializeLibrary(urlFilters = {}, profileInfo = null) {
     updateContext(urlFilters);
     updateSortButtons(currentSort);
 
-    // Setup sort button handlers
-    document.querySelectorAll('.sort-controls button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const sortType = btn.dataset.sort;
-        if (sortType) {
-          sortLibrary(sortType);
-        }
+    // Setup sort button handlers (only in non-profile mode)
+    if (!isProfileMode) {
+      document.querySelectorAll('.sort-controls button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sortType = btn.dataset.sort;
+          if (sortType) {
+            sortLibrary(sortType);
+          }
+        });
       });
-    });
+    }
 
   } catch (error) {
     console.error('Failed to initialize library:', error);
