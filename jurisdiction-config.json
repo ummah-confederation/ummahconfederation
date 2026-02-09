@@ -27,8 +27,13 @@
       "cover": "./images/covers/fathan-husna.webp",
       "bio": "Peace be upon you."
     },
-    "Education [Sector]": {
-      "avatar": "./images/jurisdictions/education.jpg",
+    "Ummah Media Worldwide Members [Team Space]": {
+      "avatar": "./images/institutions/ummah-media-worldwide.webp",
+      "cover": "./images/covers/default-cover.webp",
+      "bio": "Peace be upon you."
+    },
+    "Ummah Education Ministry Members [Team Space]": {
+      "avatar": "./images/institutions/ummah-education-ministry.jpg",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you."
     }
