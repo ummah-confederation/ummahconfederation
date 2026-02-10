@@ -1839,6 +1839,122 @@ body.has-profile #main-container {
 #profile-container:not(.hidden) + #library-context {
   display: none;
 }
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.prayer-times-container {
+  max-width: 850px;
+  width: 100%;
+  margin: 0 auto 1rem auto;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition: background-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+.dark .prayer-times-container {
+  background: #1f2937;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.prayer-times-marquee {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+}
+.dark .prayer-times-marquee {
+  background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+}
+.prayer-times-marquee-content {
+  display: flex;
+  align-items: center;
+  animation: marquee 40s linear infinite;
+  padding-right: 2rem;
+  will-change: transform;
+}
+.prayer-times-marquee:hover .prayer-times-marquee-content {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.prayer-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+.prayer-label {
+  color: #e2e8f0;
+  font-weight: 400;
+}
+.dark .prayer-label {
+  color: #94a3b8;
+}
+.prayer-value {
+  color: #ffffff;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.dark .prayer-value {
+  text-shadow: none;
+}
+.prayer-separator {
+  margin: 0 0.75rem;
+  color: #cbd5e1;
+  flex-shrink: 0;
+}
+.dark .prayer-separator {
+  color: #475569;
+}
+.prayer-error {
+  color: #fca5a5;
+  font-style: italic;
+}
+@media (max-width: 640px) {
+  .prayer-times-container {
+    margin-bottom: 0.75rem;
+  }
+  .prayer-times-marquee {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+  .prayer-separator {
+    margin: 0 0.5rem;
+  }
+  .prayer-times-marquee-content {
+    animation-duration: 25s;
+  }
+}
+@media (max-width: 480px) {
+  .prayer-times-marquee {
+    padding: 0.5rem 0.625rem;
+    font-size: 0.75rem;
+  }
+  .prayer-separator {
+    margin: 0 0.375rem;
+  }
+  .prayer-times-marquee-content {
+    animation-duration: 20s;
+  }
+}
 #main-container {
   max-width: 850px;
   width: 100%;
