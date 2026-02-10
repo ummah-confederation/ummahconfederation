@@ -65,3 +65,47 @@
   --profile-border: #e4e6eb;
   --profile-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
+
+/* Dark Mode Variables */
+.dark {
+  /* Colors */
+  --color-paper: #1a1a1a;
+  --color-ink: #f5f5f0;
+  --color-black: #ffffff;
+  --color-white: #1a1a1a;
+  --color-gray-100: #1f2937;
+  --color-gray-600: #9ca3af;
+  --color-gray-900: #f9fafb;
+  --color-accent: #3b82f6;
+  --color-border: #374151;
+  --color-border-light: #374151;
+  --color-border-dark: #4b5563;
+
+  /* Gradients */
+  --gradient-squircle: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
+  --gradient-squircle-active: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --gradient-squircle-inactive: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  --gradient-profile: linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%);
+  --gradient-id-card: linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%);
+
+  /* Shadows */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-profile: 0 0 20px rgba(0, 0, 0, 0.3);
+  --shadow-avatar: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-button: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-squircle-active: 0 4px 12px rgba(59, 130, 246, 0.5);
+
+  /* Paper Texture */
+  --paper-texture: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+
+  /* Profile Theme Variables */
+  --profile-bg: #111827;
+  --profile-card-bg: #1f2937;
+  --profile-text-primary: #f9fafb;
+  --profile-text-secondary: #9ca3af;
+  --profile-accent: #3b82f6;
+  --profile-border: #374151;
+  --profile-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}

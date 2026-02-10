@@ -125,6 +125,10 @@
   box-shadow: var(--shadow-card);
 }
 
+.dark .card {
+  background: #1f2937;
+}
+
 .card-sm {
   padding: var(--spacing-md);
 }
