@@ -2,6 +2,31 @@
    COMPONENT STYLES
    ============================================ */
 
+/* Admin Seal Component */
+.admin-seal {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+  margin-bottom: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .admin-seal {
+    width: 6rem;
+    height: 6rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-seal {
+    width: 8rem;
+    height: 8rem;
+  }
+}
+
 /* Paper Sheet Component */
 .paper-sheet {
   max-width: 850px;
