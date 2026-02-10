@@ -181,11 +181,9 @@ function injectStyles() {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: transparent;
       width: 100%;
-      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      max-width: 100%;
+      gap: 10px;
       margin: 0 auto;
     }
     
@@ -355,9 +353,9 @@ function injectStyles() {
     }
     
     .filter-pills-container {
-      padding: 16px;
+      padding: 12px;
       display: flex;
-      gap: 12px;
+      gap: 8px;
       overflow-x: auto;
       overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
@@ -375,14 +373,14 @@ function injectStyles() {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
-      padding: 12px 12px;
+      gap: 6px;
+      padding: 10px 12px;
       background: transparent;
       border: none;
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.2s ease;
-      min-width: 80px;
+      min-width: 70px;
       scroll-snap-align: start;
     }
     
@@ -392,26 +390,25 @@ function injectStyles() {
     }
     
     .filter-pill.active {
-      
-      transform: translateY(-2px)
+      transform: translateY(-2px);
     }
     
     .filter-pill-icon {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       border-radius: 12px;
       background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 20px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       transition: transform 0.2s ease;
       flex-shrink: 0;
     }
     
     .filter-pill-label {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       color: var(--profile-text-secondary);
       text-align: center;
@@ -443,8 +440,7 @@ function injectStyles() {
     /* Tablet */
     @media (max-width: 768px) {
       #profile-container {
-        padding: 12px;
-        gap: 12px;
+        gap: 10px;
       }
       
       .profile-cover {
@@ -482,31 +478,30 @@ function injectStyles() {
       }
       
       .filter-pill {
-        min-width: 70px;
-        padding: 10px 10px;
+        min-width: 60px;
+        padding: 8px 10px;
       }
       
       .filter-pill-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
       }
       
       .filter-pill-label {
-        font-size: 12px;
+        font-size: 11px;
       }
       
       .filter-pills-container {
-        padding: 14px;
-        gap: 10px;
+        padding: 10px;
+        gap: 6px;
       }
     }
     
     /* Mobile Large */
     @media (max-width: 576px) {
       #profile-container {
-        padding: 12px;
-        gap: 12px;
+        gap: 10px;
       }
       
       .profile-cover {
@@ -553,31 +548,30 @@ function injectStyles() {
         font-size: 16px;
       }
       
-      .filter-pills-container {
-        padding: 12px;
-        gap: 8px;
-      }
-      
       .filter-pill {
-        min-width: 65px;
-        padding: 8px 8px;
+        min-width: 55px;
+        padding: 6px 8px;
       }
       
       .filter-pill-icon {
-        width: 38px;
-        height: 38px;
-        font-size: 19px;
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
       }
       
       .filter-pill-label {
-        font-size: 11px;
+        font-size: 10px;
+      }
+      
+      .filter-pills-container {
+        padding: 8px;
+        gap: 4px;
       }
     }
     
     /* Mobile Small */
     @media (max-width: 375px) {
       #profile-container {
-        padding: 10px;
         gap: 10px;
       }
       
@@ -626,24 +620,24 @@ function injectStyles() {
         font-size: 14px;
       }
       
-      .filter-pills-container {
-        padding: 10px;
-        gap: 6px;
-      }
-      
       .filter-pill {
-        min-width: 60px;
-        padding: 8px 8px;
+        min-width: 50px;
+        padding: 5px 6px;
       }
       
       .filter-pill-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 18px;
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
       }
       
       .filter-pill-label {
-        font-size: 10px;
+        font-size: 9px;
+      }
+      
+      .filter-pills-container {
+        padding: 6px;
+        gap: 4px;
       }
     }
   `;

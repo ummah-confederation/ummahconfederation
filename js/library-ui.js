@@ -104,29 +104,29 @@ function renderLibraryTable(documents) {
   if (isProfileMode) {
     // Profile mode: Show "Title | Posted in/by" with proper grid layout
     if (isInstitutionProfile) {
-      headerHTML = `
-        <div class="library-row library-header grid grid-cols-[1fr_auto] gap-3 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
-          <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
-          <span class="text-right whitespace-nowrap">Posted in</span>
-        </div>
-      `;
+  headerHTML = `
+  <div class="library-row library-header sm:grid grid-cols-[1fr_auto] gap-3 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
+    <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
+    <span class="text-right whitespace-nowrap">Posted in</span>
+  </div>
+`;
     } else {
-      headerHTML = `
-        <div class="library-row library-header grid grid-cols-[1fr_auto] gap-3 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
-          <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
-          <span class="text-right whitespace-nowrap">Posted by</span>
-        </div>
-      `;
+   headerHTML = `
+  <div class="library-row library-header sm:grid grid-cols-[1fr_auto] gap-3 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
+    <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
+    <span class="text-right whitespace-nowrap">Posted by</span>
+  </div>
+`;
     }
   } else {
     // Non-profile mode header: Title | Version | Updated Date (inline)
-    headerHTML = `
-      <div class="library-row library-header hidden sm:grid sm:grid-cols-[1fr_120px_140px] gap-4 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
-        <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
-        <span class="text-center tabular-nums">Version</span>
-        <span class="text-right whitespace-nowrap">Updated Date</span>
-      </div>
-    `;
+ headerHTML = `
+  <div class="library-row library-header sm:grid grid-cols-[1fr_120px_140px] gap-4 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
+    <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
+    <span class="text-center tabular-nums">Version</span>
+    <span class="text-right whitespace-nowrap">Updated Date</span>
+  </div>
+`;
   }
 
   container.innerHTML = headerHTML;
