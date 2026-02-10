@@ -196,7 +196,7 @@ function injectStyles() {
       width: 100%;
       background: var(--profile-card-bg);
       border-radius: 16px;
-      overflow: visible;
+      overflow: hidden;
       box-shadow: var(--profile-shadow);
       flex-shrink: 0;
     }
@@ -208,7 +208,7 @@ function injectStyles() {
       overflow: hidden;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       position: relative;
-      border-radius: 16px 16px 0 0;
+      border-radius: 0;
     }
     
     .profile-cover img {
@@ -493,7 +493,7 @@ function injectStyles() {
       }
       
       .filter-pills-container {
-        padding: 10px;
+        padding: 12px;
         gap: 6px;
       }
     }
@@ -564,7 +564,7 @@ function injectStyles() {
       }
       
       .filter-pills-container {
-        padding: 8px;
+        padding: 12px;
         gap: 4px;
       }
     }
@@ -636,7 +636,7 @@ function injectStyles() {
       }
       
       .filter-pills-container {
-        padding: 6px;
+        padding: 12px;
         gap: 4px;
       }
     }
