@@ -1,21 +1,27 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./*.html", "./js/**/*.js"],
+  content: ["./*.html", "./js/**/*.js", "./src/styles/**/*.css"],
   theme: {
     extend: {
       fontFamily: {
-        serif: ['Spectral', 'serif'],
-        arabic: ['Traditional Arabic', 'Arabic Typesetting', 'Amiri', 'serif'],
+        serif: ['var(--font-serif)', 'serif'],
+        arabic: ['var(--font-arabic)', 'serif'],
+        sans: ['var(--font-sans)', 'sans-serif'],
       },
       colors: {
-        paper: '#f5f5f0',
-        ink: '#1a1a1a',
+        paper: 'var(--color-paper)',
+        ink: 'var(--color-ink)',
       },
       backgroundImage: {
-        'paper-texture': 'linear-gradient(rgba(245, 245, 240, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(245, 245, 240, 0.2) 1px, transparent 1px)',
+        'paper-texture': 'var(--paper-texture)',
+        'squircle-gradient': 'var(--gradient-squircle)',
+        'squircle-gradient-active': 'var(--gradient-squircle-active)',
+        'squircle-gradient-inactive': 'var(--gradient-squircle-inactive)',
+        'profile-gradient': 'var(--gradient-profile)',
+        'id-card-gradient': 'var(--gradient-id-card)',
       },
       backgroundSize: {
-        paper: '20px 20px',
+        paper: 'var(--paper-texture-size)',
       },
     },
   },

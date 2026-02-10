@@ -1,0 +1,22 @@
+/* ============================================
+   CSS RESET
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-serif);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  line-height: 1.7;
+  padding: clamp(20px, 5vw, 40px) clamp(10px, 3vw, 20px);
+  min-height: 100vh;
+}

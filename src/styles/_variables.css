@@ -1,0 +1,67 @@
+:root {
+  /* Colors */
+  --color-paper: #f5f5f0;
+  --color-ink: #1a1a1a;
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-gray-100: #f3f4f6;
+  --color-gray-600: #6b7280;
+  --color-gray-900: #111827;
+  --color-accent: #1877f2;
+  --color-border: #e4e6eb;
+  --color-border-light: #e5e7eb;
+  --color-border-dark: #e0e0e0;
+
+  /* Gradients */
+  --gradient-squircle: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  --gradient-squircle-active: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --gradient-squircle-inactive: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+  --gradient-profile: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-id-card: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  /* Typography */
+  --font-serif: 'Spectral', serif;
+  --font-arabic: 'Traditional Arabic', 'Arabic Typesetting', 'Amiri', serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 2.5rem;
+  --spacing-3xl: 3rem;
+
+  /* Border Radius */
+  --radius-squircle: 22%;
+  --radius-card: 12px;
+  --radius-pill: 9999px;
+  --radius-profile: 16px;
+
+  /* Shadows */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-profile: 0 0 20px rgba(0, 0, 0, 0.1);
+  --shadow-avatar: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-button: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-squircle-active: 0 4px 12px rgba(59, 130, 246, 0.4);
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+
+  /* Paper Texture */
+  --paper-texture: linear-gradient(rgba(245, 245, 240, 0.2) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(245, 245, 240, 0.2) 1px, transparent 1px);
+  --paper-texture-size: 20px 20px;
+
+  /* Profile Theme Variables */
+  --profile-bg: #f0f2f5;
+  --profile-card-bg: #ffffff;
+  --profile-text-primary: #050505;
+  --profile-text-secondary: #65676b;
+  --profile-accent: #1877f2;
+  --profile-border: #e4e6eb;
+  --profile-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
