@@ -120,8 +120,10 @@
 }
 
 .library-metadata {
-  width: auto;        /* ← remove 140px clamp */
+  width: auto;
   text-align: right;
+  justify-self: end;
+  min-width: 0;
 }
 
 

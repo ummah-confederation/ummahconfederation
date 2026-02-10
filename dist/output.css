@@ -764,6 +764,8 @@ td {
 .library-metadata {
   width: auto;
   text-align: right;
+  justify-self: end;
+  min-width: 0;
 }
 .library-context {
   font-weight: bold;

@@ -60,15 +60,17 @@ function createLibraryRow(doc) {
   const metadataCell = document.createElement("span");
 
   if (isInstitutionProfile) {
-    // Institution Profile: Show "Posted in {Jurisdiction Name}"
+    // Institution Profile: Show "Posted in {Jurisdiction Name}" (without [type])
     metadataCell.className =
       "library-metadata text-right whitespace-nowrap overflow-hidden text-ellipsis shrink-0";
-    metadataCell.innerHTML = `<span class="sm:hidden text-base">Posted in </span>${escapeHtml(doc.jurisdiction || "")}`;
+    const jurisdictionName = (doc.jurisdiction || "").replace(/\s*\[.*?\]\s*/g, "");
+    metadataCell.innerHTML = `<span class="sm:hidden text-base">Posted in </span>${escapeHtml(jurisdictionName)}`;
   } else if (isJurisdictionProfile) {
-    // Jurisdiction Profile: Show "Posted by {Institution Name}"
+    // Jurisdiction Profile: Show "Posted by {Institution Name}" (without [type])
     metadataCell.className =
       "library-metadata text-right whitespace-nowrap overflow-hidden text-ellipsis shrink-0";
-    metadataCell.innerHTML = `<span class="sm:hidden text-base">Posted by </span>${escapeHtml(doc.institution || "")}`;
+    const institutionName = (doc.institution || "").replace(/\s*\[.*?\]\s*/g, "");
+    metadataCell.innerHTML = `<span class="sm:hidden text-base">Posted by </span>${escapeHtml(institutionName)}`;
   } else {
     // Non-profile mode: Show version and date (default behavior)
     const versionCell = document.createElement("span");
