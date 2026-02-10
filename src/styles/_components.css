@@ -131,6 +131,35 @@ body {
 .dark .library-row {
   color: #e5e7eb;
 }
+
+/* Dark mode for library row borders */
+.dark .library-row.border-b {
+  border-bottom-color: #374151 !important;
+}
+
+/* Dark mode for library row links */
+.dark .library-row a {
+  color: #e5e7eb;
+}
+
+.dark .library-row a:hover {
+  color: #60a5fa;
+}
+
+/* Dark mode for library metadata */
+.dark .library-metadata {
+  color: #9ca3af;
+}
+
+/* Dark mode for library version */
+.dark .library-version {
+  color: #9ca3af;
+}
+
+/* Dark mode for library date */
+.dark .library-date {
+  color: #9ca3af;
+}
 /* Default (non-profile) */
 .library-grid-default {
   grid-template-columns: 1fr 80px 140px;
@@ -300,6 +329,12 @@ body {
   flex-shrink: 0;
 }
 
+/* Dark mode for squircle */
+.dark .squircle {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 .squircle img {
   width: 50%;
   height: 50%;
@@ -335,6 +370,11 @@ body {
   grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;
   padding: 0.5rem;
+}
+
+/* Dark mode for content gallery items */
+.dark .content-gallery .squircle-item {
+  color: #e5e7eb;
 }
 
 /* Card Gallery - Account/Space Cards */
@@ -1340,7 +1380,10 @@ body {
     margin-bottom: 0.75rem;
     background: #fafafa;
   }
-
+.dark .library-row:not(.library-header) {
+  background: #1f2937; /* or another dark color */
+  border-color: #374151;
+}
   .library-row:not(.library-header) > span,
   .library-row:not(.library-header) > a {
     display: block;

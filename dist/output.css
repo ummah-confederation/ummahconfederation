@@ -18,8 +18,6 @@
     --container-4xl: 56rem;
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
-    --text-base: 1rem;
-    --text-base--line-height: calc(1.5 / 1);
     --text-lg: 1.125rem;
     --text-lg--line-height: calc(1.75 / 1.125);
     --text-2xl: 1.5rem;
@@ -249,9 +247,6 @@
   .hidden {
     display: none;
   }
-  .inline {
-    display: inline;
-  }
   .inline-flex {
     display: inline-flex;
   }
@@ -266,9 +261,6 @@
   }
   .shrink-0 {
     flex-shrink: 0;
-  }
-  .transform {
-    transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
   .items-baseline {
     align-items: baseline;
@@ -407,11 +399,6 @@
   }
   .filter {
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
-  }
-  .transition {
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-    transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
   .transition-all {
     transition-property: all;
@@ -791,6 +778,24 @@ body {
 .dark .library-row {
   color: #e5e7eb;
 }
+.dark .library-row.border-b {
+  border-bottom-color: #374151 !important;
+}
+.dark .library-row a {
+  color: #e5e7eb;
+}
+.dark .library-row a:hover {
+  color: #60a5fa;
+}
+.dark .library-metadata {
+  color: #9ca3af;
+}
+.dark .library-version {
+  color: #9ca3af;
+}
+.dark .library-date {
+  color: #9ca3af;
+}
 .library-grid-default {
   grid-template-columns: 1fr 80px 140px;
 }
@@ -925,6 +930,10 @@ body {
   overflow: hidden;
   flex-shrink: 0;
 }
+.dark .squircle {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
 .squircle img {
   width: 50%;
   height: 50%;
@@ -955,6 +964,9 @@ body {
   grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;
   padding: 0.5rem;
+}
+.dark .content-gallery .squircle-item {
+  color: #e5e7eb;
 }
 .card-gallery {
   display: grid;
@@ -1766,6 +1778,10 @@ body {
     margin-bottom: 0.75rem;
     background: #fafafa;
   }
+  .dark .library-row:not(.library-header) {
+    background: #1f2937;
+    border-color: #374151;
+  }
   .library-row:not(.library-header) > span, .library-row:not(.library-header) > a {
     display: block;
     text-align: left !important;
@@ -2246,26 +2262,6 @@ body.has-profile #main-container {
 .library-grid-profile {
   grid-template-columns: 1fr 140px;
 }
-@property --tw-rotate-x {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-rotate-y {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-rotate-z {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-skew-x {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-skew-y {
-  syntax: "*";
-  inherits: false;
-}
 @property --tw-border-style {
   syntax: "*";
   inherits: false;
@@ -2420,11 +2416,6 @@ body.has-profile #main-container {
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
-      --tw-rotate-x: initial;
-      --tw-rotate-y: initial;
-      --tw-rotate-z: initial;
-      --tw-skew-x: initial;
-      --tw-skew-y: initial;
       --tw-border-style: solid;
       --tw-font-weight: initial;
       --tw-tracking: initial;
