@@ -285,7 +285,7 @@ Change `injectStyles()` to a no-op or remove the call after moving styles.
 
 ```html
 <!-- Remove inline <style> blocks -->
-<link rel="stylesheet" href="./dist/output.css" />
+<link rel="stylesheet" href="/dist/output.css" />
 ```
 
 ### Phase 6: Cleanup Duplicates and Verify

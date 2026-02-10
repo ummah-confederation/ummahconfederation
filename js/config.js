@@ -70,7 +70,7 @@ export async function loadDocumentsConfig() {
   }
 
   try {
-    const response = await fetchWithCache('documents-config.json');
+    const response = await fetchWithCache('config/documents-config.json');
     if (!response.ok) {
       throw new Error(`Failed to load config: ${response.status} ${response.statusText}`);
     }
@@ -95,7 +95,7 @@ export async function loadInstitutionConfig() {
   }
 
   try {
-    const response = await fetchWithCache('institution-config.json');
+    const response = await fetchWithCache('config/institution-config.json');
     if (!response.ok) {
       throw new Error(`Failed to load institution config: ${response.status} ${response.statusText}`);
     }
@@ -121,7 +121,7 @@ export async function loadJurisdictionConfig() {
   }
 
   try {
-    const response = await fetchWithCache('jurisdiction-config.json');
+    const response = await fetchWithCache('config/jurisdiction-config.json');
     if (!response.ok) {
       throw new Error(`Failed to load jurisdiction config: ${response.status} ${response.statusText}`);
     }
@@ -207,7 +207,7 @@ export async function loadSquircleIconsConfig() {
   }
 
   try {
-    const response = await fetchWithCache('squircle-icons-config.json');
+    const response = await fetchWithCache('config/squircle-icons-config.json');
     if (!response.ok) {
       throw new Error(`Failed to load squircle icons config: ${response.status} ${response.statusText}`);
     }

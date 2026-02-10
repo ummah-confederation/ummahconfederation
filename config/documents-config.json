@@ -4,7 +4,7 @@
   "documents": [
     {
       "id": "book0",
-      "filename": "book0.html",
+      "filename": "pages/books/book0.html",
       "title": "Book 0 — On Truth",
       "item": "Book",
       "institution": "Ummah Cabinet [Non-Profit • Private]",
@@ -16,7 +16,7 @@
     },
     {
       "id": "book1",
-      "filename": "book1.html",
+      "filename": "pages/books/book1.html",
       "title": "Book I — The Constitution",
       "item": "Book",
       "institution": "Ummah Cabinet [Non-Profit • Private]",
@@ -28,7 +28,7 @@
     },
     {
       "id": "book2",
-      "filename": "book2.html",
+      "filename": "pages/books/book2.html",
       "title": "Book II — Legends and Glossarium",
       "item": "Book",
       "institution": "Ummah Cabinet [Non-Profit • Private]",
@@ -40,7 +40,7 @@
     },
     {
       "id": "book3",
-      "filename": "book3.html",
+      "filename": "pages/books/book3.html",
       "title": "Book III — The Institutions",
       "item": "Book",
       "institution": "Ummah Governance [Non-Profit • Private]",
@@ -52,7 +52,7 @@
     },
     {
       "id": "book4",
-      "filename": "book4.html",
+      "filename": "pages/books/book4.html",
       "title": "Book IV — The Jurisdictions",
       "item": "Book",
       "institution": "Ummah Governance [Non-Profit • Private]",
@@ -64,7 +64,7 @@
     },
     {
       "id": "book5",
-      "filename": "book5.html",
+      "filename": "pages/books/book5.html",
       "title": "Book V — Domains of Alignment",
       "item": "Book",
       "institution": "Ummah Confederation [Non-Profit • Private]",
@@ -76,7 +76,7 @@
     },
     {
       "id": "book6",
-      "filename": "book6.html",
+      "filename": "pages/books/book6.html",
       "title": "Book VI — Spiritual Disease Index",
       "item": "Book",
       "institution": "Ummah Cabinet [Non-Profit • Private]",
@@ -88,7 +88,7 @@
     },
     {
       "id": "policy1",
-      "filename": "policy1.html",
+      "filename": "pages/policies/policy1.html",
       "title": "Policy I — Everlife Dhikr",
       "item": "Policy",
       "institution": "Ummah Cabinet [Non-Profit • Private]",
@@ -100,7 +100,7 @@
     },
     {
       "id": "policy2",
-      "filename": "policy2.html",
+      "filename": "pages/policies/policy2.html",
       "title": "Policy II — Rest & Ghaflah Management",
       "item": "Policy",
       "institution": "Ummah Cabinet [Non-Profit • Private]",
@@ -112,7 +112,7 @@
     },
     {
       "id": "policy3",
-      "filename": "policy3.html",
+      "filename": "pages/policies/policy3.html",
       "title": "Policy III — Badr Policy",
       "item": "Policy",
       "institution": "Ummah Cabinet [Non-Profit • Private]",
@@ -124,7 +124,7 @@
     },
     {
       "id": "verdict1",
-      "filename": "verdict1.html",
+      "filename": "pages/verdicts/verdict1.html",
       "title": "Verdict I — Re-Love Decree",
       "item": "Verdict",
       "institution": "Ummah Court [Non-Profit • Private]",
@@ -136,7 +136,7 @@
     },
     {
       "id": "decision1",
-      "filename": "decision1.html",
+      "filename": "pages/decisions/decision1.html",
       "title": "Decision I — Education Ministry Establishment",
       "item": "Decision",
       "institution": "Ummah Education Ministry [Non-Profit • Private]",
@@ -148,7 +148,7 @@
     },
     {
       "id": "decision2",
-      "filename": "decision2.html",
+      "filename": "pages/decisions/decision2.html",
       "title": "Decision II — Media Establishment",
       "item": "Decision",
       "institution": "Ummah Media Worldwide [Non-Profit • Private]",
@@ -160,7 +160,7 @@
     },
     {
       "id": "decision3",
-      "filename": "decision3.html",
+      "filename": "pages/decisions/decision3.html",
       "title": "Decision III — FnB Industry Establishment",
       "item": "Decision",
       "institution": "101 FnB [Profit • Public]",
@@ -172,7 +172,7 @@
     },
     {
       "id": "Guideline1",
-      "filename": "guideline1.html",
+      "filename": "pages/guidelines/guideline1.html",
       "title": "Guideline I — Curriculum Design Guideline",
       "item": "Guideline",
       "institution": "Ummah Education Ministry [Non-Profit • Private]",
@@ -184,7 +184,7 @@
     },
     {
       "id": "Decision4",
-      "filename": "decision4.html",
+      "filename": "pages/decisions/decision4.html",
       "title": "Decision IV — Tech Industry Establishment",
       "item": "Decision",
       "institution": "Techplaza [Profit • Private]",
@@ -196,7 +196,7 @@
     },
     {
       "id": "Guideline2",
-      "filename": "guideline2.html",
+      "filename": "pages/guidelines/guideline2.html",
       "title": "Guideline II — SSC Design Guideline",
       "item": "Guideline",
       "institution": "Ummah Media Worldwide [Non-Profit • Private]",
@@ -208,7 +208,7 @@
     },
     {
       "id": "Decision5",
-      "filename": "decision5.html",
+      "filename": "pages/decisions/decision5.html",
       "title": "Decision V — Protector Military Establishment",
       "item": "Decision",
       "institution": "Ummah Military [Non-Profit • Private]",
@@ -220,7 +220,7 @@
     },
     {
       "id": "Note1",
-      "filename": "note1.html",
+      "filename": "pages/notes/note1.html",
       "title": "Note 1 — Productive Worry",
       "item": "Note",
       "institution": "Fathan Husna [Individual]",
