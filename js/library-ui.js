@@ -62,20 +62,20 @@ function createLibraryRow(doc) {
   if (isInstitutionProfile) {
     // Institution Profile: Show "Posted in {Jurisdiction Name}" (without [type])
     metadataCell.className =
-      "library-metadata text-right whitespace-nowrap overflow-hidden text-ellipsis shrink-0";
+      "library-metadata text-right whitespace-nowrap overflow-hidden text-sm text-ellipsis shrink-0";
     const jurisdictionName = (doc.jurisdiction || "").replace(/\s*\[.*?\]\s*/g, "");
-    metadataCell.innerHTML = `<span class="sm:hidden text-base">Posted in </span>${escapeHtml(jurisdictionName)}`;
+    metadataCell.innerHTML = `<span class="sm:hidden text-sm">Posted in </span>${escapeHtml(jurisdictionName)}`;
   } else if (isJurisdictionProfile) {
     // Jurisdiction Profile: Show "Posted by {Institution Name}" (without [type])
     metadataCell.className =
-      "library-metadata text-right whitespace-nowrap overflow-hidden text-ellipsis shrink-0";
+      "library-metadata text-right whitespace-nowrap overflow-hidden text-sm text-ellipsis shrink-0";
     const institutionName = (doc.institution || "").replace(/\s*\[.*?\]\s*/g, "");
-    metadataCell.innerHTML = `<span class="sm:hidden text-base">Posted by </span>${escapeHtml(institutionName)}`;
+    metadataCell.innerHTML = `<span class="sm:hidden text-sm">Posted by </span>${escapeHtml(institutionName)}`;
   } else {
     // Non-profile mode: Show version and date (default behavior)
     const versionCell = document.createElement("span");
-    versionCell.className = "library-version text-center tabular-nums";
-    versionCell.innerHTML = `<span class="sm:hidden text-base">Version </span>${doc.version}`;
+    versionCell.className = "library-version text-center text-sm   tabular-nums";
+    versionCell.innerHTML = `<span class="sm:hidden text-sm">Version </span>${doc.version}`;
 
     const dateCell = document.createElement("span");
     dateCell.className = "library-date text-right whitespace-nowrap";
