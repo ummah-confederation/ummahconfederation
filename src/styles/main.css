@@ -22,3 +22,12 @@
 
 /* Import Utilities */
 @import './_utilities.css';
+
+/* Library grid layouts */
+.library-grid-default {
+  grid-template-columns: 1fr 120px 140px;
+}
+
+.library-grid-profile {
+  grid-template-columns: 1fr 140px;
+}
