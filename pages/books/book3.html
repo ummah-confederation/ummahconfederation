@@ -13,6 +13,12 @@
     <!-- book content goes here -->
     <!-- BOOK III -->
     <div class="paper-sheet">
+      <!-- Administrative Seal - Dark Mode Toggle -->
+      <img
+        src="../../images/admin-seal.webp"
+        alt="Administrative Seal"
+        class="admin-seal"
+      />
       <div class="arabic right">
         <p>بسم الله الرحمن الرحيم</p>
         <p>
@@ -99,5 +105,34 @@
 
       <strong><p class="end-book">END OF BOOK III</p></strong>
     </div>
+
+    <script>
+      // Dark Mode Toggle Functionality
+      const DARK_MODE_KEY = 'darkMode';
+
+      function initDarkMode() {
+        const adminSeal = document.querySelector('.admin-seal');
+        if (!adminSeal) return;
+
+        // Check for saved preference or system preference
+        const savedMode = localStorage.getItem(DARK_MODE_KEY);
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // Apply dark mode if saved preference is 'true' or if no preference and system prefers dark
+        if (savedMode === 'true' || (!savedMode && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        }
+
+        // Toggle dark mode on click
+        adminSeal.addEventListener('click', () => {
+          document.documentElement.classList.toggle('dark');
+          const isDark = document.documentElement.classList.contains('dark');
+          localStorage.setItem(DARK_MODE_KEY, isDark);
+        });
+      }
+
+      // Initialize when DOM is ready
+      document.addEventListener('DOMContentLoaded', initDarkMode);
+    </script>
   </body>
 </html>
