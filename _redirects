@@ -1,0 +1,9 @@
+# HTTPS Redirect - Force secure connections
+http://* https://:splat 301!
+
+# SPA-like routing for hash-based navigation
+# Handle query parameters for library filtering
+/library.html /library.html 200
+
+# Fallback for any unmatched routes
+/* /index.html 200

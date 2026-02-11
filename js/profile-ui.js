@@ -207,12 +207,12 @@ function renderProfile() {
 
   container.innerHTML = `
     <div class="profile-cover">
-      <img src="${escapeHtml(coverUrl)}" alt="Cover" />
+      <img src="${escapeHtml(coverUrl)}" alt="Cover" loading="lazy" decoding="async" />
     </div>
     <div class="profile-info">
       <div class="profile-header-row">
         <div class="profile-avatar">
-          <img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}" />
+          <img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}" loading="eager" fetchpriority="high" />
         </div>
         <div class="profile-actions">
           <button class="profile-button" id="profile-action-btn">${escapeHtml(buttonText)}</button>
@@ -383,7 +383,7 @@ async function showContactCard() {
   modalContent.innerHTML = `
     <div class="contact-card">
       <div class="contact-card-header">
-        <img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}" class="contact-card-avatar" />
+        <img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}" class="contact-card-avatar" loading="lazy" decoding="async" />
         <div>
           <div class="contact-card-name">${escapeHtml(name)}</div>
           ${label ? `<div class="contact-card-label">${escapeHtml(label)}</div>` : ""}
@@ -479,7 +479,7 @@ async function showContributorList() {
 
         return `
           <div class="contributor-item">
-            <img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(instName)}" class="contributor-avatar" />
+            <img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(instName)}" class="contributor-avatar" loading="lazy" decoding="async" />
             <div class="contributor-info">
               <div class="contributor-name">${escapeHtml(instName)}</div>
               <div class="contributor-count">${contributor.count} contribution${contributor.count !== 1 ? 's' : ''}</div>

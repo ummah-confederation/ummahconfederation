@@ -4,10 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DAARUSSALAAM — Feed</title>
+    <meta name="description" content="Ummah Confederation Feed - Latest updates and announcements" />
     <link rel="icon" type="image/x-icon" href="images/favicon.png" />
-    <link rel="stylesheet" href="dist/output.css" />
+
+    <!-- Performance: Preconnect to external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.aladhan.com" />
+    <link rel="preconnect" href="https://nominatim.openstreetmap.org" />
+
+    <!-- Performance: DNS prefetch for potential future connections -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
+    <link rel="stylesheet" href="dist/output.css" />
     <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet" />
   </head>
   <body class="py-10 px-5">
@@ -22,7 +32,7 @@
 
     <div class="paper-sheet max-w-4xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 lg:px-20 lg:py-20 mb-16">
       <!-- Admin Seal - Dark Mode Toggle -->
-      <img src="images/admin-seal.webp" alt="Administrative Seal" class="admin-seal" />
+      <img src="images/admin-seal.webp" alt="Administrative Seal" class="admin-seal" loading="eager" fetchpriority="high" width="120" height="120" />
 
       <!-- Dynamic Header -->
       <h2 id="feed-header" class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-wider uppercase text-center text-black mb-6">

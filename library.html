@@ -4,14 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DAARUSSALAAM — Library</title>
+    <meta name="description" content="Ummah Confederation Document Library - Browse books, policies, decisions, and more" />
     <link rel="icon" type="image/x-icon" href="images/favicon.png">
+
+    <!-- Performance: Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.aladhan.com" />
+    <link rel="preconnect" href="https://nominatim.openstreetmap.org" />
+
+    <!-- Performance: DNS prefetch for potential future connections -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
     <!-- Tailwind CSS - Compiled for Production -->
     <link rel="stylesheet" href="dist/output.css" />
 
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
 
@@ -32,6 +41,10 @@
         alt="Administrative Seal"
         id="admin-seal"
         class="admin-seal"
+        loading="eager"
+        fetchpriority="high"
+        width="120"
+        height="120"
       />
 
       <h2 id="daarussalaam-header" class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-wider uppercase text-center text-black mb-6">

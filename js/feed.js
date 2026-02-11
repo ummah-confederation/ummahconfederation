@@ -435,9 +435,9 @@ function renderCarousel(carousel, sourceName, feedType) {
       </div>
       <div class="carousel-container">
         <div class="carousel-track" id="${carouselId}-track">
-          ${carousel.images.map(img => `
+          ${carousel.images.map((img, i) => `
             <div class="carousel-slide">
-              <img src="${img.url}" alt="${img.caption}">
+              <img src="${img.url}" alt="${img.caption}" loading="${i === 0 ? 'eager' : 'lazy'}" decoding="async" fetchpriority="${i === 0 ? 'high' : 'auto'}">
               <div class="carousel-caption">${img.caption}</div>
             </div>
           `).join('')}

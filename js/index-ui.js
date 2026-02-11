@@ -251,7 +251,7 @@ async function renderAccountGallery(institutions, documents) {
         style="background-image: url('${coverImageUrl}'); background-size: cover; background-position: center;"
       >
         <div class="id-card-avatar">
-          <img src="${avatarImageUrl}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
+          <img src="${avatarImageUrl}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" decoding="async" onerror="this.style.display='none'">
         </div>
       </div>
       <div class="id-card-content">
@@ -316,7 +316,7 @@ async function renderSpaceGallery(jurisdictions, documents) {
         style="background-image: url('${coverImageUrl}'); background-size: cover; background-position: center;"
       >
         <div class="id-card-avatar">
-          <img src="${avatarImageUrl}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
+          <img src="${avatarImageUrl}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" decoding="async" onerror="this.style.display='none'">
         </div>
       </div>
       <div class="id-card-content">
