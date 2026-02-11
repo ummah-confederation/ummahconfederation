@@ -60,17 +60,19 @@ function createLibraryRow(doc) {
   const metadataCell = document.createElement("span");
 
   if (isInstitutionProfile) {
-    // Institution Profile: Show "Posted in {Jurisdiction Name}" (without [type])
+    // Institution Profile: Show "Posted in {Jurisdiction Name}" (without [type]) - clickable
     metadataCell.className =
       "library-metadata text-right whitespace-nowrap overflow-hidden text-sm text-ellipsis shrink-0";
     const jurisdictionName = (doc.jurisdiction || "").replace(/\s*\[.*?\]\s*/g, "");
-    metadataCell.innerHTML = `<span class="sm:hidden text-sm">Posted in </span>${escapeHtml(jurisdictionName)}`;
+    const jurisdictionLink = doc.jurisdiction ? `?jurisdiction=${encodeURIComponent(doc.jurisdiction)}` : "#";
+    metadataCell.innerHTML = `<span class="sm:hidden">Posted in </span><a href="${escapeHtml(jurisdictionLink)}" class="library-profile-link">${escapeHtml(jurisdictionName)}</a>`;
   } else if (isJurisdictionProfile) {
-    // Jurisdiction Profile: Show "Posted by {Institution Name}" (without [type])
+    // Jurisdiction Profile: Show "Posted by {Institution Name}" (without [type]) - clickable
     metadataCell.className =
       "library-metadata text-right whitespace-nowrap overflow-hidden text-sm text-ellipsis shrink-0";
     const institutionName = (doc.institution || "").replace(/\s*\[.*?\]\s*/g, "");
-    metadataCell.innerHTML = `<span class="sm:hidden text-sm">Posted by </span>${escapeHtml(institutionName)}`;
+    const institutionLink = doc.institution ? `?institution=${encodeURIComponent(doc.institution)}` : "#";
+    metadataCell.innerHTML = `<span class="sm:hidden">Posted by </span><a href="${escapeHtml(institutionLink)}" class="library-profile-link">${escapeHtml(institutionName)}</a>`;
   } else {
     // Non-profile mode: Show version and date (default behavior)
     const versionCell = document.createElement("span");

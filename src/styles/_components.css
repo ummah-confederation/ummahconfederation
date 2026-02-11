@@ -231,6 +231,29 @@ body.has-profile .paper-sheet {
   text-align: right;
   justify-self: end;
   min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* Profile link styling in library rows */
+.library-profile-link {
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--transition-fast);
+}
+
+.library-profile-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.dark .library-profile-link:hover {
+  color: #60a5fa;
 }
 
 
@@ -1397,6 +1420,18 @@ body.has-profile .paper-sheet {
     display: block;
     text-align: left !important;
     margin-bottom: 0.25rem;
+  }
+
+  /* Keep library-metadata inline for profile mode */
+  .library-row:not(.library-header) > .library-metadata {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    text-align: left !important;
   }
 
   .library-header {

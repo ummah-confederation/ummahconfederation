@@ -130,9 +130,9 @@ function getCacheStrategy(url) {
     return CACHE_STRATEGIES.STALE_WHILE_REVALIDATE;
   }
 
-  // CSS - cache first
+  // CSS - stale while revalidate (to get latest styles during development)
   if (pathname.endsWith('.css')) {
-    return CACHE_STRATEGIES.CACHE_FIRST;
+    return CACHE_STRATEGIES.STALE_WHILE_REVALIDATE;
   }
 
   // JS - network first (for development to get latest changes)
