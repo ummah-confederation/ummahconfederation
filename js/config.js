@@ -150,7 +150,7 @@ export async function getInstitutionMetadata(institutionName) {
 
 /**
  * Get jurisdiction metadata by full jurisdiction name
- * @param {string} jurisdictionName - The full jurisdiction name (e.g., "General Public [Community]")
+ * @param {string} jurisdictionName - The full jurisdiction name (e.g., "Borneo [Region]")
  * @returns {Promise<Object|null>} The jurisdiction metadata or null if not found
  */
 export async function getJurisdictionMetadata(jurisdictionName) {

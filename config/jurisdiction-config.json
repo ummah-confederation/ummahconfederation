@@ -13,9 +13,9 @@
         }
       }
     },
-    "General Public [Community]": {
-      "avatar": "./images/jurisdictions/general-public.webp",
-      "cover": "./images/covers/general-public.webp",
+    "Borneo [Region]": {
+      "avatar": "./images/jurisdictions/borneo.webp",
+      "cover": "./images/covers/malay.webp",
       "bio": "Peace be upon you.",
       "feed_config": {
         "widget": {
