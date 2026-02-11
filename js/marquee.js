@@ -17,6 +17,8 @@ class Marquee {
     this.feedType = null;
     this.entityName = null;
     this.entityMetadata = null;
+    this.cachedContent = null; // Cache for repeated content
+    this.cachedContentHash = null; // Hash to detect content changes
   }
 
   /**
@@ -93,19 +95,27 @@ class Marquee {
       // Fetch entity metadata (for bio fallback)
       await this.fetchEntityMetadata();
 
-      // Get user's location
-      await this.getLocation();
+      // Check if widget is enabled
+      const widgetEnabled = this.feedConfig?.widget?.enabled !== false; // Default to true if not specified
 
-      // Fetch prayer times
-      await this.fetchPrayerTimes();
+      // Only fetch prayer times and location if widget is enabled
+      if (widgetEnabled) {
+        // Get user's location
+        await this.getLocation();
+
+        // Fetch prayer times
+        await this.fetchPrayerTimes();
+      }
 
       // Update display
       this.updateDisplay();
 
-      // Set up interval to update current time and next prayer
-      this.updateInterval = setInterval(() => {
-        this.updateDisplay();
-      }, 1000); // Update every second
+      // Set up interval to update current time and next prayer (only if widget is enabled)
+      if (widgetEnabled) {
+        this.updateInterval = setInterval(() => {
+          this.updateDisplay();
+        }, 1000); // Update every second
+      }
     } catch (error) {
       console.error("Error initializing marquee:", error);
       this.showError();
@@ -405,33 +415,23 @@ class Marquee {
         carousels.push(...this.feedConfig.carousels);
       }
 
-      console.log('[Marquee Debug] feedType:', this.feedType);
-      console.log('[Marquee Debug] entityName:', this.entityName);
-      console.log('[Marquee Debug] widgetEnabled:', widgetEnabled);
-      console.log('[Marquee Debug] carousels found:', carousels.length);
-
       if (carousels.length > 0) {
         const carouselItems = carousels.map(carousel => {
-          const captions = carousel.images.map(img => img.caption).join(' • ');
+          const captions = carousel.title;
           let header = '';
-          
+
           if (this.feedType === 'institution') {
             // For institution feed, show "Posted in (Jurisdiction)"
             const jurisdictionName = carousel.post_to_jurisdictions?.[0] || '';
             const cleanJurisdictionName = jurisdictionName.replace(/\s*\[.*?\]\s*/g, '').trim();
             header = `Posted in ${cleanJurisdictionName}`;
-            console.log('[Marquee Debug] Institution feed - jurisdictionName:', jurisdictionName, '-> clean:', cleanJurisdictionName);
           } else if (this.feedType === 'jurisdiction') {
             // For jurisdiction feed, show "Posted by (Institution)"
             const institutionName = carousel.institution || '';
             const cleanInstitutionName = institutionName.replace(/\s*\[.*?\]\s*/g, '').trim();
             header = `Posted by ${cleanInstitutionName}`;
-            console.log('[Marquee Debug] Jurisdiction feed - institutionName:', institutionName, '-> clean:', cleanInstitutionName);
           }
-          
-          console.log('[Marquee Debug] Carousel header:', header);
-          console.log('[Marquee Debug] Carousel captions:', captions);
-          
+
           return `<span class="prayer-item"><span class="prayer-label">${header}:</span> <span class="prayer-value">${captions}</span></span>`;
         }).join(' <span class="prayer-separator">•</span> ');
 
@@ -450,21 +450,41 @@ class Marquee {
       content = `<span class="prayer-item"><span class="prayer-value">${bio}</span></span> <span class="prayer-separator">•</span> `;
     }
 
-    // Ensure content is long enough to fill screen without gaps
-    const screenWidth = window.innerWidth;
-    const temp = document.createElement('div');
-    temp.style.visibility = 'hidden';
-    temp.style.position = 'absolute';
-    temp.style.whiteSpace = 'nowrap';
-    temp.innerHTML = content;
-    document.body.appendChild(temp);
-    const contentWidth = temp.offsetWidth;
-    document.body.removeChild(temp);
+    // Create a hash of the content (excluding time) to detect actual changes
+    const contentHash = this.generateContentHash(widgetSection, carouselContent, this.entityMetadata?.bio);
 
-    // If content is shorter than 2x screen width, repeat it
-    if (contentWidth < screenWidth * 2) {
-      const repetitions = Math.ceil((screenWidth * 2) / contentWidth) + 1;
-      content = Array(repetitions).fill(content.trim()).join(' ');
+    // Only regenerate repeated content if the structure has changed
+    if (this.cachedContentHash !== contentHash) {
+      // Ensure content is long enough to fill screen without gaps
+      const screenWidth = window.innerWidth;
+      const temp = document.createElement('div');
+      temp.style.visibility = 'hidden';
+      temp.style.position = 'absolute';
+      temp.style.whiteSpace = 'nowrap';
+      temp.innerHTML = content;
+      document.body.appendChild(temp);
+      const contentWidth = temp.offsetWidth;
+      document.body.removeChild(temp);
+
+      // If content is shorter than 2x screen width, repeat it
+      if (contentWidth < screenWidth * 2) {
+        const repetitions = Math.ceil((screenWidth * 2) / contentWidth) + 1;
+        content = Array(repetitions).fill(content.trim()).join(' ');
+      }
+
+      this.cachedContent = content;
+      this.cachedContentHash = contentHash;
+    } else {
+      // Use cached content, just update the time if widget is enabled
+      if (widgetEnabled && this.cachedContent) {
+        // Update time in cached content
+        const timeRegex = /<span class="prayer-value">(\d{1,2}:\d{2}:\d{2}\s[AP]M)<\/span>/;
+        const timeMatch = this.cachedContent.match(timeRegex);
+        if (timeMatch) {
+          this.cachedContent = this.cachedContent.replace(timeMatch[0], `<span class="prayer-value">${this.currentTime}</span>`);
+        }
+      }
+      content = this.cachedContent;
     }
 
     // Duplicate content for seamless looping
@@ -472,6 +492,15 @@ class Marquee {
 
     // Set consistent scroll speed across all screen sizes
     this.setScrollSpeed();
+  }
+
+  /**
+   * Generate a hash of the content structure (excluding time)
+   */
+  generateContentHash(widgetSection, carouselContent, bio) {
+    // Create a simplified version of content for hashing (remove time)
+    const simplifiedWidget = widgetSection ? widgetSection.replace(/\d{1,2}:\d{2}:\d{2}\s[AP]M/g, 'TIME') : '';
+    return `${simplifiedWidget}|${carouselContent}|${bio || ''}`;
   }
 
   /**

@@ -432,7 +432,6 @@ function renderCarousel(carousel, sourceName, feedType) {
     <div class="feed-carousel" id="${carouselId}">
       <div class="carousel-header">
         <h3 class="carousel-title">${carousel.title}</h3>
-        <span class="carousel-source">${sourceLabel}</span>
       </div>
       <div class="carousel-container">
         <div class="carousel-track" id="${carouselId}-track">
@@ -446,10 +445,13 @@ function renderCarousel(carousel, sourceName, feedType) {
         <button class="carousel-nav prev" aria-label="Previous slide">‹</button>
         <button class="carousel-nav next" aria-label="Next slide">›</button>
       </div>
-      <div class="carousel-indicators">
-        ${carousel.images.map((_, i) => `
-          <button class="carousel-indicator ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Go to slide ${i + 1}"></button>
-        `).join('')}
+      <div class="carousel-footer">
+        <div class="carousel-indicators">
+          ${carousel.images.map((_, i) => `
+            <button class="carousel-indicator ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Go to slide ${i + 1}"></button>
+          `).join('')}
+        </div>
+        <span class="carousel-source">${sourceLabel}</span>
       </div>
     </div>
   `;

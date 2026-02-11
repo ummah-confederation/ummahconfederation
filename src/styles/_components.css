@@ -1804,9 +1804,6 @@ body.has-profile #main-container {
 
 /* Carousel Header */
 .carousel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 1rem;
 }
 
@@ -1815,19 +1812,13 @@ body.has-profile #main-container {
   font-weight: 600;
   color: #ffffff;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dark .carousel-title {
   color: #f1f5f9;
-}
-
-.carousel-source {
-  font-size: 0.875rem;
-  color: #94a3b8;
-}
-
-.dark .carousel-source {
-  color: #64748b;
 }
 
 /* Carousel Container */
@@ -1859,11 +1850,38 @@ body.has-profile #main-container {
   position: absolute;
   bottom: 0;
   left: 0;
+  right: 0;
   padding: 0.75rem 1rem;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  background: rgba(0, 0, 0, 0.7);
   color: white;
   font-size: 0.875rem;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 10;
+}
+
+/* Carousel Footer */
+.carousel-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.75rem;
+  gap: 1rem;
+}
+
+.carousel-source {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.dark .carousel-source {
+  color: #64748b;
 }
 
 /* Carousel Navigation */
@@ -1904,7 +1922,6 @@ body.has-profile #main-container {
   display: flex;
   justify-content: center;
   gap: 0.5rem;
-  margin-top: 0.75rem;
 }
 
 .carousel-indicator {
