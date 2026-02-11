@@ -386,20 +386,20 @@ class Marquee {
   updateDisplay() {
     if (!this.marqueeElement) return;
 
-    this.currentTime = this.formatCurrentTime();
-    const currentDate = this.formatDate();
-    this.calculateNextPrayer();
-
-    const locationText = `${this.location.city}, ${this.location.country}`;
-    const timeToNext = this.formatTimeToNextPrayer();
-    const nextPrayerName = this.nextPrayer ? this.nextPrayer.name : "Unknown";
-
     // Check if widget is enabled
     const widgetEnabled = this.feedConfig?.widget?.enabled !== false; // Default to true if not specified
 
     // Build widget section content with header (only location, date, current time, and next prayer)
     let widgetSection = '';
     if (widgetEnabled) {
+      this.currentTime = this.formatCurrentTime();
+      const currentDate = this.formatDate();
+      this.calculateNextPrayer();
+
+      const locationText = `${this.location.city}, ${this.location.country}`;
+      const timeToNext = this.formatTimeToNextPrayer();
+      const nextPrayerName = this.nextPrayer ? this.nextPrayer.name : "Unknown";
+
       const widgetContent = `<span class="prayer-item"><span class="prayer-label">📍</span> <span class="prayer-value">${locationText}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">📅</span> <span class="prayer-value">${currentDate}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🕐</span> <span class="prayer-value">${this.currentTime}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">⏰</span> <span class="prayer-value">${nextPrayerName} (${timeToNext})</span></span>`;
       widgetSection = `<span class="prayer-item"><span class="prayer-label">Prayer Time Widget:</span> <span class="prayer-value">${widgetContent}</span></span>`;
     }
