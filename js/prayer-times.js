@@ -12,6 +12,55 @@ class PrayerTimes {
     this.timeToNextPrayer = null;
     this.marqueeElement = null;
     this.updateInterval = null;
+    this.cacheKey = 'prayerTimesCache';
+  }
+
+  /**
+   * Get cache key for today's date and location
+   */
+  getCacheKey() {
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    const locationStr = `${this.location?.latitude?.toFixed(2)}_${this.location?.longitude?.toFixed(2)}`;
+    return `${this.cacheKey}_${dateStr}_${locationStr}`;
+  }
+
+  /**
+   * Get cached prayer times for today
+   */
+  getCachedPrayerTimes() {
+    try {
+      const cacheKey = this.getCacheKey();
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const data = JSON.parse(cached);
+        // Check if cache is from today
+        const cacheDate = new Date(data.date);
+        const today = new Date();
+        if (cacheDate.toDateString() === today.toDateString()) {
+          return data.prayerTimes;
+        }
+      }
+    } catch (error) {
+      console.warn('Error reading cache:', error);
+    }
+    return null;
+  }
+
+  /**
+   * Cache prayer times for today
+   */
+  cachePrayerTimes(prayerTimes) {
+    try {
+      const cacheKey = this.getCacheKey();
+      const data = {
+        date: new Date().toISOString(),
+        prayerTimes: prayerTimes
+      };
+      localStorage.setItem(cacheKey, JSON.stringify(data));
+    } catch (error) {
+      console.warn('Error writing cache:', error);
+    }
   }
 
   /**
@@ -23,6 +72,12 @@ class PrayerTimes {
       console.error("Prayer times marquee element not found");
       return;
     }
+
+    // Add click handler for navigation to feed page
+    this.marqueeElement.style.cursor = "pointer";
+    this.marqueeElement.addEventListener("click", () => {
+      this.navigateToFeed();
+    });
 
     try {
       // Get user's location
@@ -101,9 +156,19 @@ class PrayerTimes {
   }
 
   /**
-   * Fetch prayer times from Aladhan API
+   * Fetch prayer times from Aladhan API with caching
    */
   async fetchPrayerTimes() {
+    // Try to get cached prayer times first
+    const cached = this.getCachedPrayerTimes();
+    if (cached) {
+      console.log('Using cached prayer times');
+      this.prayerTimes = cached;
+      return;
+    }
+
+    // If no cache, fetch from API
+    console.log('Fetching prayer times from API');
     const today = new Date();
     const date = today.getDate();
     const month = today.getMonth() + 1;
@@ -122,6 +187,8 @@ class PrayerTimes {
         Maghrib: data.data.timings.Maghrib,
         Isha: data.data.timings.Isha,
       };
+      // Cache the prayer times
+      this.cachePrayerTimes(this.prayerTimes);
     } else {
       throw new Error("Failed to fetch prayer times");
     }
@@ -266,6 +333,26 @@ class PrayerTimes {
     this.marqueeElement.innerHTML = `
       <span class="prayer-error">Unable to load prayer times. Please check your connection.</span>
     `;
+  }
+
+  /**
+   * Navigate to feed page with appropriate parameters
+   */
+  navigateToFeed() {
+    // Check if we're in profile mode (library.html with institution/jurisdiction filter)
+    const params = new URLSearchParams(window.location.search);
+    const institution = params.get('institution');
+    const jurisdiction = params.get('jurisdiction');
+
+    let feedUrl = 'feed.html';
+    
+    if (institution) {
+      feedUrl = `feed.html?institution=${encodeURIComponent(institution)}`;
+    } else if (jurisdiction) {
+      feedUrl = `feed.html?jurisdiction=${encodeURIComponent(jurisdiction)}`;
+    }
+
+    window.location.href = feedUrl;
   }
 
   /**

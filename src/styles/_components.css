@@ -1607,3 +1607,168 @@ body.has-profile #main-container {
     animation-duration: 20s;
   }
 }
+
+/* ============================================
+   PRAYER TIMES WIDGET
+   ============================================ */
+
+.prayer-times-widget {
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+  color: #ffffff;
+  box-shadow: var(--shadow-card);
+  transition: background-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.dark .prayer-times-widget {
+  background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Widget Header Row */
+.prayer-widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.prayer-widget-date {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.dark .prayer-widget-date {
+  color: #94a3b8;
+}
+
+.prayer-widget-clock {
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #ffffff;
+}
+
+/* Widget Location Row */
+.prayer-widget-location {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  color: #e2e8f0;
+}
+
+.dark .prayer-widget-location {
+  color: #94a3b8;
+}
+
+/* Widget Next Prayer Row */
+.prayer-widget-next {
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+}
+
+.prayer-widget-next-label {
+  color: #e2e8f0;
+  font-weight: 400;
+}
+
+.dark .prayer-widget-next-label {
+  color: #94a3b8;
+}
+
+/* Widget Prayer Times Grid */
+.prayer-widget-times {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.prayer-widget-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.prayer-widget-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #e2e8f0;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dark .prayer-widget-name {
+  color: #94a3b8;
+}
+
+.prayer-widget-time {
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #ffffff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .prayer-times-widget {
+    padding: 1rem;
+  }
+
+  .prayer-widget-header {
+    margin-bottom: 0.75rem;
+  }
+
+  .prayer-widget-date {
+    font-size: 0.8125rem;
+  }
+
+  .prayer-widget-clock {
+    font-size: 0.875rem;
+  }
+
+  .prayer-widget-location {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .prayer-widget-next {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .prayer-widget-times {
+    gap: 0.5rem;
+  }
+
+  .prayer-widget-name {
+    font-size: 0.6875rem;
+  }
+
+  .prayer-widget-time {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .prayer-widget-times {
+    gap: 0.375rem;
+  }
+
+  .prayer-widget-name {
+    font-size: 0.625rem;
+  }
+
+  .prayer-widget-time {
+    font-size: 0.75rem;
+  }
+}
