@@ -447,25 +447,24 @@ class Marquee {
     // If no widget and no carousel, show bio as fallback
     if (!widgetSection && !carouselContent && this.entityMetadata?.bio) {
       const bio = this.entityMetadata.bio;
-      // Calculate how many times to repeat bio to fill screen width
-      const screenWidth = window.innerWidth;
-      const bioItem = `<span class="prayer-item"><span class="prayer-value">${bio}</span></span>`;
-      const bioWithSeparator = `${bioItem} <span class="prayer-separator">•</span> `;
-      
-      // Create a temporary element to measure content width
-      const temp = document.createElement('div');
-      temp.style.visibility = 'hidden';
-      temp.style.position = 'absolute';
-      temp.style.whiteSpace = 'nowrap';
-      temp.innerHTML = bioWithSeparator;
-      document.body.appendChild(temp);
-      const itemWidth = temp.offsetWidth;
-      document.body.removeChild(temp);
-      
-      // Calculate how many repetitions needed (at least 2x screen width for seamless loop)
-      const repetitions = Math.ceil((screenWidth * 2) / itemWidth) + 1;
-      const bioRepeated = Array(repetitions).fill(bioItem).join(' <span class="prayer-separator">•</span> ');
-      content = `${bioRepeated} <span class="prayer-separator">•</span> `;
+      content = `<span class="prayer-item"><span class="prayer-value">${bio}</span></span> <span class="prayer-separator">•</span> `;
+    }
+
+    // Ensure content is long enough to fill screen without gaps
+    const screenWidth = window.innerWidth;
+    const temp = document.createElement('div');
+    temp.style.visibility = 'hidden';
+    temp.style.position = 'absolute';
+    temp.style.whiteSpace = 'nowrap';
+    temp.innerHTML = content;
+    document.body.appendChild(temp);
+    const contentWidth = temp.offsetWidth;
+    document.body.removeChild(temp);
+
+    // If content is shorter than 2x screen width, repeat it
+    if (contentWidth < screenWidth * 2) {
+      const repetitions = Math.ceil((screenWidth * 2) / contentWidth) + 1;
+      content = Array(repetitions).fill(content.trim()).join(' ');
     }
 
     // Duplicate content for seamless looping
@@ -479,7 +478,7 @@ class Marquee {
    * Set scroll speed based on content width for consistent speed across screen sizes
    */
   setScrollSpeed() {
-    const pixelsPerSecond = 15; // ADJUST THIS VALUE: lower = slower (e.g., 30), higher = faster (e.g., 100)
+    const pixelsPerSecond = 30; // ADJUST THIS VALUE: lower = slower (e.g., 30), higher = faster (e.g., 100)
     
     // Get the actual width of the marquee content
     const contentWidth = this.marqueeElement.scrollWidth / 2; // Divide by 2 because content is duplicated
