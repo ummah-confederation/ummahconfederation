@@ -293,3 +293,45 @@ if (typeof window !== 'undefined') {
   window.getCacheVersion = getCacheVersion;
   window.setCacheVersion = setCacheVersion;
 }
+
+/**
+ * Get institution feed configuration
+ * @param {string} institutionName - The full institution name
+ * @returns {Promise<Object|null>} The feed config or null if not found
+ */
+export async function getInstitutionFeedConfig(institutionName) {
+  const config = await loadInstitutionConfig();
+  return config.institutions?.[institutionName]?.feed_config || null;
+}
+
+/**
+ * Get jurisdiction feed configuration
+ * @param {string} jurisdictionName - The full jurisdiction name
+ * @returns {Promise<Object|null>} The feed config or null if not found
+ */
+export async function getJurisdictionFeedConfig(jurisdictionName) {
+  const config = await loadJurisdictionConfig();
+  return config.jurisdictions?.[jurisdictionName]?.feed_config || null;
+}
+
+/**
+ * Get all carousels for a jurisdiction
+ * @param {string} jurisdictionName - The full jurisdiction name
+ * @returns {Promise<Array>} Array of carousel objects
+ */
+export async function getJurisdictionCarousels(jurisdictionName) {
+  const config = await loadInstitutionConfig();
+  const carousels = [];
+
+  for (const [instName, instData] of Object.entries(config.institutions || {})) {
+    const carousel = instData.feed_config?.carousel;
+    if (carousel && carousel.post_to_jurisdictions?.includes(jurisdictionName)) {
+      carousels.push({
+        institution: instName,
+        ...carousel
+      });
+    }
+  }
+
+  return carousels;
+}

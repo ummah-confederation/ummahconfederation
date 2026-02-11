@@ -5,52 +5,242 @@
     "Ummah Cabinet [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-cabinet.png",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        },
+        "carousel": {
+          "title": "Cabinet Updates",
+          "images": [
+            {
+              "url": "./images/carousel/cabinet-1.webp",
+              "caption": "Weekly Meeting"
+            },
+            {
+              "url": "./images/carousel/cabinet-2.webp",
+              "caption": "New Initiative"
+            }
+          ],
+          "post_to_jurisdictions": [
+            "Ummah Cabinet Members [Team Space]",
+            "General Public [Community]"
+          ]
+        }
+      }
     },
     "Ummah Governance [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-governance.png",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        },
+        "carousel": {
+          "title": "Governance Updates",
+          "images": [
+            {
+              "url": "./images/carousel/governance-1.webp",
+              "caption": "Policy Review"
+            }
+          ],
+          "post_to_jurisdictions": [
+            "Ummah Governance Members [Team Space]",
+            "General Public [Community]"
+          ]
+        }
+      }
     },
     "Ummah Confederation [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-confederation.png",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        },
+        "carousel": {
+          "title": "Confederation Updates",
+          "images": [
+            {
+              "url": "./images/carousel/confederation-1.webp",
+              "caption": "Annual Summit"
+            }
+          ],
+          "post_to_jurisdictions": [
+            "Ummah Confederation Members [Team Space]",
+            "General Public [Community]"
+          ]
+        }
+      }
     },
     "Ummah Media Worldwide [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-media-worldwide.webp",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        },
+        "carousel": {
+          "title": "Media Updates",
+          "images": [
+            {
+              "url": "./images/carousel/media-1.webp",
+              "caption": "New Broadcast"
+            }
+          ],
+          "post_to_jurisdictions": [
+            "Ummah Media Worldwide Members [Team Space]",
+            "General Public [Community]"
+          ]
+        }
+      }
     },
     "Ummah Education Ministry [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-education-ministry.jpg",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        },
+        "carousel": {
+          "title": "Education Updates",
+          "images": [
+            {
+              "url": "./images/carousel/education-1.webp",
+              "caption": "New Curriculum"
+            }
+          ],
+          "post_to_jurisdictions": [
+            "Ummah Education Ministry Members [Team Space]",
+            "General Public [Community]"
+          ]
+        }
+      }
     },
     "101 FnB [Profit • Public]": {
       "avatar": "./images/institutions/101-FnB.webp",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        },
+        "carousel": {
+          "title": "101 FnB Updates",
+          "images": [
+            {
+              "url": "./images/carousel/fnb-1.webp",
+              "caption": "New Menu"
+            }
+          ],
+          "post_to_jurisdictions": [
+            "General Public [Community]"
+          ]
+        }
+      }
     },
     "Techplaza [Profit • Private]": {
       "avatar": "./images/institutions/tech-plaza.webp",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        },
+        "carousel": {
+          "title": "Techplaza Updates",
+          "images": [
+            {
+              "url": "./images/carousel/techplaza-1.webp",
+              "caption": "New Product"
+            }
+          ],
+          "post_to_jurisdictions": [
+            "General Public [Community]"
+          ]
+        }
+      }
     },
     "Ummah Court [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-court.png",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        },
+        "carousel": {
+          "title": "Court Updates",
+          "images": [
+            {
+              "url": "./images/carousel/court-1.webp",
+              "caption": "New Verdict"
+            }
+          ],
+          "post_to_jurisdictions": [
+            "General Public [Community]"
+          ]
+        }
+      }
     },
     "Ummah Military [Non-Profit • Private]": {
       "avatar": "./images/institutions/ummah-military.webp",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        },
+        "carousel": {
+          "title": "Military Updates",
+          "images": [
+            {
+              "url": "./images/carousel/military-1.webp",
+              "caption": "Training Exercise"
+            }
+          ],
+          "post_to_jurisdictions": [
+            "General Public [Community]"
+          ]
+        }
+      }
     },
     "Fathan Husna [Individual]": {
       "avatar": "./images/jurisdictions/fathan-husna.webp",
       "cover": "./images/covers/fathan-husna.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        },
+        "carousel": {
+          "title": "Personal Updates",
+          "images": [
+            {
+              "url": "./images/carousel/fathan-1.webp",
+              "caption": "New Project"
+            }
+          ],
+          "post_to_jurisdictions": [
+            "Fathan's Space [Personal Space]",
+            "General Public [Community]"
+          ]
+        }
+      }
     }
   }
 }

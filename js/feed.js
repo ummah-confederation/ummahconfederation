@@ -313,6 +313,9 @@ function renderWidget(location, prayerTimes) {
 
   widgetElement.innerHTML = `
     <div class="prayer-widget-header">
+      <h3 class="prayer-widget-title">Prayer Time Widget</h3>
+    </div>
+    <div class="prayer-widget-header">
       <span class="prayer-widget-date">${currentDate}</span>
       <span class="prayer-widget-clock">${currentTime}</span>
     </div>
@@ -349,5 +352,211 @@ function renderWidget(location, prayerTimes) {
 document.addEventListener('DOMContentLoaded', () => {
   initDarkMode();
   updateFeedHeader();
-  initPrayerTimesWidget();
+  initFeedContent();
 });
+
+/**
+ * Initialize feed content based on feed type
+ */
+async function initFeedContent() {
+  const feedType = getFeedType();
+  const widgetElement = document.getElementById('prayer-times-widget');
+
+  if (feedType.type === 'institution') {
+    await initInstitutionFeed(feedType.name, widgetElement);
+  } else if (feedType.type === 'jurisdiction') {
+    await initJurisdictionFeed(feedType.name, widgetElement);
+  } else {
+    // Global feed - show widget only
+    await initPrayerTimesWidget();
+  }
+}
+
+/**
+ * Initialize institution feed
+ */
+async function initInstitutionFeed(institutionName, widgetElement) {
+  const { getInstitutionFeedConfig } = await import('./config.js');
+  const feedConfig = await getInstitutionFeedConfig(institutionName);
+
+  // Show widget if enabled
+  if (feedConfig?.widget?.enabled) {
+    await initPrayerTimesWidget();
+  } else if (widgetElement) {
+    widgetElement.style.display = 'none';
+  }
+
+  // Show carousel if exists
+  if (feedConfig?.carousel) {
+    // For institution feed, show the jurisdiction name where it's posted
+    const jurisdictionName = feedConfig.carousel.post_to_jurisdictions?.[0] || '';
+    renderCarousel(feedConfig.carousel, jurisdictionName, 'institution');
+  }
+}
+
+/**
+ * Initialize jurisdiction feed
+ */
+async function initJurisdictionFeed(jurisdictionName, widgetElement) {
+  const { getJurisdictionFeedConfig, getJurisdictionCarousels } = await import('./config.js');
+  const feedConfig = await getJurisdictionFeedConfig(jurisdictionName);
+
+  // Show widget if enabled
+  if (feedConfig?.widget?.enabled) {
+    await initPrayerTimesWidget();
+  } else if (widgetElement) {
+    widgetElement.style.display = 'none';
+  }
+
+  // Show carousels from institutions
+  const carousels = await getJurisdictionCarousels(jurisdictionName);
+  carousels.forEach(carousel => {
+    renderCarousel(carousel, carousel.institution, 'jurisdiction');
+  });
+}
+
+/**
+ * Render carousel
+ */
+function renderCarousel(carousel, sourceName, feedType) {
+  const feedContainer = document.querySelector('.paper-sheet');
+  if (!feedContainer) return;
+
+  const sourceLabel = feedType === 'institution'
+    ? `Posted in ${sourceName.replace(/\s*\[.*?\]\s*/g, '').trim()}`
+    : `Posted by ${sourceName.replace(/\s*\[.*?\]\s*/g, '').trim()}`;
+
+  const carouselId = `carousel-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  const carouselHTML = `
+    <div class="feed-carousel" id="${carouselId}">
+      <div class="carousel-header">
+        <h3 class="carousel-title">${carousel.title}</h3>
+        <span class="carousel-source">${sourceLabel}</span>
+      </div>
+      <div class="carousel-container">
+        <div class="carousel-track" id="${carouselId}-track">
+          ${carousel.images.map(img => `
+            <div class="carousel-slide">
+              <img src="${img.url}" alt="${img.caption}">
+              <div class="carousel-caption">${img.caption}</div>
+            </div>
+          `).join('')}
+        </div>
+        <button class="carousel-nav prev" aria-label="Previous slide">‹</button>
+        <button class="carousel-nav next" aria-label="Next slide">›</button>
+      </div>
+      <div class="carousel-indicators">
+        ${carousel.images.map((_, i) => `
+          <button class="carousel-indicator ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Go to slide ${i + 1}"></button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  feedContainer.insertAdjacentHTML('beforeend', carouselHTML);
+  initCarouselNavigation(carouselId, carousel.images.length);
+}
+
+/**
+ * Initialize carousel navigation
+ */
+function initCarouselNavigation(carouselId, slideCount) {
+  const carousel = document.getElementById(carouselId);
+  if (!carousel) return;
+
+  const track = document.getElementById(`${carouselId}-track`);
+  const prevBtn = carousel.querySelector('.carousel-nav.prev');
+  const nextBtn = carousel.querySelector('.carousel-nav.next');
+  const indicators = carousel.querySelectorAll('.carousel-indicator');
+
+  let currentIndex = 0;
+  let autoPlayInterval;
+
+  function goToSlide(index) {
+    if (index < 0) index = slideCount - 1;
+    if (index >= slideCount) index = 0;
+    currentIndex = index;
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+    // Update indicators
+    indicators.forEach((indicator, i) => {
+      indicator.classList.toggle('active', i === currentIndex);
+    });
+  }
+
+  function nextSlide() {
+    goToSlide(currentIndex + 1);
+  }
+
+  function prevSlide() {
+    goToSlide(currentIndex - 1);
+  }
+
+  // Event listeners
+  prevBtn.addEventListener('click', () => {
+    prevSlide();
+    resetAutoPlay();
+  });
+
+  nextBtn.addEventListener('click', () => {
+    nextSlide();
+    resetAutoPlay();
+  });
+
+  indicators.forEach((indicator, index) => {
+    indicator.addEventListener('click', () => {
+      goToSlide(index);
+      resetAutoPlay();
+    });
+  });
+
+  // Auto-play
+  function startAutoPlay() {
+    autoPlayInterval = setInterval(nextSlide, 5000);
+  }
+
+  function stopAutoPlay() {
+    clearInterval(autoPlayInterval);
+  }
+
+  function resetAutoPlay() {
+    stopAutoPlay();
+    startAutoPlay();
+  }
+
+  // Start auto-play
+  startAutoPlay();
+
+  // Pause on hover
+  carousel.addEventListener('mouseenter', stopAutoPlay);
+  carousel.addEventListener('mouseleave', startAutoPlay);
+
+  // Touch support
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  carousel.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    stopAutoPlay();
+  }, { passive: true });
+
+  carousel.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+    startAutoPlay();
+  }, { passive: true });
+
+  function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+  }
+}

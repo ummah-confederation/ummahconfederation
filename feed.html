@@ -11,6 +11,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet" />
   </head>
   <body class="py-10 px-5">
+    <!-- Prayer Times Marquee -->
+    <div class="prayer-times-container">
+      <div class="prayer-times-marquee">
+        <div class="prayer-times-marquee-content" id="prayer-times-marquee">
+          <span class="prayer-item">Loading prayer times...</span>
+        </div>
+      </div>
+    </div>
+
     <div class="paper-sheet max-w-4xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 lg:px-20 lg:py-20 mb-16">
       <!-- Admin Seal - Dark Mode Toggle -->
       <img src="images/admin-seal.webp" alt="Administrative Seal" class="admin-seal" />
@@ -19,12 +28,13 @@
       <h2 id="feed-header" class="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-wider uppercase text-center text-black mb-6">
         Global Feed
       </h2>
-<h3>Prayer Time Widget</h3>
+
       <!-- Prayer Times Widget -->
       <div id="prayer-times-widget" class="prayer-times-widget">
         <!-- Widget content will be populated by JavaScript -->
       </div>
     </div>
     <script type="module" src="js/feed.js"></script>
+    <script type="module" src="js/marquee.js"></script>
   </body>
 </html>

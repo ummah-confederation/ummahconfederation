@@ -1,9 +1,9 @@
 /**
- * Prayer Times Module
- * Fetches and displays Islamic prayer times using Aladhan API
+ * Marquee Module
+ * Displays prayer times widget and carousel captions in a scrolling marquee
  */
 
-class PrayerTimes {
+class Marquee {
   constructor() {
     this.prayerTimes = null;
     this.location = null;
@@ -13,6 +13,9 @@ class PrayerTimes {
     this.marqueeElement = null;
     this.updateInterval = null;
     this.cacheKey = 'prayerTimesCache';
+    this.feedConfig = null;
+    this.feedType = null;
+    this.entityName = null;
   }
 
   /**
@@ -64,12 +67,12 @@ class PrayerTimes {
   }
 
   /**
-   * Initialize the prayer times module
+   * Initialize the marquee module
    */
   async init() {
     this.marqueeElement = document.getElementById("prayer-times-marquee");
     if (!this.marqueeElement) {
-      console.error("Prayer times marquee element not found");
+      console.error("Marquee element not found");
       return;
     }
 
@@ -80,6 +83,12 @@ class PrayerTimes {
     });
 
     try {
+      // Get feed type and entity name from URL
+      this.getFeedContext();
+
+      // Fetch feed configuration
+      await this.fetchFeedConfig();
+
       // Get user's location
       await this.getLocation();
 
@@ -94,8 +103,57 @@ class PrayerTimes {
         this.updateDisplay();
       }, 1000); // Update every second
     } catch (error) {
-      console.error("Error initializing prayer times:", error);
+      console.error("Error initializing marquee:", error);
       this.showError();
+    }
+  }
+
+  /**
+   * Get feed context from URL parameters
+   */
+  getFeedContext() {
+    const params = new URLSearchParams(window.location.search);
+    const institution = params.get('institution');
+    const jurisdiction = params.get('jurisdiction');
+
+    if (institution) {
+      this.feedType = 'institution';
+      this.entityName = institution;
+    } else if (jurisdiction) {
+      this.feedType = 'jurisdiction';
+      this.entityName = jurisdiction;
+    } else {
+      this.feedType = 'global';
+      this.entityName = null;
+    }
+  }
+
+  /**
+   * Fetch feed configuration based on feed type
+   */
+  async fetchFeedConfig() {
+    if (this.feedType === 'global') {
+      this.feedConfig = null;
+      return;
+    }
+
+    try {
+      const { getInstitutionFeedConfig, getJurisdictionFeedConfig, getJurisdictionCarousels } = await import('./config.js');
+
+      if (this.feedType === 'institution') {
+        this.feedConfig = await getInstitutionFeedConfig(this.entityName);
+      } else if (this.feedType === 'jurisdiction') {
+        this.feedConfig = await getJurisdictionFeedConfig(this.entityName);
+        // Get carousels from institutions for jurisdiction feeds
+        const carousels = await getJurisdictionCarousels(this.entityName);
+        this.feedConfig = {
+          ...this.feedConfig,
+          carousels: carousels
+        };
+      }
+    } catch (error) {
+      console.warn('Error fetching feed config:', error);
+      this.feedConfig = null;
     }
   }
 
@@ -299,8 +357,57 @@ class PrayerTimes {
     const timeToNext = this.formatTimeToNextPrayer();
     const nextPrayerName = this.nextPrayer ? this.nextPrayer.name : "Unknown";
 
-    // Build the marquee content - all on one line for proper spacing
-    const content = `<span class="prayer-item"><span class="prayer-label">📍</span> <span class="prayer-value">${locationText}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">📅</span> <span class="prayer-value">${currentDate}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🕐 Current Time:</span> <span class="prayer-value">${this.currentTime}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">⏰ Next Prayer:</span> <span class="prayer-value">${nextPrayerName} (${timeToNext})</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🌅 Fajr:</span> <span class="prayer-value">${this.prayerTimes?.Fajr || "--:--"}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">☀️ Dhuhr:</span> <span class="prayer-value">${this.prayerTimes?.Dhuhr || "--:--"}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🌤️ Asr:</span> <span class="prayer-value">${this.prayerTimes?.Asr || "--:--"}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🌅 Maghrib:</span> <span class="prayer-value">${this.prayerTimes?.Maghrib || "--:--"}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🌙 Isha:</span> <span class="prayer-value">${this.prayerTimes?.Isha || "--:--"}</span></span> <span class="prayer-separator">•</span> `;
+    // Build widget section content with header (only location, date, current time, and next prayer)
+    const widgetContent = `<span class="prayer-item"><span class="prayer-label">📍</span> <span class="prayer-value">${locationText}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">📅</span> <span class="prayer-value">${currentDate}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🕐</span> <span class="prayer-value">${this.currentTime}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">⏰</span> <span class="prayer-value">${nextPrayerName} (${timeToNext})</span></span>`;
+
+    // Build carousel section content if available
+    let carouselContent = '';
+    if (this.feedConfig) {
+      const carousels = [];
+
+      if (this.feedType === 'institution' && this.feedConfig.carousel) {
+        carousels.push(this.feedConfig.carousel);
+      } else if (this.feedType === 'jurisdiction' && this.feedConfig.carousels) {
+        carousels.push(...this.feedConfig.carousels);
+      }
+
+      console.log('[Marquee Debug] feedType:', this.feedType);
+      console.log('[Marquee Debug] entityName:', this.entityName);
+      console.log('[Marquee Debug] carousels found:', carousels.length);
+
+      if (carousels.length > 0) {
+        const carouselItems = carousels.map(carousel => {
+          const captions = carousel.images.map(img => img.caption).join(' • ');
+          let header = '';
+          
+          if (this.feedType === 'institution') {
+            // For institution feed, show "Posted in (Jurisdiction)"
+            const jurisdictionName = carousel.post_to_jurisdictions?.[0] || '';
+            const cleanJurisdictionName = jurisdictionName.replace(/\s*\[.*?\]\s*/g, '').trim();
+            header = `Posted in ${cleanJurisdictionName}`;
+            console.log('[Marquee Debug] Institution feed - jurisdictionName:', jurisdictionName, '-> clean:', cleanJurisdictionName);
+          } else if (this.feedType === 'jurisdiction') {
+            // For jurisdiction feed, show "Posted by (Institution)"
+            const institutionName = carousel.institution || '';
+            const cleanInstitutionName = institutionName.replace(/\s*\[.*?\]\s*/g, '').trim();
+            header = `Posted by ${cleanInstitutionName}`;
+            console.log('[Marquee Debug] Jurisdiction feed - institutionName:', institutionName, '-> clean:', cleanInstitutionName);
+          }
+          
+          console.log('[Marquee Debug] Carousel header:', header);
+          console.log('[Marquee Debug] Carousel captions:', captions);
+          
+          return `<span class="prayer-item"><span class="prayer-label">${header}:</span> <span class="prayer-value">${captions}</span></span>`;
+        }).join(' <span class="prayer-separator">•</span> ');
+
+        carouselContent = ` <span class="prayer-separator">|</span> ${carouselItems}`;
+      }
+    }
+
+    // Build the complete marquee content with section headers
+    // Use | separator at the end if there's carousel content, otherwise use •
+    const endSeparator = carouselContent ? '|' : '•';
+    const content = `<span class="prayer-item"><span class="prayer-label">Prayer Time Widget:</span> <span class="prayer-value">${widgetContent}</span></span>${carouselContent} <span class="prayer-separator">${endSeparator}</span> `;
 
     // Duplicate content for seamless looping
     this.marqueeElement.innerHTML = content + content;
@@ -331,7 +438,7 @@ class PrayerTimes {
   showError() {
     if (!this.marqueeElement) return;
     this.marqueeElement.innerHTML = `
-      <span class="prayer-error">Unable to load prayer times. Please check your connection.</span>
+      <span class="prayer-error">Unable to load marquee content. Please check your connection.</span>
     `;
   }
 
@@ -368,13 +475,13 @@ class PrayerTimes {
 // Initialize when DOM is ready
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => {
-    const prayerTimes = new PrayerTimes();
-    prayerTimes.init();
+    const marquee = new Marquee();
+    marquee.init();
   });
 } else {
-  const prayerTimes = new PrayerTimes();
-  prayerTimes.init();
+  const marquee = new Marquee();
+  marquee.init();
 }
 
 // Export for potential use in other modules
-export { PrayerTimes };
+export { Marquee };

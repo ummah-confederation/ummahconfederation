@@ -5,37 +5,79 @@
     "Ummah Cabinet Members [Team Space]": {
       "avatar": "./images/institutions/ummah-cabinet.png",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        }
+      }
     },
     "General Public [Community]": {
       "avatar": "./images/jurisdictions/general-public.webp",
       "cover": "./images/covers/general-public.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        }
+      }
     },
     "Ummah Governance Members [Team Space]": {
       "avatar": "./images/institutions/ummah-governance.png",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        }
+      }
     },
     "Ummah Confederation Members [Team Space]": {
       "avatar": "./images/institutions/ummah-confederation.png",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        }
+      }
     },
     "Fathan's Space [Personal Space]": {
       "avatar": "./images/jurisdictions/fathan-husna.webp",
       "cover": "./images/covers/fathan-husna.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        }
+      }
     },
     "Ummah Media Worldwide Members [Team Space]": {
       "avatar": "./images/institutions/ummah-media-worldwide.webp",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        }
+      }
     },
     "Ummah Education Ministry Members [Team Space]": {
       "avatar": "./images/institutions/ummah-education-ministry.jpg",
       "cover": "./images/covers/default-cover.webp",
-      "bio": "Peace be upon you."
+      "bio": "Peace be upon you.",
+      "feed_config": {
+        "widget": {
+          "enabled": true,
+          "type": "prayer_time"
+        }
+      }
     }
   }
 }
