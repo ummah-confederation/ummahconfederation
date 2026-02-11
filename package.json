@@ -9,7 +9,7 @@
     "build:js": "rollup -c",
     "build:js:dev": "rollup -c --environment NODE_ENV:development",
     "build:analyze": "rollup -c && echo 'Bundle analysis reports generated in dist/stats/'",
-    "build:images": "node scripts/convert-to-webp.js",
+    "build:images": "node scripts/convert-to-webp.mjs",
     "build": "npm run build:css && npm run build:js && npm run build:images",
     "build:dev": "npm run build:css:dev && npm run build:js:dev",
     "test": "echo \"Error: no test specified\" && exit 1"
