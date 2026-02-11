@@ -1,10 +1,34 @@
 /**
  * Feed Page Module
  * Handles feed page logic and prayer times widget
+ * Uses UnifiedCacheManager for consistent caching
  */
+
+import { unifiedCache, CACHE_NAMESPACES, CACHE_DEFAULT_TTL, LOCATION_PRECISION } from './unified-cache.js';
 
 // Dark Mode Toggle Functionality
 const DARK_MODE_KEY = 'darkMode';
+
+// Geolocation configuration
+const GEOLOCATION_OPTIONS = {
+  enableHighAccuracy: false,
+  timeout: 10000,
+  maximumAge: 300000
+};
+
+// CORS proxy fallbacks for geocoding
+const CORS_PROXIES = [
+  'https://corsproxy.io/?',
+  'https://api.allorigins.win/raw?url='
+];
+
+// Default fallback location (Jakarta)
+const DEFAULT_LOCATION = {
+  latitude: -6.2088,
+  longitude: 106.8456,
+  city: "Jakarta",
+  country: "Indonesia"
+};
 
 function initDarkMode() {
   const adminSeal = document.querySelector('.admin-seal');
@@ -64,13 +88,44 @@ function updateFeedHeader() {
 }
 
 /**
+ * Check geolocation permission state
+ * @returns {Promise<string>} 'granted', 'denied', or 'prompt'
+ */
+async function checkGeolocationPermission() {
+  if (!navigator.permissions) {
+    return 'prompt';
+  }
+
+  try {
+    const result = await navigator.permissions.query({ name: 'geolocation' });
+    return result.state;
+  } catch (error) {
+    return 'prompt';
+  }
+}
+
+/**
  * Initialize prayer times widget
  */
 async function initPrayerTimesWidget() {
   const widgetElement = document.getElementById('prayer-times-widget');
   if (!widgetElement) return;
 
+  // Show loading state
+  widgetElement.innerHTML = `
+    <div class="prayer-widget-header">
+      <h3 class="prayer-widget-title">Prayer Time Widget</h3>
+    </div>
+    <div class="prayer-widget-loading">
+      <span class="loading-spinner"></span>
+      <span>Fetching your location...</span>
+    </div>
+  `;
+
   try {
+    // Initialize unified cache
+    await unifiedCache.init();
+
     // Get user's location
     const location = await getLocation();
 
@@ -86,38 +141,45 @@ async function initPrayerTimesWidget() {
     }, 1000);
   } catch (error) {
     console.error('Error initializing prayer times widget:', error);
-    widgetElement.innerHTML = '<p class="text-center">Unable to load prayer times.</p>';
+    widgetElement.innerHTML = '<p class="text-center prayer-error">Unable to load prayer times.</p>';
   }
 }
 
 /**
- * Get cache key for today's date and location
+ * Get cache key for prayer times
  */
-function getCacheKey(location) {
+function getPrayerCacheKey(location) {
+  if (!location) return null;
+  
   const today = new Date();
   const dateStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-  const locationStr = `${location?.latitude?.toFixed(2)}_${location?.longitude?.toFixed(2)}`;
-  return `prayerTimesCache_${dateStr}_${locationStr}`;
+  
+  return unifiedCache.generateLocationKey(
+    CACHE_NAMESPACES.PRAYER_TIMES,
+    location.latitude,
+    location.longitude,
+    dateStr
+  );
 }
 
 /**
  * Get cached prayer times for today
  */
-function getCachedPrayerTimes(location) {
+async function getCachedPrayerTimes(location) {
+  const cacheKey = getPrayerCacheKey(location);
+  if (!cacheKey) return null;
+
   try {
-    const cacheKey = getCacheKey(location);
-    const cached = localStorage.getItem(cacheKey);
+    const cached = await unifiedCache.get(cacheKey);
     if (cached) {
-      const data = JSON.parse(cached);
-      // Check if cache is from today
-      const cacheDate = new Date(data.date);
+      const cacheDate = new Date(cached.date);
       const today = new Date();
       if (cacheDate.toDateString() === today.toDateString()) {
-        return data.prayerTimes;
+        return cached.prayerTimes;
       }
     }
   } catch (error) {
-    console.warn('Error reading cache:', error);
+    console.warn('Error reading prayer cache:', error);
   }
   return null;
 }
@@ -125,26 +187,116 @@ function getCachedPrayerTimes(location) {
 /**
  * Cache prayer times for today
  */
-function cachePrayerTimes(location, prayerTimes) {
+async function cachePrayerTimes(location, prayerTimes) {
+  const cacheKey = getPrayerCacheKey(location);
+  if (!cacheKey) return;
+
   try {
-    const cacheKey = getCacheKey(location);
     const data = {
       date: new Date().toISOString(),
-      prayerTimes: prayerTimes
+      prayerTimes: prayerTimes,
+      location: {
+        latitude: location.latitude,
+        longitude: location.longitude
+      }
     };
-    localStorage.setItem(cacheKey, JSON.stringify(data));
+
+    const now = new Date();
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const ttl = endOfDay.getTime() - now.getTime();
+
+    await unifiedCache.set(cacheKey, data, ttl);
   } catch (error) {
-    console.warn('Error writing cache:', error);
+    console.warn('Error writing prayer cache:', error);
   }
 }
 
 /**
- * Get user's geolocation
+ * Fetch city name using reverse geocoding with fallback proxies
+ */
+async function fetchCityName(location) {
+  if (!location || location.isFallback) return;
+
+  // Check geocoding cache first
+  const geocodingCacheKey = unifiedCache.generateLocationKey(
+    CACHE_NAMESPACES.GEOCODING,
+    location.latitude,
+    location.longitude
+  );
+
+  try {
+    const cachedGeocoding = await unifiedCache.get(geocodingCacheKey);
+    if (cachedGeocoding) {
+      location.city = cachedGeocoding.city;
+      location.country = cachedGeocoding.country;
+      return;
+    }
+  } catch (error) {
+    console.warn('Error reading geocoding cache:', error);
+  }
+
+  // Try each CORS proxy
+  const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.latitude}&lon=${location.longitude}`;
+
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const response = await fetch(
+        `${proxy}${encodeURIComponent(nominatimUrl)}`,
+        { signal: controller.signal }
+      );
+      
+      clearTimeout(timeoutId);
+
+      if (!response.ok) continue;
+
+      const data = await response.json();
+      
+      location.city =
+        data.address.city ||
+        data.address.town ||
+        data.address.village ||
+        data.address.county ||
+        "Unknown";
+      location.country = data.address.country || "Unknown";
+
+      // Cache the geocoding result
+      await unifiedCache.set(
+        geocodingCacheKey,
+        { city: location.city, country: location.country },
+        CACHE_DEFAULT_TTL.GEOCODING
+      );
+
+      return;
+    } catch (error) {
+      console.warn(`Geocoding proxy ${proxy} failed:`, error);
+    }
+  }
+
+  // All proxies failed
+  console.warn('All geocoding proxies failed');
+  location.city = "Unknown";
+  location.country = "Unknown";
+}
+
+/**
+ * Get user's geolocation with proper error handling
  */
 async function getLocation() {
-  return new Promise((resolve, reject) => {
+  // Check permission state first
+  const permissionState = await checkGeolocationPermission();
+  
+  if (permissionState === 'denied') {
+    console.warn('Geolocation permission previously denied');
+    return { ...DEFAULT_LOCATION, isFallback: true };
+  }
+
+  return new Promise((resolve) => {
     if (!navigator.geolocation) {
-      reject(new Error('Geolocation is not supported'));
+      console.warn('Geolocation is not supported by this browser');
+      resolve({ ...DEFAULT_LOCATION, isFallback: true });
       return;
     }
 
@@ -153,30 +305,35 @@ async function getLocation() {
         const location = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
+          isFallback: false
         };
 
-        try {
-          const response = await fetch(
-            `https://corsproxy.io/?${encodeURIComponent(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.latitude}&lon=${location.longitude}`)}`
-          );
-          const data = await response.json();
-          location.city = data.address.city || data.address.town || data.address.village || data.address.county || 'Unknown';
-          location.country = data.address.country || 'Unknown';
-        } catch (error) {
-          location.city = 'Unknown';
-          location.country = 'Unknown';
-        }
-
+        // Fetch city name
+        await fetchCityName(location);
         resolve(location);
       },
-      () => {
-        resolve({
-          latitude: -6.2088,
-          longitude: 106.8456,
-          city: 'Jakarta',
-          country: 'Indonesia',
-        });
-      }
+      (error) => {
+        // Handle specific error types
+        let errorMessage = 'Unknown location error';
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Permission denied';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Position unavailable';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Location request timed out';
+            break;
+          default:
+            errorMessage = error.message || 'Unknown error';
+        }
+
+        console.warn(`Geolocation failed (${errorMessage}), using fallback:`, error);
+        resolve({ ...DEFAULT_LOCATION, isFallback: true });
+      },
+      GEOLOCATION_OPTIONS
     );
   });
 }
@@ -186,7 +343,7 @@ async function getLocation() {
  */
 async function fetchPrayerTimes(location) {
   // Try to get cached prayer times first
-  const cached = getCachedPrayerTimes(location);
+  const cached = await getCachedPrayerTimes(location);
   if (cached) {
     return cached;
   }
@@ -211,7 +368,7 @@ async function fetchPrayerTimes(location) {
       Isha: data.data.timings.Isha,
     };
     // Cache the prayer times
-    cachePrayerTimes(location, prayerTimes);
+    await cachePrayerTimes(location, prayerTimes);
     return prayerTimes;
   }
   throw new Error('Failed to fetch prayer times');
@@ -309,6 +466,10 @@ function renderWidget(location, prayerTimes) {
   const { nextPrayer, timeToNext } = calculateNextPrayer(prayerTimes);
   const timeToNextText = formatTimeToNextPrayer(timeToNext);
 
+  // Show fallback indicator if using fallback location
+  const fallbackIndicator = location.isFallback ? ' (Fallback)' : '';
+  const locationClass = location.isFallback ? 'prayer-widget-location prayer-widget-location-fallback' : 'prayer-widget-location';
+
   widgetElement.innerHTML = `
     <div class="prayer-widget-header">
       <h3 class="prayer-widget-title">Prayer Time Widget</h3>
@@ -317,7 +478,7 @@ function renderWidget(location, prayerTimes) {
       <span class="prayer-widget-date">${currentDate}</span>
       <span class="prayer-widget-clock">${currentTime}</span>
     </div>
-    <div class="prayer-widget-location">📍 ${location.city}, ${location.country}</div>
+    <div class="${locationClass}">📍 ${location.city}, ${location.country}${fallbackIndicator}</div>
     <div class="prayer-widget-next">
       <span class="prayer-widget-next-label">Next Prayer:</span> ${nextPrayer.name} (${timeToNextText})
     </div>

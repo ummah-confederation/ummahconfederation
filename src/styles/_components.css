@@ -1660,8 +1660,8 @@ body.has-profile #main-container {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Fallback Location Indicator */
-.prayer-value:contains("(Fallback)") {
+/* Fallback Location Indicator - handled via JS class */
+.prayer-value-fallback {
   color: #fcd34d;
 }
 
@@ -1764,8 +1764,22 @@ body.has-profile #main-container {
   color: #e2e8f0;
 }
 
+.prayer-widget-location-fallback {
+  color: #fcd34d;
+}
+
 .dark .prayer-widget-location {
   color: #94a3b8;
+}
+
+/* Prayer widget loading state */
+.prayer-widget-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  color: #e2e8f0;
 }
 
 /* Widget Next Prayer Row */
