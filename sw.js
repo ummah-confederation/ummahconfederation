@@ -37,16 +37,13 @@ const CACHE_STRATEGIES = {
  * Install event - cache static assets
  */
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker...');
 
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[SW] Caching static assets');
         return cache.addAll(STATIC_CACHE_URLS);
       })
       .then(() => {
-        console.log('[SW] Static assets cached');
         return self.skipWaiting(); // Activate immediately
       })
       .catch((error) => {
@@ -59,7 +56,6 @@ self.addEventListener('install', (event) => {
  * Activate event - clean up old caches
  */
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating service worker...');
 
   event.waitUntil(
     caches.keys()
@@ -68,14 +64,12 @@ self.addEventListener('activate', (event) => {
           cacheNames.map((cacheName) => {
             // Delete old caches
             if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
-              console.log('[SW] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       })
       .then(() => {
-        console.log('[SW] Service worker activated');
         return self.clients.claim(); // Take control immediately
       })
   );
@@ -173,12 +167,10 @@ async function cacheFirst(request) {
     const cachedResponse = await cache.match(request);
 
     if (cachedResponse) {
-      console.log('[SW] Cache hit:', request.url);
       return cachedResponse;
     }
 
     // Cache miss, fetch from network
-    console.log('[SW] Cache miss, fetching:', request.url);
     const networkResponse = await fetch(request);
 
     // Cache the response
@@ -204,7 +196,6 @@ async function networkFirst(request, cacheTTL = 5 * 60 * 1000) {
 
   try {
     // Try network first
-    console.log('[SW] Network first, fetching:', request.url);
     const networkResponse = await fetch(request);
 
     // Cache the response
@@ -214,7 +205,6 @@ async function networkFirst(request, cacheTTL = 5 * 60 * 1000) {
 
     return networkResponse;
   } catch (error) {
-    console.log('[SW] Network failed, trying cache:', request.url);
 
     // Network failed, try cache
     const cachedResponse = await cache.match(request);
@@ -344,7 +334,6 @@ async function getCacheStats() {
 self.addEventListener('push', (event) => {
   if (event.data) {
     const data = event.data.json();
-    console.log('[SW] Push notification received:', data);
 
     // Show notification
     const options = {
@@ -368,7 +357,6 @@ self.addEventListener('push', (event) => {
  * Sync event - handle background sync (if needed in future)
  */
 self.addEventListener('sync', (event) => {
-  console.log('[SW] Background sync:', event.tag);
 
   if (event.tag === 'sync-prayer-times') {
     event.waitUntil(syncPrayerTimes());
@@ -383,10 +371,8 @@ async function syncPrayerTimes() {
   try {
     // This would sync prayer times in the background
     // Implementation depends on your specific requirements
-    console.log('[SW] Syncing prayer times...');
   } catch (error) {
     console.error('[SW] Sync failed:', error);
   }
 }
 
-console.log('[SW] Service worker loaded');

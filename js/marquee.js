@@ -259,7 +259,6 @@ class Marquee {
           const cachedGeocoding = this.geocodingCache.get(geocodingCacheKey);
 
           if (cachedGeocoding) {
-            console.log('Using cached geocoding data');
             this.location.city = cachedGeocoding.city;
             this.location.country = cachedGeocoding.country;
             resolve(this.location);
@@ -321,7 +320,6 @@ class Marquee {
     // Try to get cached prayer times first
     const cached = this.getCachedPrayerTimes();
     if (cached) {
-      console.log('Using cached prayer times');
       this.prayerTimes = cached;
 
       // Check if cache is stale (older than 20 hours) and refresh in background
@@ -331,7 +329,6 @@ class Marquee {
         const STALE_THRESHOLD = 20 * 60 * 60 * 1000; // 20 hours
 
         if (cacheAge > STALE_THRESHOLD) {
-          console.log('Cache is stale, refreshing in background');
           this.refreshPrayerTimesInBackground();
         }
       }
@@ -339,7 +336,6 @@ class Marquee {
     }
 
     // If no cache, fetch from API
-    console.log('Fetching prayer times from API');
     const today = new Date();
     const date = today.getDate();
     const month = today.getMonth() + 1;

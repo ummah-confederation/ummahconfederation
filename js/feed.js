@@ -113,7 +113,6 @@ function getCachedPrayerTimes(location) {
       const cacheDate = new Date(data.date);
       const today = new Date();
       if (cacheDate.toDateString() === today.toDateString()) {
-        console.log('Using cached prayer times for widget');
         return data.prayerTimes;
       }
     }
@@ -193,7 +192,6 @@ async function fetchPrayerTimes(location) {
   }
 
   // If no cache, fetch from API
-  console.log('Fetching prayer times from API for widget');
   const today = new Date();
   const date = today.getDate();
   const month = today.getMonth() + 1;
@@ -372,7 +370,6 @@ async function initFeedContent(isBfcacheRestore = false) {
   const feedType = getFeedType();
   const widgetElement = document.getElementById('prayer-times-widget');
 
-  console.log('Initializing feed content:', feedType, 'bfcache restore:', isBfcacheRestore);
 
   if (feedType.type === 'institution') {
     await initInstitutionFeed(feedType.name, widgetElement, isBfcacheRestore);
@@ -395,7 +392,6 @@ async function initInstitutionFeed(institutionName, widgetElement, isBfcacheRest
     const { getInstitutionFeedConfig, getDocumentById } = await import('./config.js');
     const feedConfig = await getInstitutionFeedConfig(institutionName);
 
-    console.log('Feed config:', feedConfig);
 
     // Show widget if enabled
     if (feedConfig?.widget?.enabled) {
@@ -444,11 +440,9 @@ async function initInstitutionFeed(institutionName, widgetElement, isBfcacheRest
  */
 async function initJurisdictionFeed(jurisdictionName, widgetElement, isBfcacheRestore = false) {
   try {
-    console.log('Initializing jurisdiction feed:', jurisdictionName);
     const { getJurisdictionFeedConfig, getJurisdictionCarousels } = await import('./config.js');
     const feedConfig = await getJurisdictionFeedConfig(jurisdictionName);
 
-    console.log('Feed config:', feedConfig);
 
     // Show widget if enabled
     if (feedConfig?.widget?.enabled) {
