@@ -87,12 +87,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip cross-origin requests (except for allowed APIs)
+  // Skip cross-origin requests (API calls are handled by app-level caching)
+  // Let the application handle API caching through UnifiedCacheManager
+  // This prevents conflicts between SW cache and app cache
   if (url.origin !== self.location.origin) {
-    // Handle API requests with network-first strategy
-    if (url.hostname === 'api.aladhan.com' || url.hostname === 'nominatim.openstreetmap.org') {
-      event.respondWith(networkFirst(request, 5 * 60 * 1000)); // 5 minutes cache
-    }
+    // Pass through API requests without caching - app handles its own cache
     return;
   }
 

@@ -1614,6 +1614,57 @@ body.has-profile #main-container {
   font-style: italic;
 }
 
+/* Prayer Loading State */
+.prayer-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #e2e8f0;
+}
+
+.loading-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Prayer Warning State */
+.prayer-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fcd34d;
+}
+
+.prayer-warning .retry-location-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #ffffff;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.prayer-warning .retry-location-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Fallback Location Indicator */
+.prayer-value:contains("(Fallback)") {
+  color: #fcd34d;
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .prayer-times-container {

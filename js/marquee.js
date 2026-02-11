@@ -1,53 +1,98 @@
 /**
  * Marquee Module
  * Displays prayer times widget and carousel captions in a scrolling marquee
- * Enhanced with optimized caching using ResponseCache utility
+ * Refactored with unified caching and proper error handling
  */
 
-import { ResponseCache, CACHE_TTL } from './cache.js';
+import { unifiedCache, CACHE_NAMESPACES, CACHE_DEFAULT_TTL, LOCATION_PRECISION } from './unified-cache.js';
+
+// Geolocation configuration
+const GEOLOCATION_OPTIONS = {
+  enableHighAccuracy: false,  // Faster, less accurate is OK for prayer times
+  timeout: 10000,             // 10 seconds max
+  maximumAge: 300000          // Accept position up to 5 minutes old
+};
+
+// CORS proxy fallbacks for geocoding
+const CORS_PROXIES = [
+  'https://corsproxy.io/?',
+  'https://api.allorigins.win/raw?url='
+];
+
+// Default fallback location (Jakarta)
+const DEFAULT_LOCATION = {
+  latitude: -6.2088,
+  longitude: 106.8456,
+  city: "Jakarta",
+  country: "Indonesia"
+};
 
 class Marquee {
   constructor() {
     this.prayerTimes = null;
     this.location = null;
+    this.locationError = null;
     this.currentTime = null;
     this.nextPrayer = null;
     this.timeToNextPrayer = null;
     this.marqueeElement = null;
     this.updateInterval = null;
-    this.cacheKey = 'prayerTimesCache';
     this.feedConfig = null;
     this.feedType = null;
     this.entityName = null;
     this.entityMetadata = null;
-    this.cachedContent = null; // Cache for repeated content
-    this.cachedContentHash = null; // Hash to detect content changes
-
-    // Initialize cache utilities
-    this.prayerCache = new ResponseCache();
-    this.geocodingCache = new ResponseCache(CACHE_TTL.VERY_LONG); // 24 hours for geocoding
+    this.cachedContent = null;
+    this.cachedContentHash = null;
+    this.isLoading = false;
   }
 
   /**
-   * Get cache key for today's date and location
+   * Check geolocation permission state before requesting
+   * @returns {Promise<string>} 'granted', 'denied', or 'prompt'
    */
-  getCacheKey() {
+  async checkGeolocationPermission() {
+    if (!navigator.permissions) {
+      return 'prompt';  // Assume prompt if Permissions API not available
+    }
+
+    try {
+      const result = await navigator.permissions.query({ name: 'geolocation' });
+      return result.state;  // 'granted', 'denied', or 'prompt'
+    } catch (error) {
+      console.warn('Permission check failed:', error);
+      return 'prompt';
+    }
+  }
+
+  /**
+   * Generate cache key for today's prayer times
+   */
+  getPrayerCacheKey() {
+    if (!this.location) return null;
+    
     const today = new Date();
     const dateStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-    const locationStr = `${this.location?.latitude?.toFixed(2)}_${this.location?.longitude?.toFixed(2)}`;
-    return `${this.cacheKey}_${dateStr}_${locationStr}`;
+    
+    return unifiedCache.generateLocationKey(
+      CACHE_NAMESPACES.PRAYER_TIMES,
+      this.location.latitude,
+      this.location.longitude,
+      dateStr
+    );
   }
 
   /**
    * Get cached prayer times for today
-   * @returns {Object|null} Cached prayer times or null
+   * @returns {Promise<Object|null>} Cached prayer times or null
    */
-  getCachedPrayerTimes() {
+  async getCachedPrayerTimes() {
+    const cacheKey = this.getPrayerCacheKey();
+    if (!cacheKey) return null;
+
     try {
-      const cacheKey = this.getCacheKey();
-      const cached = this.prayerCache.get(cacheKey);
+      const cached = await unifiedCache.get(cacheKey);
       if (cached) {
-        // Check if cache is from today
+        // Verify cache is from today
         const cacheDate = new Date(cached.date);
         const today = new Date();
         if (cacheDate.toDateString() === today.toDateString()) {
@@ -55,7 +100,7 @@ class Marquee {
         }
       }
     } catch (error) {
-      console.warn('Error reading cache:', error);
+      console.warn('Error reading prayer cache:', error);
     }
     return null;
   }
@@ -64,20 +109,28 @@ class Marquee {
    * Cache prayer times for today
    * @param {Object} prayerTimes - Prayer times object
    */
-  cachePrayerTimes(prayerTimes) {
+  async cachePrayerTimes(prayerTimes) {
+    const cacheKey = this.getPrayerCacheKey();
+    if (!cacheKey) return;
+
     try {
-      const cacheKey = this.getCacheKey();
       const data = {
         date: new Date().toISOString(),
-        prayerTimes: prayerTimes
+        prayerTimes: prayerTimes,
+        location: {
+          latitude: this.location.latitude,
+          longitude: this.location.longitude
+        }
       };
-      // Cache for 24 hours (until end of day)
+
+      // Calculate TTL until end of day
       const now = new Date();
       const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
       const ttl = endOfDay.getTime() - now.getTime();
-      this.prayerCache.set(cacheKey, data, ttl);
+
+      await unifiedCache.set(cacheKey, data, ttl);
     } catch (error) {
-      console.warn('Error writing cache:', error);
+      console.warn('Error writing prayer cache:', error);
     }
   }
 
@@ -104,11 +157,69 @@ class Marquee {
           Maghrib: data.data.timings.Maghrib,
           Isha: data.data.timings.Isha,
         };
-        this.cachePrayerTimes(prayerTimes);
+        await this.cachePrayerTimes(prayerTimes);
         this.prayerTimes = prayerTimes;
       }
     } catch (error) {
       console.warn('Background prayer times refresh failed:', error);
+    }
+  }
+
+  /**
+   * Show loading state in marquee
+   */
+  showLoadingState() {
+    if (!this.marqueeElement) return;
+    this.marqueeElement.innerHTML = `
+      <span class="prayer-loading">
+        <span class="loading-spinner"></span>
+        Fetching your location...
+      </span>
+    `;
+  }
+
+  /**
+   * Show error/warning state in marquee
+   * @param {string} message - Message to display
+   * @param {boolean} showRetry - Whether to show retry button
+   */
+  showWarningState(message, showRetry = true) {
+    if (!this.marqueeElement) return;
+    
+    const retryBtn = showRetry ? `<button class="retry-location-btn" title="Retry location fetch">🔄</button>` : '';
+    
+    this.marqueeElement.innerHTML = `
+      <span class="prayer-warning">
+        ⚠️ ${message} ${retryBtn}
+      </span>
+    `;
+
+    // Add retry handler
+    if (showRetry) {
+      const retryBtn = this.marqueeElement.querySelector('.retry-location-btn');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.retryLocationFetch();
+        });
+      }
+    }
+  }
+
+  /**
+   * Retry location fetch
+   */
+  async retryLocationFetch() {
+    this.showLoadingState();
+    this.locationError = null;
+    
+    try {
+      await this.getLocation();
+      await this.fetchPrayerTimes();
+      this.updateDisplay();
+    } catch (error) {
+      console.error('Retry failed:', error);
+      this.showWarningState('Location fetch failed. Using fallback location.');
     }
   }
 
@@ -139,12 +250,29 @@ class Marquee {
       await this.fetchEntityMetadata();
 
       // Check if widget is enabled
-      const widgetEnabled = this.feedConfig?.widget?.enabled !== false; // Default to true if not specified
+      const widgetEnabled = this.feedConfig?.widget?.enabled !== false;
 
       // Only fetch prayer times and location if widget is enabled
       if (widgetEnabled) {
-        // Get user's location
-        await this.getLocation();
+        // Show loading state
+        this.showLoadingState();
+
+        // Initialize unified cache
+        await unifiedCache.init();
+
+        // Check permission state first
+        const permissionState = await this.checkGeolocationPermission();
+        
+        if (permissionState === 'denied') {
+          // Permission previously denied, use fallback immediately
+          console.warn('Geolocation permission previously denied');
+          this.locationError = { code: 1, message: 'Permission denied' };
+          this.location = { ...DEFAULT_LOCATION, isFallback: true };
+          this.showWarningState('Location permission denied. Using Jakarta as fallback.');
+        } else {
+          // Get user's location
+          await this.getLocation();
+        }
 
         // Fetch prayer times
         await this.fetchPrayerTimes();
@@ -153,16 +281,34 @@ class Marquee {
       // Update display
       this.updateDisplay();
 
-      // Set up interval to update current time and next prayer (only if widget is enabled)
+      // Set up interval to update current time and next prayer
       if (widgetEnabled) {
         this.updateInterval = setInterval(() => {
           this.updateDisplay();
         }, 1000); // Update every second
       }
+
+      // Set up network status handlers
+      this.setupNetworkHandlers();
+
     } catch (error) {
       console.error("Error initializing marquee:", error);
       this.showError();
     }
+  }
+
+  /**
+   * Set up network status handlers
+   */
+  setupNetworkHandlers() {
+    window.addEventListener('online', () => {
+      console.log('Network restored, refreshing prayer times');
+      this.refreshPrayerTimesInBackground();
+    });
+
+    window.addEventListener('offline', () => {
+      console.log('Network lost, using cached data');
+    });
   }
 
   /**
@@ -238,12 +384,15 @@ class Marquee {
   }
 
   /**
-   * Get user's geolocation with enhanced caching
+   * Get user's geolocation with proper error handling
    */
   async getLocation() {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error("Geolocation is not supported by your browser"));
+        console.warn("Geolocation is not supported by this browser");
+        this.location = { ...DEFAULT_LOCATION, isFallback: true };
+        this.locationError = { code: 0, message: 'Geolocation not supported' };
+        resolve(this.location);
         return;
       }
 
@@ -252,112 +401,177 @@ class Marquee {
           this.location = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
+            isFallback: false
           };
 
-          // Check geocoding cache first
-          const geocodingCacheKey = `geocoding_${this.location.latitude.toFixed(4)}_${this.location.longitude.toFixed(4)}`;
-          const cachedGeocoding = this.geocodingCache.get(geocodingCacheKey);
-
-          if (cachedGeocoding) {
-            this.location.city = cachedGeocoding.city;
-            this.location.country = cachedGeocoding.country;
-            resolve(this.location);
-            return;
-          }
-
-          // Get city name using reverse geocoding
-          try {
-            const response = await fetch(
-              `https://corsproxy.io/?${encodeURIComponent(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${this.location.latitude}&lon=${this.location.longitude}`)}`,
-            );
-            const data = await response.json();
-            this.location.city =
-              data.address.city ||
-              data.address.town ||
-              data.address.village ||
-              data.address.county ||
-              "Unknown";
-            this.location.country = data.address.country || "Unknown";
-
-            // Cache the geocoding result (7 days)
-            this.geocodingCache.set(geocodingCacheKey, {
-              city: this.location.city,
-              country: this.location.country
-            }, 7 * 24 * 60 * 60 * 1000);
-          } catch (error) {
-            console.warn("Could not get city name:", error);
-            this.location.city = "Unknown";
-            this.location.country = "Unknown";
-          }
+          // Try to get city name using reverse geocoding
+          await this.fetchCityName();
 
           resolve(this.location);
         },
         (error) => {
-          // Default to Jakarta if geolocation fails
-          console.warn(
-            "Geolocation failed, using default location (Jakarta):",
-            error,
-          );
-          this.location = {
-            latitude: -6.2088,
-            longitude: 106.8456,
-            city: "Jakarta",
-            country: "Indonesia",
+          // Handle specific error types
+          let errorMessage = 'Unknown location error';
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Permission denied';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Position unavailable';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out';
+              break;
+            default:
+              errorMessage = error.message || 'Unknown error';
+          }
+
+          console.warn(`Geolocation failed (${errorMessage}), using fallback:`, error);
+          
+          // Store error info
+          this.locationError = {
+            code: error.code,
+            message: errorMessage
           };
+
+          // Set fallback location with flag
+          this.location = { ...DEFAULT_LOCATION, isFallback: true };
+          
           resolve(this.location);
         },
+        GEOLOCATION_OPTIONS
       );
     });
   }
 
   /**
+   * Fetch city name using reverse geocoding with fallback proxies
+   */
+  async fetchCityName() {
+    if (!this.location || this.location.isFallback) return;
+
+    // Check geocoding cache first
+    const geocodingCacheKey = unifiedCache.generateLocationKey(
+      CACHE_NAMESPACES.GEOCODING,
+      this.location.latitude,
+      this.location.longitude
+    );
+
+    try {
+      const cachedGeocoding = await unifiedCache.get(geocodingCacheKey);
+      if (cachedGeocoding) {
+        this.location.city = cachedGeocoding.city;
+        this.location.country = cachedGeocoding.country;
+        return;
+      }
+    } catch (error) {
+      console.warn('Error reading geocoding cache:', error);
+    }
+
+    // Try each CORS proxy
+    const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${this.location.latitude}&lon=${this.location.longitude}`;
+
+    for (const proxy of CORS_PROXIES) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch(
+          `${proxy}${encodeURIComponent(nominatimUrl)}`,
+          { signal: controller.signal }
+        );
+        
+        clearTimeout(timeoutId);
+
+        if (!response.ok) continue;
+
+        const data = await response.json();
+        
+        this.location.city =
+          data.address.city ||
+          data.address.town ||
+          data.address.village ||
+          data.address.county ||
+          "Unknown";
+        this.location.country = data.address.country || "Unknown";
+
+        // Cache the geocoding result
+        await unifiedCache.set(
+          geocodingCacheKey,
+          { city: this.location.city, country: this.location.country },
+          CACHE_DEFAULT_TTL.GEOCODING
+        );
+
+        return; // Success, exit
+      } catch (error) {
+        console.warn(`Geocoding proxy ${proxy} failed:`, error);
+        // Continue to next proxy
+      }
+    }
+
+    // All proxies failed
+    console.warn('All geocoding proxies failed');
+    this.location.city = "Unknown";
+    this.location.country = "Unknown";
+  }
+
+  /**
    * Fetch prayer times from Aladhan API with enhanced caching
-   * Uses stale-while-revalidate pattern for better performance
    */
   async fetchPrayerTimes() {
-    const cacheKey = this.getCacheKey();
-
     // Try to get cached prayer times first
-    const cached = this.getCachedPrayerTimes();
+    const cached = await this.getCachedPrayerTimes();
     if (cached) {
       this.prayerTimes = cached;
 
       // Check if cache is stale (older than 20 hours) and refresh in background
-      const cachedData = this.prayerCache.get(cacheKey);
-      if (cachedData) {
-        const cacheAge = Date.now() - new Date(cachedData.date).getTime();
-        const STALE_THRESHOLD = 20 * 60 * 60 * 1000; // 20 hours
+      const cacheKey = this.getPrayerCacheKey();
+      if (cacheKey) {
+        const cachedData = await unifiedCache.get(cacheKey);
+        if (cachedData) {
+          const cacheAge = Date.now() - new Date(cachedData.date).getTime();
+          const STALE_THRESHOLD = 20 * 60 * 60 * 1000; // 20 hours
 
-        if (cacheAge > STALE_THRESHOLD) {
-          this.refreshPrayerTimesInBackground();
+          if (cacheAge > STALE_THRESHOLD) {
+            this.refreshPrayerTimesInBackground();
+          }
         }
       }
       return;
     }
 
     // If no cache, fetch from API
+    if (!this.location) {
+      throw new Error("Location not available");
+    }
+
     const today = new Date();
     const date = today.getDate();
     const month = today.getMonth() + 1;
     const year = today.getFullYear();
 
-    const url = `https://api.aladhan.com/v1/timings/${date}-${month}-${year}?latitude=${this.location.latitude}&longitude=${this.location.longitude}&method=20`; // Method 20: Kemenag (Indonesia)
+    const url = `https://api.aladhan.com/v1/timings/${date}-${month}-${year}?latitude=${this.location.latitude}&longitude=${this.location.longitude}&method=20`;
 
-    const response = await fetch(url);
-    const data = await response.json();
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
 
-    if (data.code === 200 && data.data) {
-      this.prayerTimes = {
-        Fajr: data.data.timings.Fajr,
-        Dhuhr: data.data.timings.Dhuhr,
-        Asr: data.data.timings.Asr,
-        Maghrib: data.data.timings.Maghrib,
-        Isha: data.data.timings.Isha,
-      };
-      // Cache the prayer times
-      this.cachePrayerTimes(this.prayerTimes);
-    } else {
-      throw new Error("Failed to fetch prayer times");
+      if (data.code === 200 && data.data) {
+        this.prayerTimes = {
+          Fajr: data.data.timings.Fajr,
+          Dhuhr: data.data.timings.Dhuhr,
+          Asr: data.data.timings.Asr,
+          Maghrib: data.data.timings.Maghrib,
+          Isha: data.data.timings.Isha,
+        };
+        await this.cachePrayerTimes(this.prayerTimes);
+      } else {
+        throw new Error("Failed to fetch prayer times");
+      }
+    } catch (error) {
+      console.error('Prayer times fetch error:', error);
+      throw error;
     }
   }
 
@@ -458,16 +672,18 @@ class Marquee {
     if (!this.marqueeElement) return;
 
     // Check if widget is enabled
-    const widgetEnabled = this.feedConfig?.widget?.enabled !== false; // Default to true if not specified
+    const widgetEnabled = this.feedConfig?.widget?.enabled !== false;
 
-    // Build widget section content with header (only location, date, current time, and next prayer)
+    // Build widget section content with header
     let widgetSection = '';
     if (widgetEnabled) {
       this.currentTime = this.formatCurrentTime();
       const currentDate = this.formatDate();
       this.calculateNextPrayer();
 
-      const locationText = `${this.location.city}, ${this.location.country}`;
+      // Show fallback indicator if using fallback location
+      const fallbackIndicator = this.location?.isFallback ? ' (Fallback)' : '';
+      const locationText = `${this.location.city}, ${this.location.country}${fallbackIndicator}`;
       const timeToNext = this.formatTimeToNextPrayer();
       const nextPrayerName = this.nextPrayer ? this.nextPrayer.name : "Unknown";
 
@@ -492,12 +708,10 @@ class Marquee {
           let header = '';
 
           if (this.feedType === 'institution') {
-            // For institution feed, show "Posted in (Jurisdiction)"
             const jurisdictionName = carousel.post_to_jurisdictions?.[0] || '';
             const cleanJurisdictionName = jurisdictionName.replace(/\s*\[.*?\]\s*/g, '').trim();
             header = `Posted in ${cleanJurisdictionName}`;
           } else if (this.feedType === 'jurisdiction') {
-            // For jurisdiction feed, show "Posted by (Institution)"
             const institutionName = carousel.institution || '';
             const cleanInstitutionName = institutionName.replace(/\s*\[.*?\]\s*/g, '').trim();
             header = `Posted by ${cleanInstitutionName}`;
@@ -510,8 +724,7 @@ class Marquee {
       }
     }
 
-    // Build the complete marquee content with section headers
-    // Use | separator at the end if there's carousel content, otherwise use •
+    // Build the complete marquee content
     const endSeparator = carouselContent ? '|' : '•';
     let content = `${widgetSection}${carouselContent} <span class="prayer-separator">${endSeparator}</span> `;
 
@@ -578,10 +791,10 @@ class Marquee {
    * Set scroll speed based on content width for consistent speed across screen sizes
    */
   setScrollSpeed() {
-    const pixelsPerSecond = 30; // ADJUST THIS VALUE: lower = slower (e.g., 30), higher = faster (e.g., 100)
+    const pixelsPerSecond = 30;
     
     // Get the actual width of the marquee content
-    const contentWidth = this.marqueeElement.scrollWidth / 2; // Divide by 2 because content is duplicated
+    const contentWidth = this.marqueeElement.scrollWidth / 2;
     
     // Calculate duration: width / speed
     const duration = contentWidth / pixelsPerSecond;
