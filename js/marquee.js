@@ -16,6 +16,7 @@ class Marquee {
     this.feedConfig = null;
     this.feedType = null;
     this.entityName = null;
+    this.entityMetadata = null;
   }
 
   /**
@@ -89,6 +90,9 @@ class Marquee {
       // Fetch feed configuration
       await this.fetchFeedConfig();
 
+      // Fetch entity metadata (for bio fallback)
+      await this.fetchEntityMetadata();
+
       // Get user's location
       await this.getLocation();
 
@@ -154,6 +158,29 @@ class Marquee {
     } catch (error) {
       console.warn('Error fetching feed config:', error);
       this.feedConfig = null;
+    }
+  }
+
+  /**
+   * Fetch entity metadata (for bio fallback)
+   */
+  async fetchEntityMetadata() {
+    if (!this.entityName) {
+      this.entityMetadata = null;
+      return;
+    }
+
+    try {
+      const { getInstitutionMetadata, getJurisdictionMetadata } = await import('./config.js');
+
+      if (this.feedType === 'institution') {
+        this.entityMetadata = await getInstitutionMetadata(this.entityName);
+      } else if (this.feedType === 'jurisdiction') {
+        this.entityMetadata = await getJurisdictionMetadata(this.entityName);
+      }
+    } catch (error) {
+      console.warn('Error fetching entity metadata:', error);
+      this.entityMetadata = null;
     }
   }
 
@@ -357,8 +384,15 @@ class Marquee {
     const timeToNext = this.formatTimeToNextPrayer();
     const nextPrayerName = this.nextPrayer ? this.nextPrayer.name : "Unknown";
 
+    // Check if widget is enabled
+    const widgetEnabled = this.feedConfig?.widget?.enabled !== false; // Default to true if not specified
+
     // Build widget section content with header (only location, date, current time, and next prayer)
-    const widgetContent = `<span class="prayer-item"><span class="prayer-label">📍</span> <span class="prayer-value">${locationText}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">📅</span> <span class="prayer-value">${currentDate}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🕐</span> <span class="prayer-value">${this.currentTime}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">⏰</span> <span class="prayer-value">${nextPrayerName} (${timeToNext})</span></span>`;
+    let widgetSection = '';
+    if (widgetEnabled) {
+      const widgetContent = `<span class="prayer-item"><span class="prayer-label">📍</span> <span class="prayer-value">${locationText}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">📅</span> <span class="prayer-value">${currentDate}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🕐</span> <span class="prayer-value">${this.currentTime}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">⏰</span> <span class="prayer-value">${nextPrayerName} (${timeToNext})</span></span>`;
+      widgetSection = `<span class="prayer-item"><span class="prayer-label">Prayer Time Widget:</span> <span class="prayer-value">${widgetContent}</span></span>`;
+    }
 
     // Build carousel section content if available
     let carouselContent = '';
@@ -373,6 +407,7 @@ class Marquee {
 
       console.log('[Marquee Debug] feedType:', this.feedType);
       console.log('[Marquee Debug] entityName:', this.entityName);
+      console.log('[Marquee Debug] widgetEnabled:', widgetEnabled);
       console.log('[Marquee Debug] carousels found:', carousels.length);
 
       if (carousels.length > 0) {
@@ -407,7 +442,31 @@ class Marquee {
     // Build the complete marquee content with section headers
     // Use | separator at the end if there's carousel content, otherwise use •
     const endSeparator = carouselContent ? '|' : '•';
-    const content = `<span class="prayer-item"><span class="prayer-label">Prayer Time Widget:</span> <span class="prayer-value">${widgetContent}</span></span>${carouselContent} <span class="prayer-separator">${endSeparator}</span> `;
+    let content = `${widgetSection}${carouselContent} <span class="prayer-separator">${endSeparator}</span> `;
+
+    // If no widget and no carousel, show bio as fallback
+    if (!widgetSection && !carouselContent && this.entityMetadata?.bio) {
+      const bio = this.entityMetadata.bio;
+      // Calculate how many times to repeat bio to fill screen width
+      const screenWidth = window.innerWidth;
+      const bioItem = `<span class="prayer-item"><span class="prayer-value">${bio}</span></span>`;
+      const bioWithSeparator = `${bioItem} <span class="prayer-separator">•</span> `;
+      
+      // Create a temporary element to measure content width
+      const temp = document.createElement('div');
+      temp.style.visibility = 'hidden';
+      temp.style.position = 'absolute';
+      temp.style.whiteSpace = 'nowrap';
+      temp.innerHTML = bioWithSeparator;
+      document.body.appendChild(temp);
+      const itemWidth = temp.offsetWidth;
+      document.body.removeChild(temp);
+      
+      // Calculate how many repetitions needed (at least 2x screen width for seamless loop)
+      const repetitions = Math.ceil((screenWidth * 2) / itemWidth) + 1;
+      const bioRepeated = Array(repetitions).fill(bioItem).join(' <span class="prayer-separator">•</span> ');
+      content = `${bioRepeated} <span class="prayer-separator">•</span> `;
+    }
 
     // Duplicate content for seamless looping
     this.marqueeElement.innerHTML = content + content;

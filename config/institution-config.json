@@ -10,23 +10,6 @@
         "widget": {
           "enabled": true,
           "type": "prayer_time"
-        },
-        "carousel": {
-          "title": "Cabinet Updates",
-          "images": [
-            {
-              "url": "./images/carousel/cabinet-1.webp",
-              "caption": "Weekly Meeting"
-            },
-            {
-              "url": "./images/carousel/cabinet-2.webp",
-              "caption": "New Initiative"
-            }
-          ],
-          "post_to_jurisdictions": [
-            "Ummah Cabinet Members [Team Space]",
-            "General Public [Community]"
-          ]
         }
       }
     },
@@ -38,19 +21,6 @@
         "widget": {
           "enabled": true,
           "type": "prayer_time"
-        },
-        "carousel": {
-          "title": "Governance Updates",
-          "images": [
-            {
-              "url": "./images/carousel/governance-1.webp",
-              "caption": "Policy Review"
-            }
-          ],
-          "post_to_jurisdictions": [
-            "Ummah Governance Members [Team Space]",
-            "General Public [Community]"
-          ]
         }
       }
     },
@@ -62,19 +32,6 @@
         "widget": {
           "enabled": true,
           "type": "prayer_time"
-        },
-        "carousel": {
-          "title": "Confederation Updates",
-          "images": [
-            {
-              "url": "./images/carousel/confederation-1.webp",
-              "caption": "Annual Summit"
-            }
-          ],
-          "post_to_jurisdictions": [
-            "Ummah Confederation Members [Team Space]",
-            "General Public [Community]"
-          ]
         }
       }
     },
@@ -96,7 +53,6 @@
             }
           ],
           "post_to_jurisdictions": [
-            "Ummah Media Worldwide Members [Team Space]",
             "General Public [Community]"
           ]
         }
@@ -120,7 +76,6 @@
             }
           ],
           "post_to_jurisdictions": [
-            "Ummah Education Ministry Members [Team Space]",
             "General Public [Community]"
           ]
         }
@@ -132,7 +87,7 @@
       "bio": "Peace be upon you.",
       "feed_config": {
         "widget": {
-          "enabled": true,
+          "enabled": false,
           "type": "prayer_time"
         },
         "carousel": {
@@ -155,7 +110,7 @@
       "bio": "Peace be upon you.",
       "feed_config": {
         "widget": {
-          "enabled": true,
+          "enabled": false,
           "type": "prayer_time"
         },
         "carousel": {
@@ -180,18 +135,6 @@
         "widget": {
           "enabled": true,
           "type": "prayer_time"
-        },
-        "carousel": {
-          "title": "Court Updates",
-          "images": [
-            {
-              "url": "./images/carousel/court-1.webp",
-              "caption": "New Verdict"
-            }
-          ],
-          "post_to_jurisdictions": [
-            "General Public [Community]"
-          ]
         }
       }
     },
@@ -203,18 +146,6 @@
         "widget": {
           "enabled": true,
           "type": "prayer_time"
-        },
-        "carousel": {
-          "title": "Military Updates",
-          "images": [
-            {
-              "url": "./images/carousel/military-1.webp",
-              "caption": "Training Exercise"
-            }
-          ],
-          "post_to_jurisdictions": [
-            "General Public [Community]"
-          ]
         }
       }
     },
@@ -224,21 +155,8 @@
       "bio": "Peace be upon you.",
       "feed_config": {
         "widget": {
-          "enabled": true,
+          "enabled": false,
           "type": "prayer_time"
-        },
-        "carousel": {
-          "title": "Personal Updates",
-          "images": [
-            {
-              "url": "./images/carousel/fathan-1.webp",
-              "caption": "New Project"
-            }
-          ],
-          "post_to_jurisdictions": [
-            "Fathan's Space [Personal Space]",
-            "General Public [Community]"
-          ]
         }
       }
     }
