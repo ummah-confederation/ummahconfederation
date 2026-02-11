@@ -203,6 +203,8 @@ function renderProfile() {
     countText = `${count} Contributors`;
   }
 
+  const buttonText = profileState.profileType === "institution" ? "Contact" : "Contributors";
+
   container.innerHTML = `
     <div class="profile-cover">
       <img src="${escapeHtml(coverUrl)}" alt="Cover" />
@@ -213,8 +215,7 @@ function renderProfile() {
           <img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}" />
         </div>
         <div class="profile-actions">
-          <button class="profile-button">Button</button>
-          <button class="profile-menu-btn">⋮</button>
+          <button class="profile-button" id="profile-action-btn">${escapeHtml(buttonText)}</button>
         </div>
       </div>
       <div class="profile-details-section">
@@ -225,6 +226,12 @@ function renderProfile() {
       </div>
     </div>
   `;
+
+  // Add click handler for the action button
+  const actionBtn = document.getElementById("profile-action-btn");
+  if (actionBtn) {
+    actionBtn.addEventListener("click", handleActionButtonClick);
+  }
 }
 
 /**
@@ -339,3 +346,218 @@ export function getFilteredDocuments() {
 export function getProfileState() {
   return { ...profileState };
 }
+
+/**
+ * Handle action button click
+ * Shows contact card for institutions or contributor list for jurisdictions
+ */
+function handleActionButtonClick() {
+  if (profileState.profileType === "institution") {
+    showContactCard();
+  } else {
+    showContributorList();
+  }
+}
+
+/**
+ * Show contact card modal for institution
+ */
+async function showContactCard() {
+  const metadata = profileState.profileData || {};
+  const { name, label } = extractLabel(profileState.profileName);
+  const contact = metadata.contact || {};
+
+  const modalOverlay = document.getElementById("profile-modal-overlay");
+  const modalTitle = document.getElementById("modal-title");
+  const modalContent = document.getElementById("modal-content");
+
+  if (!modalOverlay || !modalTitle || !modalContent) {
+    console.error("Modal elements not found");
+    return;
+  }
+
+  modalTitle.textContent = "Contact Information";
+
+  const avatarUrl = metadata.avatar || "./images/default-avatar.jpg";
+
+  modalContent.innerHTML = `
+    <div class="contact-card">
+      <div class="contact-card-header">
+        <img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}" class="contact-card-avatar" />
+        <div>
+          <div class="contact-card-name">${escapeHtml(name)}</div>
+          ${label ? `<div class="contact-card-label">${escapeHtml(label)}</div>` : ""}
+        </div>
+      </div>
+      ${contact.email ? `
+        <div class="contact-info-item">
+          <span class="contact-info-icon">📧</span>
+          <div>
+            <div class="contact-info-label">Email</div>
+            <div class="contact-info-value">
+              <a href="mailto:${escapeHtml(contact.email)}">${escapeHtml(contact.email)}</a>
+            </div>
+          </div>
+        </div>
+      ` : ""}
+      ${contact.phone ? `
+        <div class="contact-info-item">
+          <span class="contact-info-icon">📱</span>
+          <div>
+            <div class="contact-info-label">Phone</div>
+            <div class="contact-info-value">
+              <a href="tel:${escapeHtml(contact.phone.replace(/\s/g, ''))}">${escapeHtml(contact.phone)}</a>
+            </div>
+          </div>
+        </div>
+      ` : ""}
+      ${contact.address ? `
+        <div class="contact-info-item">
+          <span class="contact-info-icon">📍</span>
+          <div>
+            <div class="contact-info-label">Address</div>
+            <div class="contact-info-value">${escapeHtml(contact.address)}</div>
+          </div>
+        </div>
+      ` : ""}
+      ${contact.website ? `
+        <div class="contact-info-item">
+          <span class="contact-info-icon">🌐</span>
+          <div>
+            <div class="contact-info-label">Website</div>
+            <div class="contact-info-value">
+              <a href="${escapeHtml(contact.website)}" target="_blank" rel="noopener noreferrer">${escapeHtml(contact.website)}</a>
+            </div>
+          </div>
+        </div>
+      ` : ""}
+      ${!contact.email && !contact.phone && !contact.address && !contact.website ? `
+        <div class="contact-info-item">
+          <span class="contact-info-icon">ℹ️</span>
+          <div class="contact-info-value">No contact information available</div>
+        </div>
+      ` : ""}
+    </div>
+  `;
+
+  modalOverlay.classList.add("active");
+}
+
+/**
+ * Show contributor list modal for jurisdiction
+ */
+async function showContributorList() {
+  const { name, label } = extractLabel(profileState.profileName);
+
+  const modalOverlay = document.getElementById("profile-modal-overlay");
+  const modalTitle = document.getElementById("modal-title");
+  const modalContent = document.getElementById("modal-content");
+
+  if (!modalOverlay || !modalTitle || !modalContent) {
+    console.error("Modal elements not found");
+    return;
+  }
+
+  modalTitle.textContent = "Contributors";
+
+  // Get unique institutions that have documents in this jurisdiction
+  const contributors = getJurisdictionContributors(profileState.profileName);
+
+  if (contributors.length === 0) {
+    modalContent.innerHTML = `
+      <div class="contact-info-item">
+        <span class="contact-info-icon">ℹ️</span>
+        <div class="contact-info-value">No contributors found</div>
+      </div>
+    `;
+  } else {
+    const contributorItems = await Promise.all(
+      contributors.map(async (contributor) => {
+        const metadata = await getInstitutionMetadata(contributor.name);
+        const avatarUrl = metadata?.avatar || "./images/default-avatar.jpg";
+        const { name: instName, label: instLabel } = extractLabel(contributor.name);
+
+        return `
+          <div class="contributor-item">
+            <img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(instName)}" class="contributor-avatar" />
+            <div class="contributor-info">
+              <div class="contributor-name">${escapeHtml(instName)}</div>
+              <div class="contributor-count">${contributor.count} contribution${contributor.count !== 1 ? 's' : ''}</div>
+            </div>
+            <a href="?institution=${encodeURIComponent(contributor.name)}" class="contributor-link">View</a>
+          </div>
+        `;
+      })
+    );
+
+    modalContent.innerHTML = `
+      <div class="contributor-list">
+        ${contributorItems.join("")}
+      </div>
+    `;
+  }
+
+  modalOverlay.classList.add("active");
+}
+
+/**
+ * Get contributors (institutions) for a jurisdiction
+ * @param {string} jurisdictionName - Jurisdiction name
+ * @returns {Array} Array of { name, count } objects
+ */
+function getJurisdictionContributors(jurisdictionName) {
+  const contributorMap = new Map();
+
+  profileState.documents.forEach((doc) => {
+    if (doc.jurisdiction === jurisdictionName) {
+      const institution = doc.institution;
+      contributorMap.set(institution, (contributorMap.get(institution) || 0) + 1);
+    }
+  });
+
+  return Array.from(contributorMap.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+/**
+ * Close the modal
+ */
+function closeModal() {
+  const modalOverlay = document.getElementById("profile-modal-overlay");
+  if (modalOverlay) {
+    modalOverlay.classList.remove("active");
+  }
+}
+
+/**
+ * Initialize modal event listeners
+ */
+function initializeModalListeners() {
+  const modalOverlay = document.getElementById("profile-modal-overlay");
+  const modalClose = document.getElementById("modal-close");
+
+  // Close button
+  if (modalClose) {
+    modalClose.addEventListener("click", closeModal);
+  }
+
+  // Click outside modal to close
+  if (modalOverlay) {
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) {
+        closeModal();
+      }
+    });
+  }
+
+  // Escape key to close
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeModal();
+    }
+  });
+}
+
+// Initialize modal listeners when module loads
+initializeModalListeners();

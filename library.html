@@ -42,7 +42,19 @@
       <div id="profile-container" class="hidden mb-8">
         <div id="profile-header" class="profile-header"></div>
         <div id="profile-filters" class="profile-filters"></div>
-      
+      </div>
+
+      <!-- Profile Modal (hidden by default) -->
+      <div id="profile-modal-overlay" class="profile-modal-overlay">
+        <div class="profile-modal">
+          <div class="profile-modal-header">
+            <h3 class="profile-modal-title" id="modal-title">Title</h3>
+            <button class="profile-modal-close" id="modal-close">&times;</button>
+          </div>
+          <div class="profile-modal-content" id="modal-content">
+            <!-- Content will be dynamically populated -->
+          </div>
+        </div>
       </div>
 
       <!-- Context display (hidden when profile is shown) -->

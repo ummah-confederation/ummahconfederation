@@ -233,6 +233,16 @@ export async function initializeLibrary(urlFilters = {}, profileInfo = null) {
       }
     }
 
+    // Hide context display in profile mode
+    const contextElement = document.getElementById("library-context");
+    if (contextElement) {
+      if (isProfileMode) {
+        contextElement.classList.add("hidden");
+      } else {
+        contextElement.classList.remove("hidden");
+      }
+    }
+
     // Use provided URL filters for context display
     // Only load and filter documents if not already set (e.g., by profile mode in main.js)
     if (currentDocuments.length === 0) {
