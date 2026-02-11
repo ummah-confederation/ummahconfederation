@@ -10,6 +10,7 @@ import { IndexedDBCache } from './indexeddb-cache.js';
 export const CACHE_NAMESPACES = {
   PRAYER_TIMES: 'prayer',
   GEOCODING: 'geocoding',
+  LOCATION: 'location',
   CONFIG: 'config',
   FEED: 'feed'
 };
@@ -18,6 +19,7 @@ export const CACHE_NAMESPACES = {
 export const CACHE_DEFAULT_TTL = {
   PRAYER_TIMES: 24 * 60 * 60 * 1000,  // 24 hours (until end of day)
   GEOCODING: 7 * 24 * 60 * 60 * 1000, // 7 days
+  LOCATION: 5 * 60 * 1000,            // 5 minutes (GPS position can be cached briefly)
   CONFIG: 5 * 60 * 1000,               // 5 minutes
   FEED: 15 * 60 * 1000                 // 15 minutes
 };

@@ -10,7 +10,7 @@ import { unifiedCache, CACHE_NAMESPACES, CACHE_DEFAULT_TTL, LOCATION_PRECISION }
 const GEOLOCATION_OPTIONS = {
   enableHighAccuracy: false,  // Faster, less accurate is OK for prayer times
   timeout: 10000,             // 10 seconds max
-  maximumAge: 300000          // Accept position up to 5 minutes old
+  maximumAge: 0               // Always get fresh position (don't use browser cache)
 };
 
 // CORS proxy fallbacks for geocoding
@@ -44,24 +44,6 @@ class Marquee {
     this.cachedContent = null;
     this.cachedContentHash = null;
     this.isLoading = false;
-  }
-
-  /**
-   * Check geolocation permission state before requesting
-   * @returns {Promise<string>} 'granted', 'denied', or 'prompt'
-   */
-  async checkGeolocationPermission() {
-    if (!navigator.permissions) {
-      return 'prompt';  // Assume prompt if Permissions API not available
-    }
-
-    try {
-      const result = await navigator.permissions.query({ name: 'geolocation' });
-      return result.state;  // 'granted', 'denied', or 'prompt'
-    } catch (error) {
-      console.warn('Permission check failed:', error);
-      return 'prompt';
-    }
   }
 
   /**
@@ -260,19 +242,8 @@ class Marquee {
         // Initialize unified cache
         await unifiedCache.init();
 
-        // Check permission state first
-        const permissionState = await this.checkGeolocationPermission();
-        
-        if (permissionState === 'denied') {
-          // Permission previously denied, use fallback immediately
-          console.warn('Geolocation permission previously denied');
-          this.locationError = { code: 1, message: 'Permission denied' };
-          this.location = { ...DEFAULT_LOCATION, isFallback: true };
-          this.showWarningState('Location permission denied. Using Jakarta as fallback.');
-        } else {
-          // Get user's location
-          await this.getLocation();
-        }
+        // Get user's location (will check cache first, then request GPS if needed)
+        await this.getLocation();
 
         // Fetch prayer times
         await this.fetchPrayerTimes();
@@ -385,8 +356,23 @@ class Marquee {
 
   /**
    * Get user's geolocation with proper error handling
+   * Uses cached location if available to avoid repeated GPS requests
    */
   async getLocation() {
+    // First, try to get cached location
+    const locationCacheKey = unifiedCache.generateKey(CACHE_NAMESPACES.LOCATION, 'current');
+    
+    try {
+      const cachedLocation = await unifiedCache.get(locationCacheKey);
+      if (cachedLocation && !cachedLocation.isFallback) {
+        console.log('Using cached location:', cachedLocation);
+        this.location = cachedLocation;
+        return this.location;
+      }
+    } catch (error) {
+      console.warn('Error reading location cache:', error);
+    }
+
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         console.warn("Geolocation is not supported by this browser");
@@ -406,6 +392,9 @@ class Marquee {
 
           // Try to get city name using reverse geocoding
           await this.fetchCityName();
+
+          // Cache the location for 5 minutes
+          await unifiedCache.set(locationCacheKey, this.location, CACHE_DEFAULT_TTL.LOCATION);
 
           resolve(this.location);
         },

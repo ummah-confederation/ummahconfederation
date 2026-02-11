@@ -13,7 +13,7 @@ const DARK_MODE_KEY = 'darkMode';
 const GEOLOCATION_OPTIONS = {
   enableHighAccuracy: false,
   timeout: 10000,
-  maximumAge: 300000
+  maximumAge: 0               // Always get fresh position (don't use browser cache)
 };
 
 // CORS proxy fallbacks for geocoding
@@ -84,23 +84,6 @@ function updateFeedHeader() {
     // Remove content inside square brackets
     const cleanName = feedType.name.replace(/\s*\[.*?\]\s*/g, '').trim();
     headerElement.textContent = `${cleanName} Feed`;
-  }
-}
-
-/**
- * Check geolocation permission state
- * @returns {Promise<string>} 'granted', 'denied', or 'prompt'
- */
-async function checkGeolocationPermission() {
-  if (!navigator.permissions) {
-    return 'prompt';
-  }
-
-  try {
-    const result = await navigator.permissions.query({ name: 'geolocation' });
-    return result.state;
-  } catch (error) {
-    return 'prompt';
   }
 }
 
@@ -283,16 +266,23 @@ async function fetchCityName(location) {
 
 /**
  * Get user's geolocation with proper error handling
+ * Uses cached location if available to avoid repeated GPS requests
  */
 async function getLocation() {
-  // Check permission state first
-  const permissionState = await checkGeolocationPermission();
+  // First, try to get cached location
+  const locationCacheKey = unifiedCache.generateKey(CACHE_NAMESPACES.LOCATION, 'current');
   
-  if (permissionState === 'denied') {
-    console.warn('Geolocation permission previously denied');
-    return { ...DEFAULT_LOCATION, isFallback: true };
+  try {
+    const cachedLocation = await unifiedCache.get(locationCacheKey);
+    if (cachedLocation && !cachedLocation.isFallback) {
+      console.log('Using cached location:', cachedLocation);
+      return cachedLocation;
+    }
+  } catch (error) {
+    console.warn('Error reading location cache:', error);
   }
 
+  // No cached location, request from GPS
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
       console.warn('Geolocation is not supported by this browser');
@@ -310,6 +300,10 @@ async function getLocation() {
 
         // Fetch city name
         await fetchCityName(location);
+
+        // Cache the location for 5 minutes
+        await unifiedCache.set(locationCacheKey, location, CACHE_DEFAULT_TTL.LOCATION);
+
         resolve(location);
       },
       (error) => {
