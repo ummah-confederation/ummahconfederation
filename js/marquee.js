@@ -269,7 +269,7 @@ class Marquee {
           // Get city name using reverse geocoding
           try {
             const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${this.location.latitude}&lon=${this.location.longitude}`,
+              `https://corsproxy.io/?${encodeURIComponent(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${this.location.latitude}&lon=${this.location.longitude}`)}`,
             );
             const data = await response.json();
             this.location.city =

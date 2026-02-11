@@ -69,11 +69,11 @@
           "type": "prayer_time"
         },
         "carousel": {
-          "title": "Media Updates",
+          "title": "Media Progress",
           "images": [
             {
               "url": "./images/carousel/media-1.webp",
-              "caption": "New Broadcast"
+              "document_id": "decision2"
             }
           ],
           "post_to_jurisdictions": [
@@ -98,11 +98,11 @@
           "type": "prayer_time"
         },
         "carousel": {
-          "title": "Education Updates",
+          "title": "Education Progress",
           "images": [
             {
               "url": "./images/carousel/education-1.webp",
-              "caption": "New Curriculum"
+              "document_id": "decision1"
             }
           ],
           "post_to_jurisdictions": [
@@ -127,11 +127,11 @@
           "type": "prayer_time"
         },
         "carousel": {
-          "title": "101 FnB Updates",
+          "title": "FnB Industry Progress",
           "images": [
             {
               "url": "./images/carousel/fnb-1.webp",
-              "caption": "New Menu"
+              "document_id": "decision3"
             }
           ],
           "post_to_jurisdictions": [
@@ -156,11 +156,11 @@
           "type": "prayer_time"
         },
         "carousel": {
-          "title": "Techplaza Updates",
+          "title": "Tech Industry Progress",
           "images": [
             {
               "url": "./images/carousel/techplaza-1.webp",
-              "caption": "New Product"
+              "document_id": "Decision4"
             }
           ],
           "post_to_jurisdictions": [

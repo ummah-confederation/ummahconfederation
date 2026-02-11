@@ -4,8 +4,8 @@
  * Uses cache-first strategy for static assets and network-first for API calls
  */
 
-const CACHE_NAME = 'ummah-confederation-v1.0.0';
-const RUNTIME_CACHE = 'ummah-runtime-v1.0.0';
+const CACHE_NAME = 'ummah-confederation-v1.0.1';
+const RUNTIME_CACHE = 'ummah-runtime-v1.0.1';
 
 // Assets to cache on install (static assets)
 const STATIC_CACHE_URLS = [
@@ -136,9 +136,14 @@ function getCacheStrategy(url) {
     return CACHE_STRATEGIES.STALE_WHILE_REVALIDATE;
   }
 
-  // CSS and JS - cache first
-  if (pathname.endsWith('.css') || pathname.endsWith('.js')) {
+  // CSS - cache first
+  if (pathname.endsWith('.css')) {
     return CACHE_STRATEGIES.CACHE_FIRST;
+  }
+
+  // JS - network first (for development to get latest changes)
+  if (pathname.endsWith('.js')) {
+    return CACHE_STRATEGIES.NETWORK_FIRST;
   }
 
   // Images - cache first

@@ -326,12 +326,35 @@ export async function getJurisdictionCarousels(jurisdictionName) {
   for (const [instName, instData] of Object.entries(config.institutions || {})) {
     const carousel = instData.feed_config?.carousel;
     if (carousel && carousel.post_to_jurisdictions?.includes(jurisdictionName)) {
+      // Fetch document data for each image
+      const imagesWithDocs = await Promise.all(
+        carousel.images.map(async (img) => {
+          const doc = img.document_id ? await getDocumentById(img.document_id) : null;
+          return {
+            ...img,
+            document: doc
+          };
+        })
+      );
+
       carousels.push({
         institution: instName,
-        ...carousel
+        ...carousel,
+        images: imagesWithDocs
       });
     }
   }
 
   return carousels;
+}
+
+/**
+ * Get document by ID
+ * @param {string} documentId - The document ID
+ * @returns {Promise<Object|null>} The document object or null if not found
+ */
+export async function getDocumentById(documentId) {
+  const config = await loadDocumentsConfig();
+  const doc = config.documents.find(doc => doc.id === documentId) || null;
+  return doc;
 }
