@@ -184,7 +184,7 @@ function renderProfile() {
 
   // Get cover and avatar with fallbacks
   const coverUrl = metadata.cover || "./images/default-cover.jpg";
-  const avatarUrl = metadata.avatar || "./images/default-avatar.jpg";
+  const avatarUrl = metadata.avatar || "./images/default-avatar.webp";
   const bio = metadata.bio || "";
 
   // Calculate count
@@ -378,7 +378,7 @@ async function showContactCard() {
 
   modalTitle.textContent = "Contact Information";
 
-  const avatarUrl = metadata.avatar || "./images/default-avatar.jpg";
+  const avatarUrl = metadata.avatar || "./images/default-avatar.webp";
 
   modalContent.innerHTML = `
     <div class="contact-card">
@@ -474,7 +474,7 @@ async function showContributorList() {
     const contributorItems = await Promise.all(
       contributors.map(async (contributor) => {
         const metadata = await getInstitutionMetadata(contributor.name);
-        const avatarUrl = metadata?.avatar || "./images/default-avatar.jpg";
+        const avatarUrl = metadata?.avatar || "./images/default-avatar.webp";
         const { name: instName, label: instLabel } = extractLabel(contributor.name);
 
         return `

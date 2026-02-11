@@ -3,7 +3,7 @@
   "lastUpdated": "2026-02-01",
   "institutions": {
     "Ummah Cabinet [Non-Profit • Private]": {
-      "avatar": "./images/institutions/ummah-cabinet.png",
+      "avatar": "./images/institutions/ummah-cabinet.webp",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you.",
       "contact": {
@@ -20,7 +20,7 @@
       }
     },
     "Ummah Governance [Non-Profit • Private]": {
-      "avatar": "./images/institutions/ummah-governance.png",
+      "avatar": "./images/institutions/ummah-governance.webp",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you.",
       "contact": {
@@ -37,7 +37,7 @@
       }
     },
     "Ummah Confederation [Non-Profit • Private]": {
-      "avatar": "./images/institutions/ummah-confederation.png",
+      "avatar": "./images/institutions/ummah-confederation.webp",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you.",
       "contact": {
@@ -83,7 +83,7 @@
       }
     },
     "Ummah Education Ministry [Non-Profit • Private]": {
-      "avatar": "./images/institutions/ummah-education-ministry.jpg",
+      "avatar": "./images/institutions/ummah-education-ministry.webp",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you.",
       "contact": {
@@ -130,7 +130,7 @@
           "title": "101 FnB Updates",
           "images": [
             {
-              "url": "./images/carousel/fnb-1.jpg",
+              "url": "./images/carousel/fnb-1.webp",
               "caption": "New Menu"
             }
           ],
@@ -170,7 +170,7 @@
       }
     },
     "Ummah Court [Non-Profit • Private]": {
-      "avatar": "./images/institutions/ummah-court.png",
+      "avatar": "./images/institutions/ummah-court.webp",
       "cover": "./images/covers/default-cover.webp",
       "bio": "Peace be upon you.",
       "contact": {

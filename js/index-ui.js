@@ -243,7 +243,7 @@ async function renderAccountGallery(institutions, documents) {
 
     // Use proper relative paths for fallback images
     const coverImageUrl = coverUrl || './images/default-cover.jpg';
-    const avatarImageUrl = avatarUrl || './images/default-avatar.jpg';
+    const avatarImageUrl = avatarUrl || './images/default-avatar.webp';
 
     link.innerHTML = `
       <div
@@ -308,7 +308,7 @@ async function renderSpaceGallery(jurisdictions, documents) {
 
     // Use proper relative paths for fallback images
     const coverImageUrl = coverUrl || './images/default-cover.jpg';
-    const avatarImageUrl = avatarUrl || './images/default-avatar.jpg';
+    const avatarImageUrl = avatarUrl || './images/default-avatar.webp';
 
     link.innerHTML = `
       <div
