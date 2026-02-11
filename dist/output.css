@@ -747,6 +747,9 @@ body {
   background: #1f2937;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
+body.has-profile .paper-sheet {
+  border-radius: var(--radius-card);
+}
 .paper-sheet:not(:last-child) {
   position: relative;
 }
