@@ -1,7 +1,10 @@
 /**
  * Marquee Module
  * Displays prayer times widget and carousel captions in a scrolling marquee
+ * Enhanced with optimized caching using ResponseCache utility
  */
+
+import { ResponseCache, CACHE_TTL } from './cache.js';
 
 class Marquee {
   constructor() {
@@ -19,6 +22,10 @@ class Marquee {
     this.entityMetadata = null;
     this.cachedContent = null; // Cache for repeated content
     this.cachedContentHash = null; // Hash to detect content changes
+
+    // Initialize cache utilities
+    this.prayerCache = new ResponseCache();
+    this.geocodingCache = new ResponseCache(CACHE_TTL.VERY_LONG); // 24 hours for geocoding
   }
 
   /**
@@ -33,18 +40,18 @@ class Marquee {
 
   /**
    * Get cached prayer times for today
+   * @returns {Object|null} Cached prayer times or null
    */
   getCachedPrayerTimes() {
     try {
       const cacheKey = this.getCacheKey();
-      const cached = localStorage.getItem(cacheKey);
+      const cached = this.prayerCache.get(cacheKey);
       if (cached) {
-        const data = JSON.parse(cached);
         // Check if cache is from today
-        const cacheDate = new Date(data.date);
+        const cacheDate = new Date(cached.date);
         const today = new Date();
         if (cacheDate.toDateString() === today.toDateString()) {
-          return data.prayerTimes;
+          return cached.prayerTimes;
         }
       }
     } catch (error) {
@@ -55,6 +62,7 @@ class Marquee {
 
   /**
    * Cache prayer times for today
+   * @param {Object} prayerTimes - Prayer times object
    */
   cachePrayerTimes(prayerTimes) {
     try {
@@ -63,9 +71,44 @@ class Marquee {
         date: new Date().toISOString(),
         prayerTimes: prayerTimes
       };
-      localStorage.setItem(cacheKey, JSON.stringify(data));
+      // Cache for 24 hours (until end of day)
+      const now = new Date();
+      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      const ttl = endOfDay.getTime() - now.getTime();
+      this.prayerCache.set(cacheKey, data, ttl);
     } catch (error) {
       console.warn('Error writing cache:', error);
+    }
+  }
+
+  /**
+   * Refresh prayer times in background (stale-while-revalidate)
+   */
+  async refreshPrayerTimesInBackground() {
+    try {
+      const today = new Date();
+      const date = today.getDate();
+      const month = today.getMonth() + 1;
+      const year = today.getFullYear();
+
+      const url = `https://api.aladhan.com/v1/timings/${date}-${month}-${year}?latitude=${this.location.latitude}&longitude=${this.location.longitude}&method=20`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.code === 200 && data.data) {
+        const prayerTimes = {
+          Fajr: data.data.timings.Fajr,
+          Dhuhr: data.data.timings.Dhuhr,
+          Asr: data.data.timings.Asr,
+          Maghrib: data.data.timings.Maghrib,
+          Isha: data.data.timings.Isha,
+        };
+        this.cachePrayerTimes(prayerTimes);
+        this.prayerTimes = prayerTimes;
+      }
+    } catch (error) {
+      console.warn('Background prayer times refresh failed:', error);
     }
   }
 
@@ -195,7 +238,7 @@ class Marquee {
   }
 
   /**
-   * Get user's geolocation
+   * Get user's geolocation with enhanced caching
    */
   async getLocation() {
     return new Promise((resolve, reject) => {
@@ -211,6 +254,18 @@ class Marquee {
             longitude: position.coords.longitude,
           };
 
+          // Check geocoding cache first
+          const geocodingCacheKey = `geocoding_${this.location.latitude.toFixed(4)}_${this.location.longitude.toFixed(4)}`;
+          const cachedGeocoding = this.geocodingCache.get(geocodingCacheKey);
+
+          if (cachedGeocoding) {
+            console.log('Using cached geocoding data');
+            this.location.city = cachedGeocoding.city;
+            this.location.country = cachedGeocoding.country;
+            resolve(this.location);
+            return;
+          }
+
           // Get city name using reverse geocoding
           try {
             const response = await fetch(
@@ -224,6 +279,12 @@ class Marquee {
               data.address.county ||
               "Unknown";
             this.location.country = data.address.country || "Unknown";
+
+            // Cache the geocoding result (7 days)
+            this.geocodingCache.set(geocodingCacheKey, {
+              city: this.location.city,
+              country: this.location.country
+            }, 7 * 24 * 60 * 60 * 1000);
           } catch (error) {
             console.warn("Could not get city name:", error);
             this.location.city = "Unknown";
@@ -251,14 +312,29 @@ class Marquee {
   }
 
   /**
-   * Fetch prayer times from Aladhan API with caching
+   * Fetch prayer times from Aladhan API with enhanced caching
+   * Uses stale-while-revalidate pattern for better performance
    */
   async fetchPrayerTimes() {
+    const cacheKey = this.getCacheKey();
+
     // Try to get cached prayer times first
     const cached = this.getCachedPrayerTimes();
     if (cached) {
       console.log('Using cached prayer times');
       this.prayerTimes = cached;
+
+      // Check if cache is stale (older than 20 hours) and refresh in background
+      const cachedData = this.prayerCache.get(cacheKey);
+      if (cachedData) {
+        const cacheAge = Date.now() - new Date(cachedData.date).getTime();
+        const STALE_THRESHOLD = 20 * 60 * 60 * 1000; // 20 hours
+
+        if (cacheAge > STALE_THRESHOLD) {
+          console.log('Cache is stale, refreshing in background');
+          this.refreshPrayerTimesInBackground();
+        }
+      }
       return;
     }
 

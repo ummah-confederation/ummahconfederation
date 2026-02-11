@@ -17,6 +17,13 @@
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
+    <!-- Performance: Preload critical resources -->
+    <link rel="preload" href="dist/output.css" as="style" />
+    <link rel="preload" href="js/library-main.js" as="script" />
+    <link rel="preload" href="js/marquee.js" as="script" />
+    <link rel="preload" href="images/admin-seal.webp" as="image" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&display=swap" as="style" />
+
     <!-- Tailwind CSS - Compiled for Production -->
     <link rel="stylesheet" href="dist/output.css" />
 
@@ -104,5 +111,30 @@
 
     <script type="module" src="js/library-main.js"></script>
     <script type="module" src="js/marquee.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('SW registered:', registration);
+              // Check for updates
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // New version available
+                    console.log('New service worker available');
+                  }
+                });
+              });
+            })
+            .catch(error => {
+              console.log('SW registration failed:', error);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

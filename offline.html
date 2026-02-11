@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DAARUSSALAAM — Offline</title>
+    <meta name="description" content="You are currently offline. Please check your internet connection." />
+    <link rel="icon" type="image/x-icon" href="images/favicon.png" />
+
+    <!-- Performance: Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Tailwind CSS - Compiled for Production -->
+    <link rel="stylesheet" href="dist/output.css" />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="py-10 px-5 min-h-screen flex items-center justify-center">
+    <div class="paper-sheet max-w-2xl mx-auto bg-white shadow-lg px-6 py-10 sm:px-12 sm:py-16 text-center">
+      <!-- Offline Icon -->
+      <div class="mb-8">
+        <svg
+          class="w-24 h-24 mx-auto text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"
+          />
+        </svg>
+      </div>
+
+      <!-- Heading -->
+      <h2 class="text-3xl sm:text-4xl font-semibold tracking-wider uppercase text-black mb-4">
+        You're Offline
+      </h2>
+
+      <!-- Message -->
+      <p class="text-lg text-gray-600 mb-8">
+        It looks like you've lost your internet connection. Some content may not be available.
+      </p>
+
+      <!-- Cached Content Notice -->
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Cached Content Available</h3>
+        <p class="text-gray-600 text-sm">
+          Some pages and resources have been cached and may still be accessible. Try navigating to:
+        </p>
+        <ul class="mt-4 space-y-2 text-left">
+          <li>
+            <a href="index.html" class="text-blue-600 hover:text-blue-800 underline">
+              → Home Page
+            </a>
+          </li>
+          <li>
+            <a href="library.html" class="text-blue-600 hover:text-blue-800 underline">
+              → Document Library
+            </a>
+          </li>
+          <li>
+            <a href="feed.html" class="text-blue-600 hover:text-blue-800 underline">
+              → Global Feed
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Retry Button -->
+      <button
+        id="retry-btn"
+        class="inline-flex items-center px-6 py-3 bg-black text-white font-medium rounded-lg hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+      >
+        <svg
+          class="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          />
+        </svg>
+        Retry Connection
+      </button>
+
+      <!-- Connection Status -->
+      <div id="connection-status" class="mt-6 text-sm text-gray-500">
+        <span class="inline-flex items-center">
+          <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+          Disconnected
+        </span>
+      </div>
+    </div>
+
+    <script>
+      // Check connection status
+      function updateConnectionStatus() {
+        const statusElement = document.getElementById('connection-status');
+        const isOnline = navigator.onLine;
+
+        if (isOnline) {
+          statusElement.innerHTML = `
+            <span class="inline-flex items-center">
+              <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+              Connected
+            </span>
+          `;
+        } else {
+          statusElement.innerHTML = `
+            <span class="inline-flex items-center">
+              <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+              Disconnected
+            </span>
+          `;
+        }
+      }
+
+      // Retry connection
+      function retryConnection() {
+        const retryBtn = document.getElementById('retry-btn');
+        retryBtn.disabled = true;
+        retryBtn.innerHTML = `
+          <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Checking...
+        `;
+
+        // Check if online
+        if (navigator.onLine) {
+          // Try to fetch a small resource to verify connection
+          fetch(window.location.href, { method: 'HEAD', cache: 'no-store' })
+            .then(() => {
+              // Connection restored, redirect to home
+              window.location.href = 'index.html';
+            })
+            .catch(() => {
+              // Still offline
+              setTimeout(() => {
+                retryBtn.disabled = false;
+                retryBtn.innerHTML = `
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Retry Connection
+                `;
+                alert('Still offline. Please check your internet connection and try again.');
+              }, 1000);
+            });
+        } else {
+          setTimeout(() => {
+            retryBtn.disabled = false;
+            retryBtn.innerHTML = `
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Retry Connection
+            `;
+            alert('Please check your internet connection and try again.');
+          }, 1000);
+        }
+      }
+
+      // Event listeners
+      document.addEventListener('DOMContentLoaded', () => {
+        updateConnectionStatus();
+
+        document.getElementById('retry-btn').addEventListener('click', retryConnection);
+
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+          updateConnectionStatus();
+          // Redirect to home when connection is restored
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1000);
+        });
+
+        window.addEventListener('offline', updateConnectionStatus);
+      });
+    </script>
+  </body>
+</html>
