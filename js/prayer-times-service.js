@@ -395,7 +395,40 @@ class PrayerTimesService {
       console.warn('[PrayerTimesService] Geocoding cache read error:', error);
     }
 
-    // Try each CORS proxy
+    // Try our own serverless API first (no CORS issues)
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const response = await fetch(
+        `/api/geocode?lat=${location.latitude}&lon=${location.longitude}`,
+        { signal: controller.signal }
+      );
+      
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        location.city = data.city || "Unknown";
+        location.country = data.country || "Unknown";
+
+        // Cache the geocoding result
+        await unifiedCache.set(
+          geocodingKey,
+          { city: location.city, country: location.country },
+          CACHE_TTL.GEOCODING
+        );
+
+        // Also update the location cache so it persists with city/country
+        await this.updateLocationCache(location);
+
+        return;
+      }
+    } catch (error) {
+      console.warn('[PrayerTimesService] Serverless geocoding failed, trying CORS proxies:', error);
+    }
+
+    // Fallback: Try each CORS proxy
     const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.latitude}&lon=${location.longitude}`;
 
     for (const proxy of CORS_PROXIES) {
@@ -439,7 +472,7 @@ class PrayerTimesService {
       }
     }
 
-    // All proxies failed
+    // All methods failed
     location.city = "Unknown";
     location.country = "Unknown";
   }
