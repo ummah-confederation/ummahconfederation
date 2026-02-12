@@ -7,12 +7,28 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import terser from '@rollup/plugin-terser';
 import { visualizer } from 'rollup-plugin-visualizer';
+import replace from '@rollup/plugin-replace';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Determine if we're in development mode
 const isDevelopment = process.env.NODE_ENV === 'development';
 
+// Supabase configuration from environment variables
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+
 // Common plugins
 const commonPlugins = [
+  replace({
+    preventAssignment: true,
+    'process.env.SUPABASE_URL': JSON.stringify(supabaseUrl),
+    'process.env.SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey),
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(supabaseUrl),
+    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey)
+  }),
   resolve({
     browser: true,
     preferBuiltins: false

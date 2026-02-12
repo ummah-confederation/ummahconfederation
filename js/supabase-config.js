@@ -2,51 +2,52 @@
  * Supabase Configuration
  * 
  * This file contains the Supabase configuration for the frontend.
- * The actual values should be set in a config.js file that is loaded
- * before this module, or set as window variables.
  * 
  * For Vercel deployment, set these as environment variables:
- * - VITE_SUPABASE_URL
- * - VITE_SUPABASE_ANON_KEY
+ * - SUPABASE_URL (or VITE_SUPABASE_URL)
+ * - SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY)
+ * 
+ * These values are injected at build time by Rollup.
  */
 
-// These values will be replaced during build/deployment
-// DO NOT commit actual credentials to Git
-
-// Default values (placeholder - replace with actual values)
-const DEFAULT_SUPABASE_URL = 'https://your-project.supabase.co';
-const DEFAULT_SUPABASE_ANON_KEY = 'your-anon-key';
+// These values are replaced at build time by @rollup/plugin-replace
+// Default values are empty strings - they will be replaced during build
+const SUPABASE_URL = 'process.env.SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'process.env.SUPABASE_ANON_KEY';
 
 /**
  * Get Supabase URL
- * Priority: window.SUPABASE_URL > import.meta.env > default
+ * Priority: injected value > window.SUPABASE_URL
  */
 export function getSupabaseUrl() {
+  // Check if the value was injected at build time
+  if (SUPABASE_URL && SUPABASE_URL !== 'process.env.SUPABASE_URL') {
+    return SUPABASE_URL;
+  }
+  // Fallback to window variable (for runtime configuration)
   if (typeof window !== 'undefined' && window.SUPABASE_URL) {
     return window.SUPABASE_URL;
   }
-  // For Vite/Vercel environment variables
-  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) {
-    return import.meta.env.VITE_SUPABASE_URL;
-  }
-  return DEFAULT_SUPABASE_URL;
+  console.warn('Supabase URL not configured. Set SUPABASE_URL environment variable.');
+  return '';
 }
 
 /**
  * Get Supabase Anonymous Key
- * Priority: window.SUPABASE_ANON_KEY > import.meta.env > default
+ * Priority: injected value > window.SUPABASE_ANON_KEY
  */
 export function getSupabaseAnonKey() {
+  // Check if the value was injected at build time
+  if (SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== 'process.env.SUPABASE_ANON_KEY') {
+    return SUPABASE_ANON_KEY;
+  }
+  // Fallback to window variable (for runtime configuration)
   if (typeof window !== 'undefined' && window.SUPABASE_ANON_KEY) {
     return window.SUPABASE_ANON_KEY;
   }
-  // For Vite/Vercel environment variables
-  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY) {
-    return import.meta.env.VITE_SUPABASE_ANON_KEY;
-  }
-  return DEFAULT_SUPABASE_ANON_KEY;
+  console.warn('Supabase anon key not configured. Set SUPABASE_ANON_KEY environment variable.');
+  return '';
 }
 
 // Export constants for direct use
-export const SUPABASE_URL = getSupabaseUrl();
-export const SUPABASE_ANON_KEY = getSupabaseAnonKey();
+export { SUPABASE_URL, SUPABASE_ANON_KEY };
