@@ -66,14 +66,19 @@ export async function loadDocumentsConfig() {
 }
 
 /**
- * Get all visible documents
+ * Get all visible documents (including Feed items from carousels)
  * @returns {Promise<Array>} Array of document objects
  */
 export async function getDocumentsList() {
   if (USE_SUPABASE) {
-    const docs = await getDocuments();
-    // Transform to legacy format
-    return docs.map(doc => ({
+    // Fetch both documents and carousels in parallel
+    const [docs, carousels] = await Promise.all([
+      getDocuments(),
+      getCarousels()
+    ]);
+    
+    // Transform documents to legacy format
+    const documents = docs.map(doc => ({
       id: doc.doc_id,
       title: doc.title,
       item: doc.item_type,
@@ -84,6 +89,25 @@ export async function getDocumentsList() {
       dateFormatted: formatDate(doc.doc_date),
       visible: doc.visible
     }));
+    
+    // Transform carousels to Feed items (legacy format)
+    const feedItems = carousels.map(carousel => ({
+      id: `carousel-${carousel.id}`,
+      title: carousel.title,
+      item: 'Feed',
+      institution: carousel.institution?.full_name || '',
+      jurisdiction: carousel.jurisdiction?.full_name || '',
+      version: 1,
+      date: carousel.created_at,
+      dateFormatted: formatDate(carousel.created_at),
+      visible: carousel.visible,
+      carousel: {
+        images: carousel.slides?.map(s => s.image_url) || [],
+        image: carousel.slides?.[0]?.image_url || ''
+      }
+    }));
+    
+    return [...documents, ...feedItems];
   }
   
   const config = await loadDocumentsConfig();
@@ -100,6 +124,10 @@ export async function getDocumentById(documentId) {
     const doc = await getDocumentByDocId(documentId);
     if (!doc) return null;
     
+    // Generate filename based on item type and doc_id
+    const itemFolder = doc.item_type?.toLowerCase() + 's'; // books, policies, etc.
+    const filename = `pages/${itemFolder}/${doc.doc_id}.html`;
+    
     return {
       id: doc.doc_id,
       title: doc.title,
@@ -110,7 +138,8 @@ export async function getDocumentById(documentId) {
       date: doc.doc_date,
       dateFormatted: formatDate(doc.doc_date),
       visible: doc.visible,
-      content: doc.content
+      content: doc.content,
+      filename: filename
     };
   }
   
@@ -309,6 +338,7 @@ export async function loadSquircleIconsConfig() {
       version: '2.0.0',
       icons: icons.reduce((acc, icon) => {
         acc[icon.item_name] = {
+          emoji: icon.emoji,
           icon_url: icon.icon_url,
           icon_svg: icon.icon_svg
         };
@@ -364,23 +394,42 @@ export async function getFeedDocuments(profileType, profileName) {
       carousels = await getCarouselsByJurisdiction(profileName);
     }
     
-    // Transform to legacy format
-    return carousels.map(carousel => ({
-      id: `carousel-${carousel.id}`,
-      title: carousel.title,
-      item: 'Feed',
-      institution: carousel.institution?.full_name || '',
-      jurisdiction: carousel.jurisdiction?.full_name || '',
-      version: 1,
-      date: carousel.created_at,
-      dateFormatted: formatDate(carousel.created_at),
-      visible: carousel.visible,
-      carousel: {
-        images: carousel.slides?.map(s => s.image_url) || [],
-        linked_document_id: carousel.slides?.[0]?.linked_document?.doc_id || null
-      },
-      slides: carousel.slides
-    }));
+    // Transform to legacy format and resolve linked documents
+    const resolved = await Promise.all(
+      carousels.map(async (carousel) => {
+        // Resolve linked document for the first slide
+        const firstSlide = carousel.slides?.[0];
+        let linkedDocument = null;
+        if (firstSlide?.linked_document?.doc_id) {
+          linkedDocument = await getDocumentById(firstSlide.linked_document.doc_id);
+        }
+        
+        return {
+          id: `carousel-${carousel.id}`,
+          title: carousel.title,
+          item: 'Feed',
+          institution: carousel.institution?.full_name || '',
+          jurisdiction: carousel.jurisdiction?.full_name || '',
+          version: 1,
+          date: carousel.created_at,
+          dateFormatted: formatDate(carousel.created_at),
+          visible: carousel.visible,
+          carousel: {
+            images: carousel.slides?.map(s => s.image_url) || [],
+            image: carousel.slides?.[0]?.image_url || '', // First image for compatibility
+            linked_document_id: firstSlide?.linked_document?.doc_id || null
+          },
+          slides: carousel.slides,
+          linkedDocument: linkedDocument ? {
+            id: linkedDocument.id,
+            title: linkedDocument.title,
+            filename: linkedDocument.filename || `pages/${linkedDocument.item_type?.toLowerCase()}s/${linkedDocument.id}.html`
+          } : null
+        };
+      })
+    );
+    
+    return resolved;
   }
   
   // Fallback to local

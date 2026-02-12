@@ -93,6 +93,7 @@ CREATE TABLE carousel_slides (
 CREATE TABLE squircle_icons (
   id SERIAL PRIMARY KEY,
   item_name TEXT UNIQUE NOT NULL,      -- "Book", "Policy", etc.
+  emoji TEXT,                          -- "📚", "📋", etc.
   icon_url TEXT,
   icon_svg TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
