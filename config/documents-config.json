@@ -171,7 +171,7 @@
       "visible": true
     },
     {
-      "id": "Guideline1",
+      "id": "guideline1",
       "filename": "pages/guidelines/guideline1.html",
       "title": "Guideline I — Curriculum Design Guideline",
       "item": "Guideline",
@@ -183,7 +183,7 @@
       "visible": true
     },
     {
-      "id": "Decision4",
+      "id": "decision4",
       "filename": "pages/decisions/decision4.html",
       "title": "Decision IV — Tech Industry Establishment",
       "item": "Decision",
@@ -195,7 +195,7 @@
       "visible": true
     },
     {
-      "id": "Guideline2",
+      "id": "guideline2",
       "filename": "pages/guidelines/guideline2.html",
       "title": "Guideline II — SSC Design Guideline",
       "item": "Guideline",
@@ -207,7 +207,7 @@
       "visible": true
     },
     {
-      "id": "Decision5",
+      "id": "decision5",
       "filename": "pages/decisions/decision5.html",
       "title": "Decision V — Protector Military Establishment",
       "item": "Decision",
@@ -219,7 +219,7 @@
       "visible": true
     },
     {
-      "id": "Note1",
+      "id": "note1",
       "filename": "pages/notes/note1.html",
       "title": "Note 1 — Productive Worry",
       "item": "Note",
@@ -291,7 +291,7 @@
       "visible": true,
       "carousel": {
         "image": "./images/carousel/techplaza-1.webp",
-        "linked_document_id": "Decision4"
+        "linked_document_id": "decision4"
       }
     }
   ]

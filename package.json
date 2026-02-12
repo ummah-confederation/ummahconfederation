@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "postinstall": "patch-package",
     "build:css": "node ./node_modules/@tailwindcss/cli/dist/index.mjs -i ./src/styles/main.css -o ./dist/output.css --minify",
     "build:css:dev": "node ./node_modules/@tailwindcss/cli/dist/index.mjs -i ./src/styles/main.css -o ./dist/output.css",
     "watch:css": "node ./node_modules/@tailwindcss/cli/dist/index.mjs -i ./src/styles/main.css -o ./dist/output.css --watch",
@@ -13,6 +14,7 @@
     "build": "npm run build:css && npm run build:js",
     "build:dev": "npm run build:css:dev && npm run build:js:dev",
     "build:all": "npm run build:css && npm run build:js && npm run build:images",
+    "migrate:supabase": "node scripts/migrate-to-supabase.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -28,12 +30,17 @@
   },
   "homepage": "https://github.com/ummah-confederation/ummahconfederation#readme",
   "description": "",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.95.3"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@tailwindcss/cli": "^4.1.18",
     "autoprefixer": "^10.4.24",
+    "dotenv": "^17.2.4",
+    "patch-package": "^8.0.1",
     "postcss": "^8.5.6",
     "rollup": "^4.28.1",
     "rollup-plugin-visualizer": "^5.12.0",

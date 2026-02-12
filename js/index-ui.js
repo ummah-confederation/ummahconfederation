@@ -4,7 +4,7 @@
  * Optimized to reduce network requests through batching and caching
  */
 
-import { getItems, getInstitutions, getJurisdictions, getDocuments, getInstitutionMetadata, getJurisdictionMetadata, getSquircleIconMetadata, preloadAllConfigs } from './config.js';
+import { getItems, getInstitutions, getJurisdictions, getDocumentsList, getInstitutionMetadata, getJurisdictionMetadata, getSquircleIconMetadata, preloadAllConfigs } from './config.js';
 import { buildFilterUrl } from './utils.js';
 
 // State
@@ -56,7 +56,7 @@ function initTabs() {
           await getInstitutions();
         const documents = preloadedData ? 
           preloadedData.documents.documents.filter(doc => doc.visible !== false) : 
-          await getDocuments();
+          await getDocumentsList();
         await renderAccountGallery(institutions, documents);
       } else if (tab === 'space') {
         const jurisdictions = preloadedData ? 
@@ -64,7 +64,7 @@ function initTabs() {
           await getJurisdictions();
         const documents = preloadedData ? 
           preloadedData.documents.documents.filter(doc => doc.visible !== false) : 
-          await getDocuments();
+          await getDocumentsList();
         await renderSpaceGallery(jurisdictions, documents);
       } else if (tab === 'content') {
         const items = preloadedData ? 
@@ -124,7 +124,7 @@ async function loadUIGalleries() {
       await getJurisdictions();
     const documents = preloadedData ? 
       preloadedData.documents.documents.filter(doc => doc.visible !== false) : 
-      await getDocuments();
+      await getDocumentsList();
 
     await renderContentGallery(items);
     await renderAccountGallery(institutions, documents);

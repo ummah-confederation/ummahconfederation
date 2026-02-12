@@ -17,7 +17,7 @@ import {
   getCurrentFilter,
   renderFeedCarousel,
 } from "./profile-ui.js";
-import { preloadAllConfigs, getDocuments } from "./config.js";
+import { preloadAllConfigs, getDocumentsList } from "./config.js";
 import {
   parseQueryParams,
   parseHashParams,
@@ -56,8 +56,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Preload configs
   await preloadAllConfigs();
 
-  // Load all documents once
-  const allDocuments = await getDocuments();
+  // Load all documents once (using getDocumentsList for properly transformed data)
+  const allDocuments = await getDocumentsList();
 
   // Parse URL filters (query first, fallback to hash)
   let urlFilters = parseQueryParams();

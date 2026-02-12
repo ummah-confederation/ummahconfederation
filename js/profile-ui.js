@@ -7,7 +7,7 @@
 import {
   getInstitutionMetadata,
   getJurisdictionMetadata,
-  getDocuments,
+  getDocumentsList,
   getFeedDocuments,
   getDocumentById,
 } from "./config.js";
@@ -124,8 +124,8 @@ export async function initializeProfileUI(onFilterChange) {
   profileState.profileType = profileInfo.type;
   profileState.profileName = profileInfo.name;
 
-  // Load all documents to calculate counts and get types
-  const allDocuments = await getDocuments();
+  // Load all documents to calculate counts and get types (using getDocumentsList for properly transformed data)
+  const allDocuments = await getDocumentsList();
   profileState.documents = allDocuments.filter((doc) => {
     if (profileState.profileType === "institution") {
       return doc.institution === profileState.profileName;

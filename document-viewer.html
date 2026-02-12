@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DAARUSSALAAM — Document</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="./images/favicon.png" />
+    
+    <!-- link shared styles -->
+    <link rel="stylesheet" href="./dist/output.css" />
+    
+    <!-- Preconnect to Supabase -->
+    <link rel="preconnect" href="https://your-project.supabase.co" />
+  </head>
+
+  <body>
+    <!-- Document content container -->
+    <div class="paper-sheet" id="document-content">
+      <!-- Loading state -->
+      <div class="loading-state" id="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading document...</p>
+      </div>
+      
+      <!-- Error state -->
+      <div class="error-state hidden" id="error-state">
+        <p>⚠️ Document not found</p>
+        <p class="error-details" id="error-details"></p>
+        <a href="./library.html" class="back-link">← Back to Library</a>
+      </div>
+      
+      <!-- Document content will be injected here -->
+      <div class="document-body hidden" id="document-body"></div>
+    </div>
+
+    <!-- Dark mode toggle script (inline for immediate execution) -->
+    <script>
+      // Dark Mode Toggle Functionality
+      const DARK_MODE_KEY = 'darkMode';
+
+      function initDarkMode() {
+        const savedMode = localStorage.getItem(DARK_MODE_KEY);
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedMode === 'true' || (!savedMode && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        }
+      }
+      
+      // Initialize immediately
+      initDarkMode();
+    </script>
+
+    <!-- Supabase Configuration - Must load before other scripts -->
+    <script src="./js/supabase-credentials.js"></script>
+
+    <!-- Main script -->
+    <script type="module" src="./dist/js/document-viewer.js"></script>
+  </body>
+</html>

@@ -3,7 +3,7 @@
  * Handles rendering and interaction for the library page
  */
 
-import { getDocuments } from "./config.js";
+import { getDocumentsList } from "./config.js";
 import {
   parseQueryParams,
   parseHashParams,
@@ -248,8 +248,8 @@ export async function initializeLibrary(urlFilters = {}, profileInfo = null) {
     // Use provided URL filters for context display
     // Only load and filter documents if not already set (e.g., by profile mode in main.js)
     if (currentDocuments.length === 0) {
-      // Load all documents
-      const allDocuments = await getDocuments();
+      // Load all documents (using getDocumentsList for properly transformed data)
+      const allDocuments = await getDocumentsList();
 
       // Filter documents
       currentDocuments = filterDocuments(allDocuments, urlFilters);

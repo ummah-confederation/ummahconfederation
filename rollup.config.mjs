@@ -54,6 +54,11 @@ const entryPoints = [
     input: 'js/marquee.js',
     name: 'marquee',
     statsFile: 'dist/stats/marquee.html'
+  },
+  {
+    input: 'js/document-viewer.js',
+    name: 'document-viewer',
+    statsFile: 'dist/stats/document-viewer.html'
   }
 ];
 

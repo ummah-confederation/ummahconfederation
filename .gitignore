@@ -17,3 +17,6 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+
+# Supabase credentials (contains sensitive data)
+js/supabase-credentials.js

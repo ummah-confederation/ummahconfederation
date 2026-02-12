@@ -1,0 +1,28 @@
+diff --git a/node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js b/node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js
+index 029b6fe..625fc28 100644
+--- a/node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js
++++ b/node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js
+@@ -1,5 +1,22 @@
+ /* eslint-disable @typescript-eslint/ban-ts-comment */
+-import { isValidDomain } from './webauthn';
++/**
++ * A simple test to determine if a hostname is a properly-formatted domain name.
++ * Considers localhost valid for development environments.
++ * 
++ * A "valid domain" is defined here: https://url.spec.whatwg.org/#valid-domain
++ * 
++ * Regex sourced from here:
++ * https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch08s15.html
++ * 
++ * @param {string} hostname - The hostname to validate
++ * @returns {boolean} True if valid domain or localhost
++ * @see {@link https://url.spec.whatwg.org/#valid-domain WHATWG URL Spec - Valid Domain}
++ */
++function isValidDomain(hostname) {
++    return (
++    // Consider localhost valid as well since it's okay wrt Secure Contexts
++    hostname === 'localhost' || /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i.test(hostname));
++}
+ /**
+  * A custom Error used to return a more nuanced error detailing _why_ one of the eight documented
+  * errors in the spec was raised after calling `navigator.credentials.create()` or
