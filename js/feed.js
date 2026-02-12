@@ -83,7 +83,6 @@ function updateFeedHeader() {
 // Prayer Times Widget
 // ============================================================================
 
-let widgetUpdateInterval = null;
 let unsubscribeFromService = null;
 
 /**
@@ -105,21 +104,17 @@ async function initPrayerTimesWidget() {
   `;
 
   try {
-    // Subscribe to service updates
+    // Subscribe to service updates BEFORE init so we catch all events
     unsubscribeFromService = prayerTimesService.subscribe((state, event) => {
       handleWidgetUpdate(state, event, widgetElement);
     });
 
     // Initialize the service (if not already initialized)
+    // The service's own 1-second tick interval handles clock updates
     await prayerTimesService.init();
 
-    // Initial render
+    // Initial render after init completes (location + prayer times are ready)
     renderWidget();
-
-    // Setup update interval for clock (every second)
-    widgetUpdateInterval = setInterval(() => {
-      renderWidget();
-    }, 1000);
 
   } catch (error) {
     console.error('Error initializing prayer times widget:', error);
@@ -136,15 +131,18 @@ async function initPrayerTimesWidget() {
 function handleWidgetUpdate(state, event, widgetElement) {
   switch (event) {
     case 'loading':
-      widgetElement.innerHTML = `
-        <div class="prayer-widget-header">
-          <h3 class="prayer-widget-title">Prayer Time Widget</h3>
-        </div>
-        <div class="prayer-widget-loading">
-          <span class="loading-spinner"></span>
-          <span>Updating...</span>
-        </div>
-      `;
+      // Only show loading if we don't have data yet
+      if (!state.prayerTimes) {
+        widgetElement.innerHTML = `
+          <div class="prayer-widget-header">
+            <h3 class="prayer-widget-title">Prayer Time Widget</h3>
+          </div>
+          <div class="prayer-widget-loading">
+            <span class="loading-spinner"></span>
+            <span>Fetching your location...</span>
+          </div>
+        `;
+      }
       break;
     case 'error':
       if (!state.prayerTimes) {
@@ -156,8 +154,15 @@ function handleWidgetUpdate(state, event, widgetElement) {
         `;
       }
       break;
+    case 'tick':
+    case 'initialized':
+    case 'refreshed':
+    case 'location-updated':
+    case 'prayer-times-updated':
+    case 'visibility-change':
+      renderWidget();
+      break;
     default:
-      // tick, initialized, refreshed, etc. - just re-render
       renderWidget();
   }
 }
@@ -526,9 +531,6 @@ function initCarouselNavigation(carouselId, slideCount) {
  * Cleanup function for when leaving the page
  */
 function cleanup() {
-  if (widgetUpdateInterval) {
-    clearInterval(widgetUpdateInterval);
-  }
   if (unsubscribeFromService) {
     unsubscribeFromService();
   }

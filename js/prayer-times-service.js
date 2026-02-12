@@ -181,6 +181,23 @@ class PrayerTimesService {
     if (!forceRefresh) {
       const cached = await unifiedCache.get(cacheKey);
       if (cached && this.isLocationFresh(cached, maxAge)) {
+        // If cached location is missing city/country, try to restore from geocoding cache
+        if ((!cached.city || cached.city === 'Unknown') && cached.latitude && cached.longitude) {
+          try {
+            const geocodingKey = unifiedCache.generateLocationKey(
+              CACHE_NAMESPACES.GEOCODING,
+              cached.latitude,
+              cached.longitude
+            );
+            const geocoded = await unifiedCache.get(geocodingKey);
+            if (geocoded) {
+              cached.city = geocoded.city;
+              cached.country = geocoded.country;
+            }
+          } catch (e) {
+            // Ignore - will show Unknown
+          }
+        }
         console.log('[PrayerTimesService] Using cached location:', cached);
         return { ...cached, quality: LOCATION_QUALITY.GPS_CACHED };
       }
@@ -198,12 +215,15 @@ class PrayerTimesService {
         quality: LOCATION_QUALITY.GPS_FRESH
       };
 
-      // Fetch city name (async, don't wait)
-      this.fetchCityName(location).catch(err => {
+      // Fetch city name BEFORE caching - await it so cache has complete data
+      try {
+        await this.fetchCityName(location);
+      } catch (err) {
         console.warn('[PrayerTimesService] Geocoding failed:', err);
-      });
+        // Continue with Unknown city - will still work for prayer times
+      }
 
-      // Cache the location
+      // Cache the location WITH city/country data
       await unifiedCache.set(cacheKey, location, CACHE_TTL.LOCATION);
       
       console.log('[PrayerTimesService] Got fresh GPS location:', location);
@@ -244,11 +264,29 @@ class PrayerTimesService {
     // Try expired cache first
     const expiredCache = await this.getExpiredLocationCache(cacheKey);
     if (expiredCache && expiredCache.quality !== LOCATION_QUALITY.FALLBACK) {
+      // If expired cache is missing city/country, try to restore from geocoding cache
+      if (!expiredCache.city || expiredCache.city === 'Unknown') {
+        try {
+          const geocodingKey = unifiedCache.generateLocationKey(
+            CACHE_NAMESPACES.GEOCODING,
+            expiredCache.latitude,
+            expiredCache.longitude
+          );
+          const geocoded = await unifiedCache.get(geocodingKey);
+          if (geocoded) {
+            expiredCache.city = geocoded.city;
+            expiredCache.country = geocoded.country;
+          }
+        } catch (e) {
+          // Ignore - will show Unknown
+        }
+      }
+      
       console.log('[PrayerTimesService] Using expired cache as fallback:', expiredCache);
-      return { 
-        ...expiredCache, 
+      return {
+        ...expiredCache,
         quality: LOCATION_QUALITY.GPS_CACHED,
-        isExpired: true 
+        isExpired: true
       };
     }
 
@@ -376,7 +414,7 @@ class PrayerTimesService {
 
         const data = await response.json();
         
-        location.city = 
+        location.city =
           data.address.city ||
           data.address.town ||
           data.address.village ||
@@ -384,15 +422,16 @@ class PrayerTimesService {
           "Unknown";
         location.country = data.address.country || "Unknown";
 
-        // Cache the result
+        // Cache the geocoding result
         await unifiedCache.set(
           geocodingKey,
           { city: location.city, country: location.country },
           CACHE_TTL.GEOCODING
         );
 
-        // Notify listeners of location update
-        this.notifyListeners('location-updated');
+        // Also update the location cache so it persists with city/country
+        await this.updateLocationCache(location);
+
         return;
 
       } catch (error) {
@@ -403,6 +442,20 @@ class PrayerTimesService {
     // All proxies failed
     location.city = "Unknown";
     location.country = "Unknown";
+  }
+
+  /**
+   * Update the location cache with current location data (e.g., after geocoding)
+   * @param {Object} location - Location object
+   */
+  async updateLocationCache(location) {
+    if (!location) return;
+    const cacheKey = unifiedCache.generateKey(CACHE_NAMESPACES.LOCATION, 'current');
+    try {
+      await unifiedCache.set(cacheKey, location, CACHE_TTL.LOCATION);
+    } catch (error) {
+      console.warn('[PrayerTimesService] Failed to update location cache:', error);
+    }
   }
 
   // ==========================================================================
@@ -858,7 +911,7 @@ class PrayerTimesService {
     this.notifyListeners('loading');
 
     try {
-      // Get fresh location
+      // Get fresh location (geocoding is now awaited inside getLocation)
       this.location = await this.getLocation({ forceRefresh: true });
       
       // Get fresh prayer times
@@ -868,12 +921,12 @@ class PrayerTimesService {
       this.calculateNextPrayer();
       
       this.error = null;
+      this.isLoading = false;
       this.notifyListeners('refreshed');
     } catch (error) {
       this.error = error;
-      this.notifyListeners('error', error);
-    } finally {
       this.isLoading = false;
+      this.notifyListeners('error', error);
     }
   }
 
@@ -904,9 +957,6 @@ class PrayerTimesService {
 
 export const prayerTimesService = new PrayerTimesService();
 
-// Auto-initialize on first import (non-blocking)
-if (typeof window !== 'undefined') {
-  prayerTimesService.init().catch(err => {
-    console.warn('[PrayerTimesService] Auto-init failed:', err);
-  });
-}
+// NOTE: Auto-init removed to prevent race conditions.
+// Consumers (marquee.js, feed.js) call prayerTimesService.init()
+// after subscribing, ensuring they receive all state updates.

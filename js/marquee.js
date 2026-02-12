@@ -79,17 +79,24 @@ class Marquee {
   handleServiceUpdate(state, event) {
     switch (event) {
       case 'loading':
-        this.showLoadingState();
+        // Only show loading if we don't have data yet
+        if (!state.prayerTimes) {
+          this.showLoadingState();
+        }
         break;
       case 'initialized':
       case 'refreshed':
       case 'tick':
       case 'location-updated':
       case 'prayer-times-updated':
+      case 'visibility-change':
         this.updateDisplay();
         break;
       case 'error':
-        this.showWarningState(state.error?.message || 'Unable to load prayer times');
+        // Only show error if we don't have data to display
+        if (!state.prayerTimes) {
+          this.showWarningState(state.error?.message || 'Unable to load prayer times');
+        }
         break;
       default:
         this.updateDisplay();
