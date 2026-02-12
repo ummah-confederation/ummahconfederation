@@ -14,6 +14,8 @@ import {
   initializeProfileUI,
   getFilteredDocuments,
   detectProfileMode,
+  getCurrentFilter,
+  renderFeedCarousel,
 } from "./profile-ui.js";
 import { preloadAllConfigs, getDocuments } from "./config.js";
 import {
@@ -66,31 +68,53 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Detect profile mode
   const profileInfo = detectProfileMode();
 
-  let docs = allDocuments;
-
   // 1️⃣ Apply URL filters FIRST (item / institution / jurisdiction)
-  docs = filterDocuments(docs, urlFilters);
+  const urlFilteredDocs = filterDocuments(allDocuments, urlFilters);
+  let docs = urlFilteredDocs;
 
   if (profileInfo) {
     // 2️⃣ Initialize profile UI
-    await initializeProfileUI(() => {
+    await initializeProfileUI(async () => {
+      const currentFilter = getCurrentFilter();
+
+      // If Feed filter is active, render carousel instead of document list
+      if (currentFilter.toLowerCase() === 'feed') {
+        const libraryContainer = document.getElementById('library');
+        if (libraryContainer) {
+          await renderFeedCarousel(libraryContainer);
+        }
+        return;
+      }
+
       const profileDocs = getFilteredDocuments();
 
-      // Merge profile filters WITH URL filters
+      // Merge profile filters WITH URL filters (use urlFilteredDocs, not mutated docs)
       const profileIds = new Set(profileDocs.map(doc => doc.id));
-      const mergedDocs = docs.filter(doc => profileIds.has(doc.id));
+      const mergedDocs = urlFilteredDocs.filter(doc => profileIds.has(doc.id));
 
       setDocumentsFilter(mergedDocs);
     });
 
     // Apply initial profile filter
+    const initialFilter = getCurrentFilter();
     const profileDocs = getFilteredDocuments();
     const profileIds = new Set(profileDocs.map(doc => doc.id));
-    docs = docs.filter(doc => profileIds.has(doc.id));
+    docs = urlFilteredDocs.filter(doc => profileIds.has(doc.id));
   }
 
   // 3️⃣ Final sort + render
   docs = sortDocuments(docs, 'name');
   setCurrentDocuments(docs);
-  initializeLibrary(urlFilters, profileInfo);
+  await initializeLibrary(urlFilters, profileInfo);
+
+  // 4️⃣ If Feed is the default filter in profile mode, render carousel over the table
+  if (profileInfo) {
+    const initialFilter = getCurrentFilter();
+    if (initialFilter.toLowerCase() === 'feed') {
+      const libraryContainer = document.getElementById('library');
+      if (libraryContainer) {
+        await renderFeedCarousel(libraryContainer);
+      }
+    }
+  }
 });

@@ -8,6 +8,8 @@ import {
   getInstitutionMetadata,
   getJurisdictionMetadata,
   getDocuments,
+  getFeedDocuments,
+  getDocumentById,
 } from "./config.js";
 import { parseQueryParams, parseHashParams, escapeHtml } from "./utils.js";
 
@@ -15,7 +17,7 @@ import { parseQueryParams, parseHashParams, escapeHtml } from "./utils.js";
 const profileState = {
   profileType: null, // 'institution' or 'jurisdiction'
   profileName: null, // institution or jurisdiction name
-  currentFilter: "all", // 'all', 'Book', 'Policy', 'Decision', etc.
+  currentFilter: "Feed", // default to Feed; also supports 'all', 'Book', 'Policy', 'Decision', etc.
   documents: [],
   profileData: null,
   availableTypes: [],
@@ -133,6 +135,13 @@ export async function initializeProfileUI(onFilterChange) {
   });
 
   profileState.availableTypes = getDocumentTypes(profileState.documents);
+
+  // Set default filter: "Feed" if available, otherwise "all"
+  if (profileState.availableTypes.includes("Feed")) {
+    profileState.currentFilter = "Feed";
+  } else {
+    profileState.currentFilter = "all";
+  }
 
   // Load profile metadata
   if (profileState.profileType === "institution") {
@@ -280,6 +289,7 @@ function renderFilterPills() {
 function getTypeIcon(type) {
   const icons = {
     all: "📂",
+    feed: "📰",
     book: "📚",
     guideline: "💎",
     policy: "📋",
@@ -331,7 +341,13 @@ export function getCurrentFilter() {
  */
 export function getFilteredDocuments() {
   if (profileState.currentFilter === "all") {
-    return profileState.documents;
+    // Exclude Feed-type documents from "all" — they are shown as carousel
+    return profileState.documents.filter((doc) => doc.item !== "Feed");
+  }
+  if (profileState.currentFilter.toLowerCase() === "feed") {
+    // Feed items are rendered as carousel, not as document rows
+    // Return empty so the library table stays empty while carousel renders
+    return [];
   }
   return profileState.documents.filter(
     (doc) =>
@@ -557,6 +573,209 @@ function initializeModalListeners() {
       closeModal();
     }
   });
+}
+
+// ============================================================================
+// Feed Carousel Rendering (moved from feed.js)
+// ============================================================================
+
+/**
+ * Render feed carousel in the library document list area
+ * Called when the "Feed" filter pill is active in profile mode
+ * @param {HTMLElement} container - The container element to render carousels into
+ */
+export async function renderFeedCarousel(container) {
+  if (!container) return;
+
+  const feedDocs = await getFeedDocuments(
+    profileState.profileType,
+    profileState.profileName,
+  );
+
+  if (feedDocs.length === 0) {
+    container.innerHTML = `<p class="text-center" style="padding: 2rem; opacity: 0.6;">No feed items found.</p>`;
+    return;
+  }
+
+  // Group feed docs by institution (for jurisdiction profile) or render as single carousel (for institution profile)
+  let carouselGroups;
+  if (profileState.profileType === "jurisdiction") {
+    // Group by institution — each institution gets its own carousel
+    const groupMap = new Map();
+    feedDocs.forEach((doc) => {
+      const key = doc.institution;
+      if (!groupMap.has(key)) groupMap.set(key, []);
+      groupMap.get(key).push(doc);
+    });
+    carouselGroups = Array.from(groupMap.entries()).map(([institution, docs]) => ({
+      title: institution.replace(/\s*\[.*?\]\s*/g, "").trim(),
+      sourceLabel: `Posted by ${institution.replace(/\s*\[.*?\]\s*/g, "").trim()}`,
+      docs,
+    }));
+  } else {
+    // Institution profile — single carousel with all feed docs
+    const jurisdictionLabel = feedDocs[0]?.jurisdiction?.replace(/\s*\[.*?\]\s*/g, "").trim() || "";
+    carouselGroups = [{
+      title: feedDocs[0]?.title || "Feed",
+      sourceLabel: `Posted in ${jurisdictionLabel}`,
+      docs: feedDocs,
+    }];
+  }
+
+  // Render all carousel groups
+  container.innerHTML = "";
+  carouselGroups.forEach((group) => {
+    const carouselId = `carousel-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    const slides = group.docs.map((feedDoc, i) => {
+      const caption = feedDoc.linkedDocument?.title || feedDoc.title || "Untitled";
+      const docLink = feedDoc.linkedDocument?.filename || "#";
+      const imageUrl = feedDoc.carousel?.image || "";
+      return { caption, docLink, imageUrl, index: i };
+    });
+
+    const carouselHTML = `
+      <div class="feed-carousel" id="${carouselId}">
+        <div class="carousel-header">
+          <h3 class="carousel-title">${escapeHtml(group.title)}</h3>
+        </div>
+        <div class="carousel-container">
+          <div class="carousel-track" id="${carouselId}-track">
+            ${slides
+              .map(
+                (slide) => `
+              <div class="carousel-slide">
+                <img src="${escapeHtml(slide.imageUrl)}" alt="${escapeHtml(slide.caption)}" loading="${slide.index === 0 ? "eager" : "lazy"}" decoding="async" fetchpriority="${slide.index === 0 ? "high" : "auto"}">
+                <div class="carousel-caption">
+                  <a href="${escapeHtml(slide.docLink)}" class="carousel-caption-link">${escapeHtml(slide.caption)}</a>
+                </div>
+              </div>
+            `,
+              )
+              .join("")}
+          </div>
+          <button class="carousel-nav prev" aria-label="Previous slide">‹</button>
+          <button class="carousel-nav next" aria-label="Next slide">›</button>
+        </div>
+        <div class="carousel-footer">
+          <div class="carousel-indicators">
+            ${slides
+              .map(
+                (slide) => `
+              <button class="carousel-indicator ${slide.index === 0 ? "active" : ""}" data-index="${slide.index}" aria-label="Go to slide ${slide.index + 1}"></button>
+            `,
+              )
+              .join("")}
+          </div>
+          <span class="carousel-source">${escapeHtml(group.sourceLabel)}</span>
+        </div>
+      </div>
+    `;
+
+    container.insertAdjacentHTML("beforeend", carouselHTML);
+    initCarouselNavigation(carouselId, slides.length);
+  });
+}
+
+/**
+ * Initialize carousel navigation (prev/next, indicators, autoplay, touch)
+ * @param {string} carouselId - The carousel element ID
+ * @param {number} slideCount - Number of slides
+ */
+function initCarouselNavigation(carouselId, slideCount) {
+  const carousel = document.getElementById(carouselId);
+  if (!carousel) return;
+
+  const track = document.getElementById(`${carouselId}-track`);
+  const prevBtn = carousel.querySelector(".carousel-nav.prev");
+  const nextBtn = carousel.querySelector(".carousel-nav.next");
+  const indicators = carousel.querySelectorAll(".carousel-indicator");
+
+  let currentIndex = 0;
+  let autoPlayInterval;
+
+  function goToSlide(index) {
+    if (index < 0) index = slideCount - 1;
+    if (index >= slideCount) index = 0;
+    currentIndex = index;
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+    indicators.forEach((indicator, i) => {
+      indicator.classList.toggle("active", i === currentIndex);
+    });
+  }
+
+  function nextSlide() {
+    goToSlide(currentIndex + 1);
+  }
+
+  function prevSlide() {
+    goToSlide(currentIndex - 1);
+  }
+
+  prevBtn.addEventListener("click", () => {
+    prevSlide();
+    resetAutoPlay();
+  });
+
+  nextBtn.addEventListener("click", () => {
+    nextSlide();
+    resetAutoPlay();
+  });
+
+  indicators.forEach((indicator, index) => {
+    indicator.addEventListener("click", () => {
+      goToSlide(index);
+      resetAutoPlay();
+    });
+  });
+
+  function startAutoPlay() {
+    autoPlayInterval = setInterval(nextSlide, 5000);
+  }
+
+  function stopAutoPlay() {
+    clearInterval(autoPlayInterval);
+  }
+
+  function resetAutoPlay() {
+    stopAutoPlay();
+    startAutoPlay();
+  }
+
+  startAutoPlay();
+
+  carousel.addEventListener("mouseenter", stopAutoPlay);
+  carousel.addEventListener("mouseleave", startAutoPlay);
+
+  // Touch support
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  carousel.addEventListener(
+    "touchstart",
+    (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    },
+    { passive: true },
+  );
+
+  carousel.addEventListener(
+    "touchend",
+    (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
+        resetAutoPlay();
+      }
+    },
+    { passive: true },
+  );
 }
 
 // Initialize modal listeners when module loads

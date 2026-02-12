@@ -19,7 +19,7 @@
       "bio": "Peace be upon you.",
       "feed_config": {
         "widget": {
-          "enabled": false,
+          "enabled": true,
           "type": "prayer_time"
         }
       }

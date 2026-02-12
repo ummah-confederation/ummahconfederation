@@ -67,18 +67,6 @@
         "widget": {
           "enabled": true,
           "type": "prayer_time"
-        },
-        "carousel": {
-          "title": "Media Progress",
-          "images": [
-            {
-              "url": "./images/carousel/media-1.webp",
-              "document_id": "decision2"
-            }
-          ],
-          "post_to_jurisdictions": [
-            "Borneo [Region]"
-          ]
         }
       }
     },
@@ -96,18 +84,6 @@
         "widget": {
           "enabled": true,
           "type": "prayer_time"
-        },
-        "carousel": {
-          "title": "Education Progress",
-          "images": [
-            {
-              "url": "./images/carousel/education-1.webp",
-              "document_id": "decision1"
-            }
-          ],
-          "post_to_jurisdictions": [
-            "Borneo [Region]"
-          ]
         }
       }
     },
@@ -123,20 +99,8 @@
       },
       "feed_config": {
         "widget": {
-          "enabled": false,
+          "enabled": true,
           "type": "prayer_time"
-        },
-        "carousel": {
-          "title": "FnB Industry Progress",
-          "images": [
-            {
-              "url": "./images/carousel/fnb-1.webp",
-              "document_id": "decision3"
-            }
-          ],
-          "post_to_jurisdictions": [
-            "Borneo [Region]"
-          ]
         }
       }
     },
@@ -152,20 +116,8 @@
       },
       "feed_config": {
         "widget": {
-          "enabled": false,
+          "enabled": true,
           "type": "prayer_time"
-        },
-        "carousel": {
-          "title": "Tech Industry Progress",
-          "images": [
-            {
-              "url": "./images/carousel/techplaza-1.webp",
-              "document_id": "Decision4"
-            }
-          ],
-          "post_to_jurisdictions": [
-            "Borneo [Region]"
-          ]
         }
       }
     },
@@ -215,7 +167,7 @@
       },
       "feed_config": {
         "widget": {
-          "enabled": false,
+          "enabled": true,
           "type": "prayer_time"
         }
       }

@@ -315,40 +315,6 @@ export async function getJurisdictionFeedConfig(jurisdictionName) {
 }
 
 /**
- * Get all carousels for a jurisdiction
- * @param {string} jurisdictionName - The full jurisdiction name
- * @returns {Promise<Array>} Array of carousel objects
- */
-export async function getJurisdictionCarousels(jurisdictionName) {
-  const config = await loadInstitutionConfig();
-  const carousels = [];
-
-  for (const [instName, instData] of Object.entries(config.institutions || {})) {
-    const carousel = instData.feed_config?.carousel;
-    if (carousel && carousel.post_to_jurisdictions?.includes(jurisdictionName)) {
-      // Fetch document data for each image
-      const imagesWithDocs = await Promise.all(
-        carousel.images.map(async (img) => {
-          const doc = img.document_id ? await getDocumentById(img.document_id) : null;
-          return {
-            ...img,
-            document: doc
-          };
-        })
-      );
-
-      carousels.push({
-        institution: instName,
-        ...carousel,
-        images: imagesWithDocs
-      });
-    }
-  }
-
-  return carousels;
-}
-
-/**
  * Get document by ID
  * @param {string} documentId - The document ID
  * @returns {Promise<Object|null>} The document object or null if not found
@@ -357,4 +323,35 @@ export async function getDocumentById(documentId) {
   const config = await loadDocumentsConfig();
   const doc = config.documents.find(doc => doc.id === documentId) || null;
   return doc;
+}
+
+/**
+ * Get Feed-type documents (carousel entries) for a given profile
+ * @param {string} profileType - 'institution' or 'jurisdiction'
+ * @param {string} profileName - The full institution or jurisdiction name
+ * @returns {Promise<Array>} Array of Feed document objects with resolved linked documents
+ */
+export async function getFeedDocuments(profileType, profileName) {
+  const allDocs = await getDocuments();
+  const feedDocs = allDocs.filter(doc => {
+    if (doc.item !== 'Feed') return false;
+    if (profileType === 'institution') return doc.institution === profileName;
+    if (profileType === 'jurisdiction') return doc.jurisdiction === profileName;
+    return false;
+  });
+
+  // Resolve linked documents for each feed entry
+  const resolved = await Promise.all(
+    feedDocs.map(async (feedDoc) => {
+      const linkedDoc = feedDoc.carousel?.linked_document_id
+        ? await getDocumentById(feedDoc.carousel.linked_document_id)
+        : null;
+      return {
+        ...feedDoc,
+        linkedDocument: linkedDoc
+      };
+    })
+  );
+
+  return resolved;
 }

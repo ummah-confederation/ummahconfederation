@@ -235,30 +235,27 @@ function renderWidget() {
 document.addEventListener('DOMContentLoaded', () => {
   initDarkMode();
   updateFeedHeader();
-  initFeedContent(false);
+  initFeedContent();
 });
 
 // Handle bfcache restoration (back button navigation)
 window.addEventListener('pageshow', (event) => {
   if (event.persisted) {
-    // Page was restored from back-forward cache
-    // Re-initialize feed content to ensure document data is loaded
-    initFeedContent(true);
+    initFeedContent();
   }
 });
 
 /**
- * Initialize feed content based on feed type
- * @param {boolean} isBfcacheRestore - Whether this is a bfcache restoration
+ * Initialize feed content based on feed type (widget only, carousel moved to profile mode)
  */
-async function initFeedContent(isBfcacheRestore = false) {
+async function initFeedContent() {
   const feedType = getFeedType();
   const widgetElement = document.getElementById('prayer-times-widget');
 
   if (feedType.type === 'institution') {
-    await initInstitutionFeed(feedType.name, widgetElement, isBfcacheRestore);
+    await initInstitutionFeed(feedType.name, widgetElement);
   } else if (feedType.type === 'jurisdiction') {
-    await initJurisdictionFeed(feedType.name, widgetElement, isBfcacheRestore);
+    await initJurisdictionFeed(feedType.name, widgetElement);
   } else {
     // Global feed - show widget only
     await initPrayerTimesWidget();
@@ -266,14 +263,13 @@ async function initFeedContent(isBfcacheRestore = false) {
 }
 
 /**
- * Initialize institution feed
+ * Initialize institution feed (widget only, carousel moved to profile mode)
  * @param {string} institutionName - The institution name
  * @param {HTMLElement} widgetElement - The widget element
- * @param {boolean} isBfcacheRestore - Whether this is a bfcache restoration
  */
-async function initInstitutionFeed(institutionName, widgetElement, isBfcacheRestore = false) {
+async function initInstitutionFeed(institutionName, widgetElement) {
   try {
-    const { getInstitutionFeedConfig, getDocumentById } = await import('./config.js');
+    const { getInstitutionFeedConfig } = await import('./config.js');
     const feedConfig = await getInstitutionFeedConfig(institutionName);
 
     // Show widget if enabled
@@ -282,48 +278,19 @@ async function initInstitutionFeed(institutionName, widgetElement, isBfcacheRest
     } else if (widgetElement) {
       widgetElement.style.display = 'none';
     }
-
-    // Show carousel if exists
-    if (feedConfig?.carousel) {
-      // Clear existing carousels only on bfcache restoration
-      if (isBfcacheRestore) {
-        clearCarousels();
-      }
-
-      // Fetch document data for each image
-      const imagesWithDocs = await Promise.all(
-        feedConfig.carousel.images.map(async (img) => {
-          const doc = img.document_id ? await getDocumentById(img.document_id) : null;
-          return {
-            ...img,
-            document: doc
-          };
-        })
-      );
-
-      const carouselWithDocs = {
-        ...feedConfig.carousel,
-        images: imagesWithDocs
-      };
-
-      // For institution feed, show the jurisdiction name where it's posted
-      const jurisdictionName = feedConfig.carousel.post_to_jurisdictions?.[0] || '';
-      renderCarousel(carouselWithDocs, jurisdictionName, 'institution');
-    }
   } catch (error) {
     console.error('Error initializing institution feed:', error);
   }
 }
 
 /**
- * Initialize jurisdiction feed
+ * Initialize jurisdiction feed (widget only, carousel moved to profile mode)
  * @param {string} jurisdictionName - The jurisdiction name
  * @param {HTMLElement} widgetElement - The widget element
- * @param {boolean} isBfcacheRestore - Whether this is a bfcache restoration
  */
-async function initJurisdictionFeed(jurisdictionName, widgetElement, isBfcacheRestore = false) {
+async function initJurisdictionFeed(jurisdictionName, widgetElement) {
   try {
-    const { getJurisdictionFeedConfig, getJurisdictionCarousels } = await import('./config.js');
+    const { getJurisdictionFeedConfig } = await import('./config.js');
     const feedConfig = await getJurisdictionFeedConfig(jurisdictionName);
 
     // Show widget if enabled
@@ -332,194 +299,8 @@ async function initJurisdictionFeed(jurisdictionName, widgetElement, isBfcacheRe
     } else if (widgetElement) {
       widgetElement.style.display = 'none';
     }
-
-    // Clear existing carousels only on bfcache restoration
-    if (isBfcacheRestore) {
-      clearCarousels();
-    }
-
-    // Show carousels from institutions
-    const carousels = await getJurisdictionCarousels(jurisdictionName);
-    carousels.forEach(carousel => {
-      renderCarousel(carousel, carousel.institution, 'jurisdiction');
-    });
   } catch (error) {
     console.error('Error initializing jurisdiction feed:', error);
-  }
-}
-
-/**
- * Clear existing carousels from the feed container
- */
-function clearCarousels() {
-  const feedContainer = document.querySelector('.paper-sheet');
-  if (!feedContainer) return;
-  
-  const existingCarousels = feedContainer.querySelectorAll('.feed-carousel');
-  existingCarousels.forEach(carousel => carousel.remove());
-}
-
-// ============================================================================
-// Carousel Rendering
-// ============================================================================
-
-/**
- * Render carousel
- */
-function renderCarousel(carousel, sourceName, feedType) {
-  try {
-    const feedContainer = document.querySelector('.paper-sheet');
-    if (!feedContainer) {
-      console.error('Feed container not found');
-      return;
-    }
-
-    const sourceLabel = feedType === 'institution'
-      ? `Posted in ${sourceName.replace(/\s*\[.*?\]\s*/g, '').trim()}`
-      : `Posted by ${sourceName.replace(/\s*\[.*?\]\s*/g, '').trim()}`;
-
-    const carouselId = `carousel-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-    const carouselHTML = `
-      <div class="feed-carousel" id="${carouselId}">
-        <div class="carousel-header">
-          <h3 class="carousel-title">${carousel.title}</h3>
-        </div>
-        <div class="carousel-container">
-          <div class="carousel-track" id="${carouselId}-track">
-            ${carousel.images.map((img, i) => {
-              const caption = img.document?.title || 'Untitled';
-              const docLink = img.document?.filename || '#';
-              return `
-              <div class="carousel-slide">
-                <img src="${img.url}" alt="${caption}" loading="${i === 0 ? 'eager' : 'lazy'}" decoding="async" fetchpriority="${i === 0 ? 'high' : 'auto'}">
-                <div class="carousel-caption">
-                  <a href="${docLink}" class="carousel-caption-link">${caption}</a>
-                </div>
-              </div>
-            `}).join('')}
-          </div>
-          <button class="carousel-nav prev" aria-label="Previous slide">‹</button>
-          <button class="carousel-nav next" aria-label="Next slide">›</button>
-        </div>
-        <div class="carousel-footer">
-          <div class="carousel-indicators">
-            ${carousel.images.map((_, i) => `
-              <button class="carousel-indicator ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Go to slide ${i + 1}"></button>
-            `).join('')}
-          </div>
-          <span class="carousel-source">${sourceLabel}</span>
-        </div>
-      </div>
-    `;
-
-    feedContainer.insertAdjacentHTML('beforeend', carouselHTML);
-    initCarouselNavigation(carouselId, carousel.images.length);
-  } catch (error) {
-    console.error('Error rendering carousel:', error);
-  }
-}
-
-/**
- * Initialize carousel navigation
- */
-function initCarouselNavigation(carouselId, slideCount) {
-  const carousel = document.getElementById(carouselId);
-  if (!carousel) return;
-
-  const track = document.getElementById(`${carouselId}-track`);
-  const prevBtn = carousel.querySelector('.carousel-nav.prev');
-  const nextBtn = carousel.querySelector('.carousel-nav.next');
-  const indicators = carousel.querySelectorAll('.carousel-indicator');
-
-  let currentIndex = 0;
-  let autoPlayInterval;
-
-  function goToSlide(index) {
-    if (index < 0) index = slideCount - 1;
-    if (index >= slideCount) index = 0;
-    currentIndex = index;
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
-
-    // Update indicators
-    indicators.forEach((indicator, i) => {
-      indicator.classList.toggle('active', i === currentIndex);
-    });
-  }
-
-  function nextSlide() {
-    goToSlide(currentIndex + 1);
-  }
-
-  function prevSlide() {
-    goToSlide(currentIndex - 1);
-  }
-
-  // Event listeners
-  prevBtn.addEventListener('click', () => {
-    prevSlide();
-    resetAutoPlay();
-  });
-
-  nextBtn.addEventListener('click', () => {
-    nextSlide();
-    resetAutoPlay();
-  });
-
-  indicators.forEach((indicator, index) => {
-    indicator.addEventListener('click', () => {
-      goToSlide(index);
-      resetAutoPlay();
-    });
-  });
-
-  // Auto-play
-  function startAutoPlay() {
-    autoPlayInterval = setInterval(nextSlide, 5000);
-  }
-
-  function stopAutoPlay() {
-    clearInterval(autoPlayInterval);
-  }
-
-  function resetAutoPlay() {
-    stopAutoPlay();
-    startAutoPlay();
-  }
-
-  // Start auto-play
-  startAutoPlay();
-
-  // Pause on hover
-  carousel.addEventListener('mouseenter', stopAutoPlay);
-  carousel.addEventListener('mouseleave', startAutoPlay);
-
-  // Touch support
-  let touchStartX = 0;
-  let touchEndX = 0;
-
-  carousel.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-    stopAutoPlay();
-  }, { passive: true });
-
-  carousel.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-    startAutoPlay();
-  }, { passive: true });
-
-  function handleSwipe() {
-    const swipeThreshold = 50;
-    const diff = touchStartX - touchEndX;
-
-    if (Math.abs(diff) > swipeThreshold) {
-      if (diff > 0) {
-        nextSlide();
-      } else {
-        prevSlide();
-      }
-    }
   }
 }
 

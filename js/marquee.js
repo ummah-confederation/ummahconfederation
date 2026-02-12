@@ -12,6 +12,7 @@ class Marquee {
   constructor() {
     this.marqueeElement = null;
     this.feedConfig = null;
+    this.feedDocuments = [];
     this.feedType = null;
     this.entityName = null;
     this.entityMetadata = null;
@@ -188,22 +189,23 @@ class Marquee {
     }
 
     try {
-      const { getInstitutionFeedConfig, getJurisdictionFeedConfig, getJurisdictionCarousels } = await import('./config.js');
+      const { getInstitutionFeedConfig, getJurisdictionFeedConfig, getFeedDocuments } = await import('./config.js');
 
       if (this.feedType === 'institution') {
         this.feedConfig = await getInstitutionFeedConfig(this.entityName);
+        // Get Feed-type documents for this institution
+        const feedDocs = await getFeedDocuments('institution', this.entityName);
+        this.feedDocuments = feedDocs;
       } else if (this.feedType === 'jurisdiction') {
         this.feedConfig = await getJurisdictionFeedConfig(this.entityName);
-        // Get carousels from institutions for jurisdiction feeds
-        const carousels = await getJurisdictionCarousels(this.entityName);
-        this.feedConfig = {
-          ...this.feedConfig,
-          carousels: carousels
-        };
+        // Get Feed-type documents for this jurisdiction
+        const feedDocs = await getFeedDocuments('jurisdiction', this.entityName);
+        this.feedDocuments = feedDocs;
       }
     } catch (error) {
       console.warn('Error fetching feed config:', error);
       this.feedConfig = null;
+      this.feedDocuments = [];
     }
   }
 
@@ -265,51 +267,41 @@ class Marquee {
       widgetSection = `<span class="prayer-item"><span class="prayer-label">Prayer Time Widget:</span> <span class="prayer-value">${widgetContent}</span></span>`;
     }
 
-    // Build carousel section content if available
-    let carouselContent = '';
-    if (this.feedConfig) {
-      const carousels = [];
+    // Build feed documents section content if available
+    let feedContent = '';
+    if (this.feedDocuments && this.feedDocuments.length > 0) {
+      const feedItems = this.feedDocuments.map(feedDoc => {
+        const title = feedDoc.title || 'Untitled';
+        let header = '';
 
-      if (this.feedType === 'institution' && this.feedConfig.carousel) {
-        carousels.push(this.feedConfig.carousel);
-      } else if (this.feedType === 'jurisdiction' && this.feedConfig.carousels) {
-        carousels.push(...this.feedConfig.carousels);
-      }
+        if (this.feedType === 'institution') {
+          const jurisdictionName = feedDoc.jurisdiction || '';
+          const cleanJurisdictionName = jurisdictionName.replace(/\s*\[.*?\]\s*/g, '').trim();
+          header = `Posted in ${cleanJurisdictionName}`;
+        } else if (this.feedType === 'jurisdiction') {
+          const institutionName = feedDoc.institution || '';
+          const cleanInstitutionName = institutionName.replace(/\s*\[.*?\]\s*/g, '').trim();
+          header = `Posted by ${cleanInstitutionName}`;
+        }
 
-      if (carousels.length > 0) {
-        const carouselItems = carousels.map(carousel => {
-          const captions = carousel.title;
-          let header = '';
+        return `<span class="prayer-item"><span class="prayer-label">${header}:</span> <span class="prayer-value">${title}</span></span>`;
+      }).join(' <span class="prayer-separator">•</span> ');
 
-          if (this.feedType === 'institution') {
-            const jurisdictionName = carousel.post_to_jurisdictions?.[0] || '';
-            const cleanJurisdictionName = jurisdictionName.replace(/\s*\[.*?\]\s*/g, '').trim();
-            header = `Posted in ${cleanJurisdictionName}`;
-          } else if (this.feedType === 'jurisdiction') {
-            const institutionName = carousel.institution || '';
-            const cleanInstitutionName = institutionName.replace(/\s*\[.*?\]\s*/g, '').trim();
-            header = `Posted by ${cleanInstitutionName}`;
-          }
-
-          return `<span class="prayer-item"><span class="prayer-label">${header}:</span> <span class="prayer-value">${captions}</span></span>`;
-        }).join(' <span class="prayer-separator">•</span> ');
-
-        carouselContent = ` <span class="prayer-separator">|</span> ${carouselItems}`;
-      }
+      feedContent = ` <span class="prayer-separator">|</span> ${feedItems}`;
     }
 
     // Build the complete marquee content
-    const endSeparator = carouselContent ? '|' : '•';
-    let content = `${widgetSection}${carouselContent} <span class="prayer-separator">${endSeparator}</span> `;
+    const endSeparator = feedContent ? '|' : '•';
+    let content = `${widgetSection}${feedContent} <span class="prayer-separator">${endSeparator}</span> `;
 
-    // If no widget and no carousel, show bio as fallback
-    if (!widgetSection && !carouselContent && this.entityMetadata?.bio) {
+    // If no widget and no feed content, show bio as fallback
+    if (!widgetSection && !feedContent && this.entityMetadata?.bio) {
       const bio = this.entityMetadata.bio;
       content = `<span class="prayer-item"><span class="prayer-value">${bio}</span></span> <span class="prayer-separator">•</span> `;
     }
 
     // Create a hash of the content (excluding time) to detect actual changes
-    const contentHash = this.generateContentHash(widgetSection, carouselContent, this.entityMetadata?.bio);
+    const contentHash = this.generateContentHash(widgetSection, feedContent, this.entityMetadata?.bio);
 
     // Only regenerate repeated content if the structure has changed
     if (this.cachedContentHash !== contentHash) {

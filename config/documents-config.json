@@ -229,6 +229,70 @@
       "date": "2026-02-03T09:00:00",
       "dateFormatted": "03 Feb 2026 | 09:00",
       "visible": true
+    },
+    {
+      "id": "feed-media-1",
+      "filename": null,
+      "title": "Feed 2 — Media Progress",
+      "item": "Feed",
+      "institution": "Ummah Media Worldwide [Non-Profit • Private]",
+      "jurisdiction": "Borneo [Region]",
+      "version": 1,
+      "date": "2026-02-03T09:00:00",
+      "dateFormatted": "03 Feb 2026 | 09:00",
+      "visible": true,
+      "carousel": {
+        "image": "./images/carousel/media-1.webp",
+        "linked_document_id": "decision2"
+      }
+    },
+    {
+      "id": "feed-education-1",
+      "filename": null,
+      "title": "Feed 1 — Education Progress",
+      "item": "Feed",
+      "institution": "Ummah Education Ministry [Non-Profit • Private]",
+      "jurisdiction": "Borneo [Region]",
+      "version": 1,
+      "date": "2026-02-03T09:00:00",
+      "dateFormatted": "03 Feb 2026 | 09:00",
+      "visible": true,
+      "carousel": {
+        "image": "./images/carousel/education-1.webp",
+        "linked_document_id": "decision1"
+      }
+    },
+    {
+      "id": "feed-fnb-1",
+      "filename": null,
+      "title": "Feed 3 — FnB Industry Progress",
+      "item": "Feed",
+      "institution": "101 FnB [Profit • Public]",
+      "jurisdiction": "Borneo [Region]",
+      "version": 1,
+      "date": "2026-02-03T09:00:00",
+      "dateFormatted": "03 Feb 2026 | 09:00",
+      "visible": true,
+      "carousel": {
+        "image": "./images/carousel/fnb-1.webp",
+        "linked_document_id": "decision3"
+      }
+    },
+    {
+      "id": "feed-techplaza-1",
+      "filename": null,
+      "title": "Feed 4 — Tech Industry Progress",
+      "item": "Feed",
+      "institution": "Techplaza [Profit • Private]",
+      "jurisdiction": "Borneo [Region]",
+      "version": 1,
+      "date": "2026-02-03T09:00:00",
+      "dateFormatted": "03 Feb 2026 | 09:00",
+      "visible": true,
+      "carousel": {
+        "image": "./images/carousel/techplaza-1.webp",
+        "linked_document_id": "Decision4"
+      }
     }
   ]
 }
