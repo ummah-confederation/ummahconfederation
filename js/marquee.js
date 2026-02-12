@@ -373,6 +373,7 @@ class Marquee {
       console.warn('Error reading location cache:', error);
     }
 
+    // No valid cache, request from GPS
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         console.warn("Geolocation is not supported by this browser");
@@ -393,12 +394,12 @@ class Marquee {
           // Try to get city name using reverse geocoding
           await this.fetchCityName();
 
-          // Cache the location for 5 minutes
+          // Cache the location
           await unifiedCache.set(locationCacheKey, this.location, CACHE_DEFAULT_TTL.LOCATION);
 
           resolve(this.location);
         },
-        (error) => {
+        async (error) => {
           // Handle specific error types
           let errorMessage = 'Unknown location error';
           
@@ -424,6 +425,19 @@ class Marquee {
             message: errorMessage
           };
 
+          // Try to get expired cache as fallback before using Jakarta
+          try {
+            const expiredCache = await this.getExpiredLocationCache(locationCacheKey);
+            if (expiredCache && !expiredCache.isFallback) {
+              console.log('Using expired cache as fallback:', expiredCache);
+              this.location = expiredCache;
+              resolve(this.location);
+              return;
+            }
+          } catch (cacheError) {
+            console.warn('Error reading expired cache:', cacheError);
+          }
+
           // Set fallback location with flag
           this.location = { ...DEFAULT_LOCATION, isFallback: true };
           
@@ -432,6 +446,43 @@ class Marquee {
         GEOLOCATION_OPTIONS
       );
     });
+  }
+
+  /**
+   * Get expired location cache (ignoring TTL)
+   * @param {string} cacheKey - Cache key
+   * @returns {Promise<Object|null>} Expired cached location or null
+   */
+  async getExpiredLocationCache(cacheKey) {
+    try {
+      // Access the IndexedDB directly to get expired cache
+      if (!unifiedCache.idbCache || !unifiedCache.idbCache.db) {
+        return null;
+      }
+      
+      const db = unifiedCache.idbCache.db;
+      
+      return new Promise((resolve) => {
+        const transaction = db.transaction(['cache'], 'readonly');
+        const store = transaction.objectStore('cache');
+        const request = store.get(cacheKey);
+
+        request.onsuccess = () => {
+          const result = request.result;
+          if (result && result.value) {
+            resolve(result.value);
+          } else {
+            resolve(null);
+          }
+        };
+
+        request.onerror = () => {
+          resolve(null);
+        };
+      });
+    } catch (error) {
+      return null;
+    }
   }
 
   /**

@@ -282,7 +282,7 @@ async function getLocation() {
     console.warn('Error reading location cache:', error);
   }
 
-  // No cached location, request from GPS
+  // No valid cache, request from GPS
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
       console.warn('Geolocation is not supported by this browser');
@@ -301,12 +301,12 @@ async function getLocation() {
         // Fetch city name
         await fetchCityName(location);
 
-        // Cache the location for 5 minutes
+        // Cache the location
         await unifiedCache.set(locationCacheKey, location, CACHE_DEFAULT_TTL.LOCATION);
 
         resolve(location);
       },
-      (error) => {
+      async (error) => {
         // Handle specific error types
         let errorMessage = 'Unknown location error';
         
@@ -325,11 +325,61 @@ async function getLocation() {
         }
 
         console.warn(`Geolocation failed (${errorMessage}), using fallback:`, error);
+
+        // Try to get expired cache as fallback before using Jakarta
+        try {
+          const expiredCache = await getExpiredLocationCache(locationCacheKey);
+          if (expiredCache && !expiredCache.isFallback) {
+            console.log('Using expired cache as fallback:', expiredCache);
+            resolve(expiredCache);
+            return;
+          }
+        } catch (cacheError) {
+          console.warn('Error reading expired cache:', cacheError);
+        }
+
         resolve({ ...DEFAULT_LOCATION, isFallback: true });
       },
       GEOLOCATION_OPTIONS
     );
   });
+}
+
+/**
+ * Get expired location cache (ignoring TTL)
+ * @param {string} cacheKey - Cache key
+ * @returns {Promise<Object|null>} Expired cached location or null
+ */
+async function getExpiredLocationCache(cacheKey) {
+  try {
+    // Access the IndexedDB directly to get expired cache
+    if (!unifiedCache.idbCache || !unifiedCache.idbCache.db) {
+      return null;
+    }
+    
+    const db = unifiedCache.idbCache.db;
+    
+    return new Promise((resolve) => {
+      const transaction = db.transaction(['cache'], 'readonly');
+      const store = transaction.objectStore('cache');
+      const request = store.get(cacheKey);
+
+      request.onsuccess = () => {
+        const result = request.result;
+        if (result && result.value) {
+          resolve(result.value);
+        } else {
+          resolve(null);
+        }
+      };
+
+      request.onerror = () => {
+        resolve(null);
+      };
+    });
+  } catch (error) {
+    return null;
+  }
 }
 
 /**
