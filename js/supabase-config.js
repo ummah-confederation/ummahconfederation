@@ -7,22 +7,22 @@
  * - SUPABASE_URL (or VITE_SUPABASE_URL)
  * - SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY)
  * 
- * These values are injected at build time by Rollup.
+ * These values are injected at build time by Rollup using @rollup/plugin-replace.
  */
 
 // These values are replaced at build time by @rollup/plugin-replace
-// Default values are empty strings - they will be replaced during build
-const SUPABASE_URL = 'process.env.SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'process.env.SUPABASE_ANON_KEY';
+// The replace plugin will substitute these strings with actual values
+const INJECTED_URL = process.env.SUPABASE_URL;
+const INJECTED_KEY = process.env.SUPABASE_ANON_KEY;
 
 /**
  * Get Supabase URL
  * Priority: injected value > window.SUPABASE_URL
  */
 export function getSupabaseUrl() {
-  // Check if the value was injected at build time
-  if (SUPABASE_URL && SUPABASE_URL !== 'process.env.SUPABASE_URL') {
-    return SUPABASE_URL;
+  // Check if the value was injected at build time (not empty and not the placeholder)
+  if (INJECTED_URL && INJECTED_URL !== 'process.env.SUPABASE_URL' && INJECTED_URL !== '') {
+    return INJECTED_URL;
   }
   // Fallback to window variable (for runtime configuration)
   if (typeof window !== 'undefined' && window.SUPABASE_URL) {
@@ -37,9 +37,9 @@ export function getSupabaseUrl() {
  * Priority: injected value > window.SUPABASE_ANON_KEY
  */
 export function getSupabaseAnonKey() {
-  // Check if the value was injected at build time
-  if (SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== 'process.env.SUPABASE_ANON_KEY') {
-    return SUPABASE_ANON_KEY;
+  // Check if the value was injected at build time (not empty and not the placeholder)
+  if (INJECTED_KEY && INJECTED_KEY !== 'process.env.SUPABASE_ANON_KEY' && INJECTED_KEY !== '') {
+    return INJECTED_KEY;
   }
   // Fallback to window variable (for runtime configuration)
   if (typeof window !== 'undefined' && window.SUPABASE_ANON_KEY) {
@@ -50,4 +50,5 @@ export function getSupabaseAnonKey() {
 }
 
 // Export constants for direct use
-export { SUPABASE_URL, SUPABASE_ANON_KEY };
+export const SUPABASE_URL = getSupabaseUrl();
+export const SUPABASE_ANON_KEY = getSupabaseAnonKey();
