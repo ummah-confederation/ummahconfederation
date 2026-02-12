@@ -264,31 +264,10 @@ class Marquee {
       const nextPrayerName = state.nextPrayer?.name || "Unknown";
 
       const widgetContent = `<span class="prayer-item"><span class="prayer-label">📍</span> <span class="prayer-value">${locationText}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">📅</span> <span class="prayer-value">${state.formattedDate}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🕐</span> <span class="prayer-value">${state.formattedTime}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">⏰</span> <span class="prayer-value">${nextPrayerName} (${timeToNext})</span></span>`;
-      widgetSection = `<span class="prayer-item"><span class="prayer-label">Prayer Time Widget:</span> <span class="prayer-value">${widgetContent}</span></span>`;
+      widgetSection = widgetContent;
     }
 
-    // Build feed documents section content if available
     let feedContent = '';
-    if (this.feedDocuments && this.feedDocuments.length > 0) {
-      const feedItems = this.feedDocuments.map(feedDoc => {
-        const title = feedDoc.title || 'Untitled';
-        let header = '';
-
-        if (this.feedType === 'institution') {
-          const jurisdictionName = feedDoc.jurisdiction || '';
-          const cleanJurisdictionName = jurisdictionName.replace(/\s*\[.*?\]\s*/g, '').trim();
-          header = `Posted in ${cleanJurisdictionName}`;
-        } else if (this.feedType === 'jurisdiction') {
-          const institutionName = feedDoc.institution || '';
-          const cleanInstitutionName = institutionName.replace(/\s*\[.*?\]\s*/g, '').trim();
-          header = `Posted by ${cleanInstitutionName}`;
-        }
-
-        return `<span class="prayer-item"><span class="prayer-label">${header}:</span> <span class="prayer-value">${title}</span></span>`;
-      }).join(' <span class="prayer-separator">•</span> ');
-
-      feedContent = ` <span class="prayer-separator">|</span> ${feedItems}`;
-    }
 
     // Build the complete marquee content
     const endSeparator = feedContent ? '|' : '•';
