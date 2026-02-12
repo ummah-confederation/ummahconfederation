@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build:css": "npx tailwindcss -i ./src/styles/main.css -o ./dist/output.css --minify",
-    "build:css:dev": "npx tailwindcss -i ./src/styles/main.css -o ./dist/output.css",
-    "watch:css": "npx tailwindcss -i ./src/styles/main.css -o ./dist/output.css --watch",
+    "build:css": "node ./node_modules/@tailwindcss/cli/dist/index.mjs -i ./src/styles/main.css -o ./dist/output.css --minify",
+    "build:css:dev": "node ./node_modules/@tailwindcss/cli/dist/index.mjs -i ./src/styles/main.css -o ./dist/output.css",
+    "watch:css": "node ./node_modules/@tailwindcss/cli/dist/index.mjs -i ./src/styles/main.css -o ./dist/output.css --watch",
     "build:js": "rollup -c",
     "build:js:dev": "rollup -c --environment NODE_ENV:development",
     "build:analyze": "rollup -c && echo 'Bundle analysis reports generated in dist/stats/'",
