@@ -627,11 +627,32 @@ export async function renderFeedCarousel(container) {
   carouselGroups.forEach((group) => {
     const carouselId = `carousel-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    const slides = group.docs.map((feedDoc, i) => {
-      const caption = feedDoc.linkedDocument?.title || feedDoc.title || "Untitled";
-      const docLink = feedDoc.linkedDocument?.filename || "#";
-      const imageUrl = feedDoc.carousel?.image || "";
-      return { caption, docLink, imageUrl, index: i };
+    // Collect all slides from all carousels in this group
+    const slides = [];
+    group.docs.forEach((feedDoc) => {
+      // Each feedDoc is a carousel with multiple slides
+      if (feedDoc.slides && feedDoc.slides.length > 0) {
+        feedDoc.slides.forEach((slide, i) => {
+          slides.push({
+            caption: slide.linked_document?.title || feedDoc.title || "Untitled",
+            docLink: slide.linked_document?.doc_id 
+              ? `pages/${slide.linked_document.doc_id}.html` 
+              : "#",
+            imageUrl: slide.image_url || "",
+            index: slides.length
+          });
+        });
+      } else if (feedDoc.carousel?.images?.length > 0) {
+        // Fallback: use carousel.images array
+        feedDoc.carousel.images.forEach((imgUrl, i) => {
+          slides.push({
+            caption: feedDoc.linkedDocument?.title || feedDoc.title || "Untitled",
+            docLink: feedDoc.linkedDocument?.filename || "#",
+            imageUrl: imgUrl,
+            index: slides.length
+          });
+        });
+      }
     });
 
     const carouselHTML = `

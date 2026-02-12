@@ -311,7 +311,7 @@ export async function getCarousels() {
       )
     `)
     .eq('visible', true)
-    .order('display_order');
+    .order('created_at', { ascending: false });
   
   if (error) {
     console.error('Error fetching carousels:', error);
@@ -346,7 +346,7 @@ export async function getCarouselsByInstitution(institutionName) {
     `)
     .eq('visible', true)
     .eq('institution_id', institution.id)
-    .order('display_order');
+    .order('created_at', { ascending: false });
   
   if (error) {
     console.error('Error fetching carousels by institution:', error);
@@ -380,7 +380,7 @@ export async function getCarouselsByJurisdiction(jurisdictionName) {
     `)
     .eq('visible', true)
     .eq('jurisdiction_id', jurisdiction.id)
-    .order('display_order');
+    .order('created_at', { ascending: false });
   
   if (error) {
     console.error('Error fetching carousels by jurisdiction:', error);
