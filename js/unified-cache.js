@@ -2,6 +2,8 @@
  * Unified Cache Manager
  * Single source of truth for all caching operations
  * Coordinates between memory, localStorage, and IndexedDB
+ * 
+ * Enhanced with timezone-aware cache key generation and TTL calculation
  */
 
 import { IndexedDBCache } from './indexeddb-cache.js';
@@ -26,6 +28,58 @@ export const CACHE_DEFAULT_TTL = {
 
 // Location precision for cache keys (4 decimals = ~11m accuracy)
 export const LOCATION_PRECISION = 4;
+
+/**
+ * Get the user's timezone
+ * @returns {string} IANA timezone string (e.g., "Asia/Jakarta")
+ */
+export function getUserTimezone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return 'UTC'; // Fallback to UTC
+  }
+}
+
+/**
+ * Get the current date in the user's timezone
+ * @param {string} timezone - Optional timezone override
+ * @returns {string} Date string in YYYY-MM-DD format
+ */
+export function getLocalDate(timezone = null) {
+  const tz = timezone || getUserTimezone();
+  try {
+    return new Date().toLocaleDateString('en-CA', { timeZone: tz });
+  } catch {
+    // Fallback if timezone is invalid
+    return new Date().toLocaleDateString('en-CA');
+  }
+}
+
+/**
+ * Calculate TTL until end of day in the specified timezone
+ * @param {string} timezone - Optional timezone override
+ * @returns {number} TTL in milliseconds
+ */
+export function calculateEndOfDayTTL(timezone = null) {
+  const now = new Date();
+  const tz = timezone || getUserTimezone();
+  
+  try {
+    // Get end of day in the specified timezone
+    const localDate = now.toLocaleDateString('en-CA', { timeZone: tz });
+    const endOfDay = new Date(`${localDate}T23:59:59.999`);
+    
+    // Add 5 minute buffer for timezone edge cases
+    const ttl = endOfDay.getTime() - now.getTime() + (5 * 60 * 1000);
+    
+    // Minimum 1 minute TTL
+    return Math.max(ttl, 60 * 1000);
+  } catch {
+    // Fallback: 24 hours
+    return 24 * 60 * 60 * 1000;
+  }
+}
 
 class UnifiedCacheManager {
   constructor() {

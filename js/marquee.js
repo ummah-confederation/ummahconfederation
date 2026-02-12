@@ -1,149 +1,98 @@
 /**
  * Marquee Module
  * Displays prayer times widget and carousel captions in a scrolling marquee
- * Refactored with unified caching and proper error handling
+ * 
+ * REFACTORED: Now uses PrayerTimesService as single source of truth
+ * All location, geocoding, and prayer times logic has been moved to the service
  */
 
-import { unifiedCache, CACHE_NAMESPACES, CACHE_DEFAULT_TTL, LOCATION_PRECISION } from './unified-cache.js';
-
-// Geolocation configuration
-const GEOLOCATION_OPTIONS = {
-  enableHighAccuracy: false,  // Faster, less accurate is OK for prayer times
-  timeout: 10000,             // 10 seconds max
-  maximumAge: 0               // Always get fresh position (don't use browser cache)
-};
-
-// CORS proxy fallbacks for geocoding
-const CORS_PROXIES = [
-  'https://corsproxy.io/?',
-  'https://api.allorigins.win/raw?url='
-];
-
-// Default fallback location (Jakarta)
-const DEFAULT_LOCATION = {
-  latitude: -6.2088,
-  longitude: 106.8456,
-  city: "Jakarta",
-  country: "Indonesia"
-};
+import { prayerTimesService, LOCATION_QUALITY } from './prayer-times-service.js';
 
 class Marquee {
   constructor() {
-    this.prayerTimes = null;
-    this.location = null;
-    this.locationError = null;
-    this.currentTime = null;
-    this.nextPrayer = null;
-    this.timeToNextPrayer = null;
     this.marqueeElement = null;
-    this.updateInterval = null;
     this.feedConfig = null;
     this.feedType = null;
     this.entityName = null;
     this.entityMetadata = null;
     this.cachedContent = null;
     this.cachedContentHash = null;
-    this.isLoading = false;
+    this.unsubscribe = null;
   }
 
   /**
-   * Generate cache key for today's prayer times
+   * Initialize the marquee module
    */
-  getPrayerCacheKey() {
-    if (!this.location) return null;
-    
-    const today = new Date();
-    const dateStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-    
-    return unifiedCache.generateLocationKey(
-      CACHE_NAMESPACES.PRAYER_TIMES,
-      this.location.latitude,
-      this.location.longitude,
-      dateStr
-    );
-  }
-
-  /**
-   * Get cached prayer times for today
-   * @returns {Promise<Object|null>} Cached prayer times or null
-   */
-  async getCachedPrayerTimes() {
-    const cacheKey = this.getPrayerCacheKey();
-    if (!cacheKey) return null;
-
-    try {
-      const cached = await unifiedCache.get(cacheKey);
-      if (cached) {
-        // Verify cache is from today
-        const cacheDate = new Date(cached.date);
-        const today = new Date();
-        if (cacheDate.toDateString() === today.toDateString()) {
-          return cached.prayerTimes;
-        }
-      }
-    } catch (error) {
-      console.warn('Error reading prayer cache:', error);
+  async init() {
+    this.marqueeElement = document.getElementById("prayer-times-marquee");
+    if (!this.marqueeElement) {
+      console.error("Marquee element not found");
+      return;
     }
-    return null;
-  }
 
-  /**
-   * Cache prayer times for today
-   * @param {Object} prayerTimes - Prayer times object
-   */
-  async cachePrayerTimes(prayerTimes) {
-    const cacheKey = this.getPrayerCacheKey();
-    if (!cacheKey) return;
+    // Add click handler for navigation to feed page
+    this.marqueeElement.style.cursor = "pointer";
+    this.marqueeElement.addEventListener("click", () => {
+      this.navigateToFeed();
+    });
 
     try {
-      const data = {
-        date: new Date().toISOString(),
-        prayerTimes: prayerTimes,
-        location: {
-          latitude: this.location.latitude,
-          longitude: this.location.longitude
-        }
-      };
+      // Get feed type and entity name from URL
+      this.getFeedContext();
 
-      // Calculate TTL until end of day
-      const now = new Date();
-      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      const ttl = endOfDay.getTime() - now.getTime();
+      // Fetch feed configuration
+      await this.fetchFeedConfig();
 
-      await unifiedCache.set(cacheKey, data, ttl);
+      // Fetch entity metadata (for bio fallback)
+      await this.fetchEntityMetadata();
+
+      // Check if widget is enabled
+      const widgetEnabled = this.feedConfig?.widget?.enabled !== false;
+
+      if (widgetEnabled) {
+        // Show loading state
+        this.showLoadingState();
+
+        // Subscribe to prayer times service updates
+        this.unsubscribe = prayerTimesService.subscribe((state, event) => {
+          this.handleServiceUpdate(state, event);
+        });
+
+        // Initialize the service (if not already initialized)
+        await prayerTimesService.init();
+      } else {
+        // Widget disabled, just show carousel/bio
+        this.updateDisplay();
+      }
+
     } catch (error) {
-      console.warn('Error writing prayer cache:', error);
+      console.error("Error initializing marquee:", error);
+      this.showError();
     }
   }
 
   /**
-   * Refresh prayer times in background (stale-while-revalidate)
+   * Handle updates from PrayerTimesService
+   * @param {Object} state - Service state
+   * @param {string} event - Event type
    */
-  async refreshPrayerTimesInBackground() {
-    try {
-      const today = new Date();
-      const date = today.getDate();
-      const month = today.getMonth() + 1;
-      const year = today.getFullYear();
-
-      const url = `https://api.aladhan.com/v1/timings/${date}-${month}-${year}?latitude=${this.location.latitude}&longitude=${this.location.longitude}&method=20`;
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.code === 200 && data.data) {
-        const prayerTimes = {
-          Fajr: data.data.timings.Fajr,
-          Dhuhr: data.data.timings.Dhuhr,
-          Asr: data.data.timings.Asr,
-          Maghrib: data.data.timings.Maghrib,
-          Isha: data.data.timings.Isha,
-        };
-        await this.cachePrayerTimes(prayerTimes);
-        this.prayerTimes = prayerTimes;
-      }
-    } catch (error) {
-      console.warn('Background prayer times refresh failed:', error);
+  handleServiceUpdate(state, event) {
+    switch (event) {
+      case 'loading':
+        this.showLoadingState();
+        break;
+      case 'initialized':
+      case 'refreshed':
+      case 'tick':
+      case 'location-updated':
+      case 'prayer-times-updated':
+        this.updateDisplay();
+        break;
+      case 'error':
+        this.showWarningState(state.error?.message || 'Unable to load prayer times');
+        break;
+      default:
+        this.updateDisplay();
     }
   }
 
@@ -193,93 +142,13 @@ class Marquee {
    */
   async retryLocationFetch() {
     this.showLoadingState();
-    this.locationError = null;
     
     try {
-      await this.getLocation();
-      await this.fetchPrayerTimes();
-      this.updateDisplay();
+      await prayerTimesService.forceRefresh();
     } catch (error) {
       console.error('Retry failed:', error);
       this.showWarningState('Location fetch failed. Using fallback location.');
     }
-  }
-
-  /**
-   * Initialize the marquee module
-   */
-  async init() {
-    this.marqueeElement = document.getElementById("prayer-times-marquee");
-    if (!this.marqueeElement) {
-      console.error("Marquee element not found");
-      return;
-    }
-
-    // Add click handler for navigation to feed page
-    this.marqueeElement.style.cursor = "pointer";
-    this.marqueeElement.addEventListener("click", () => {
-      this.navigateToFeed();
-    });
-
-    try {
-      // Get feed type and entity name from URL
-      this.getFeedContext();
-
-      // Fetch feed configuration
-      await this.fetchFeedConfig();
-
-      // Fetch entity metadata (for bio fallback)
-      await this.fetchEntityMetadata();
-
-      // Check if widget is enabled
-      const widgetEnabled = this.feedConfig?.widget?.enabled !== false;
-
-      // Only fetch prayer times and location if widget is enabled
-      if (widgetEnabled) {
-        // Show loading state
-        this.showLoadingState();
-
-        // Initialize unified cache
-        await unifiedCache.init();
-
-        // Get user's location (will check cache first, then request GPS if needed)
-        await this.getLocation();
-
-        // Fetch prayer times
-        await this.fetchPrayerTimes();
-      }
-
-      // Update display
-      this.updateDisplay();
-
-      // Set up interval to update current time and next prayer
-      if (widgetEnabled) {
-        this.updateInterval = setInterval(() => {
-          this.updateDisplay();
-        }, 1000); // Update every second
-      }
-
-      // Set up network status handlers
-      this.setupNetworkHandlers();
-
-    } catch (error) {
-      console.error("Error initializing marquee:", error);
-      this.showError();
-    }
-  }
-
-  /**
-   * Set up network status handlers
-   */
-  setupNetworkHandlers() {
-    window.addEventListener('online', () => {
-      console.log('Network restored, refreshing prayer times');
-      this.refreshPrayerTimesInBackground();
-    });
-
-    window.addEventListener('offline', () => {
-      console.log('Network lost, using cached data');
-    });
   }
 
   /**
@@ -355,357 +224,6 @@ class Marquee {
   }
 
   /**
-   * Get user's geolocation with proper error handling
-   * Uses cached location if available to avoid repeated GPS requests
-   */
-  async getLocation() {
-    // First, try to get cached location
-    const locationCacheKey = unifiedCache.generateKey(CACHE_NAMESPACES.LOCATION, 'current');
-    
-    try {
-      const cachedLocation = await unifiedCache.get(locationCacheKey);
-      if (cachedLocation && !cachedLocation.isFallback) {
-        console.log('Using cached location:', cachedLocation);
-        this.location = cachedLocation;
-        return this.location;
-      }
-    } catch (error) {
-      console.warn('Error reading location cache:', error);
-    }
-
-    // No valid cache, request from GPS
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        console.warn("Geolocation is not supported by this browser");
-        this.location = { ...DEFAULT_LOCATION, isFallback: true };
-        this.locationError = { code: 0, message: 'Geolocation not supported' };
-        resolve(this.location);
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          this.location = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            isFallback: false
-          };
-
-          // Try to get city name using reverse geocoding
-          await this.fetchCityName();
-
-          // Cache the location
-          await unifiedCache.set(locationCacheKey, this.location, CACHE_DEFAULT_TTL.LOCATION);
-
-          resolve(this.location);
-        },
-        async (error) => {
-          // Handle specific error types
-          let errorMessage = 'Unknown location error';
-          
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage = 'Permission denied';
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMessage = 'Position unavailable';
-              break;
-            case error.TIMEOUT:
-              errorMessage = 'Location request timed out';
-              break;
-            default:
-              errorMessage = error.message || 'Unknown error';
-          }
-
-          console.warn(`Geolocation failed (${errorMessage}), using fallback:`, error);
-          
-          // Store error info
-          this.locationError = {
-            code: error.code,
-            message: errorMessage
-          };
-
-          // Try to get expired cache as fallback before using Jakarta
-          try {
-            const expiredCache = await this.getExpiredLocationCache(locationCacheKey);
-            if (expiredCache && !expiredCache.isFallback) {
-              console.log('Using expired cache as fallback:', expiredCache);
-              this.location = expiredCache;
-              resolve(this.location);
-              return;
-            }
-          } catch (cacheError) {
-            console.warn('Error reading expired cache:', cacheError);
-          }
-
-          // Set fallback location with flag
-          this.location = { ...DEFAULT_LOCATION, isFallback: true };
-          
-          resolve(this.location);
-        },
-        GEOLOCATION_OPTIONS
-      );
-    });
-  }
-
-  /**
-   * Get expired location cache (ignoring TTL)
-   * @param {string} cacheKey - Cache key
-   * @returns {Promise<Object|null>} Expired cached location or null
-   */
-  async getExpiredLocationCache(cacheKey) {
-    try {
-      // Access the IndexedDB directly to get expired cache
-      if (!unifiedCache.idbCache || !unifiedCache.idbCache.db) {
-        return null;
-      }
-      
-      const db = unifiedCache.idbCache.db;
-      
-      return new Promise((resolve) => {
-        const transaction = db.transaction(['cache'], 'readonly');
-        const store = transaction.objectStore('cache');
-        const request = store.get(cacheKey);
-
-        request.onsuccess = () => {
-          const result = request.result;
-          if (result && result.value) {
-            resolve(result.value);
-          } else {
-            resolve(null);
-          }
-        };
-
-        request.onerror = () => {
-          resolve(null);
-        };
-      });
-    } catch (error) {
-      return null;
-    }
-  }
-
-  /**
-   * Fetch city name using reverse geocoding with fallback proxies
-   */
-  async fetchCityName() {
-    if (!this.location || this.location.isFallback) return;
-
-    // Check geocoding cache first
-    const geocodingCacheKey = unifiedCache.generateLocationKey(
-      CACHE_NAMESPACES.GEOCODING,
-      this.location.latitude,
-      this.location.longitude
-    );
-
-    try {
-      const cachedGeocoding = await unifiedCache.get(geocodingCacheKey);
-      if (cachedGeocoding) {
-        this.location.city = cachedGeocoding.city;
-        this.location.country = cachedGeocoding.country;
-        return;
-      }
-    } catch (error) {
-      console.warn('Error reading geocoding cache:', error);
-    }
-
-    // Try each CORS proxy
-    const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${this.location.latitude}&lon=${this.location.longitude}`;
-
-    for (const proxy of CORS_PROXIES) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-        const response = await fetch(
-          `${proxy}${encodeURIComponent(nominatimUrl)}`,
-          { signal: controller.signal }
-        );
-        
-        clearTimeout(timeoutId);
-
-        if (!response.ok) continue;
-
-        const data = await response.json();
-        
-        this.location.city =
-          data.address.city ||
-          data.address.town ||
-          data.address.village ||
-          data.address.county ||
-          "Unknown";
-        this.location.country = data.address.country || "Unknown";
-
-        // Cache the geocoding result
-        await unifiedCache.set(
-          geocodingCacheKey,
-          { city: this.location.city, country: this.location.country },
-          CACHE_DEFAULT_TTL.GEOCODING
-        );
-
-        return; // Success, exit
-      } catch (error) {
-        console.warn(`Geocoding proxy ${proxy} failed:`, error);
-        // Continue to next proxy
-      }
-    }
-
-    // All proxies failed
-    console.warn('All geocoding proxies failed');
-    this.location.city = "Unknown";
-    this.location.country = "Unknown";
-  }
-
-  /**
-   * Fetch prayer times from Aladhan API with enhanced caching
-   */
-  async fetchPrayerTimes() {
-    // Try to get cached prayer times first
-    const cached = await this.getCachedPrayerTimes();
-    if (cached) {
-      this.prayerTimes = cached;
-
-      // Check if cache is stale (older than 20 hours) and refresh in background
-      const cacheKey = this.getPrayerCacheKey();
-      if (cacheKey) {
-        const cachedData = await unifiedCache.get(cacheKey);
-        if (cachedData) {
-          const cacheAge = Date.now() - new Date(cachedData.date).getTime();
-          const STALE_THRESHOLD = 20 * 60 * 60 * 1000; // 20 hours
-
-          if (cacheAge > STALE_THRESHOLD) {
-            this.refreshPrayerTimesInBackground();
-          }
-        }
-      }
-      return;
-    }
-
-    // If no cache, fetch from API
-    if (!this.location) {
-      throw new Error("Location not available");
-    }
-
-    const today = new Date();
-    const date = today.getDate();
-    const month = today.getMonth() + 1;
-    const year = today.getFullYear();
-
-    const url = `https://api.aladhan.com/v1/timings/${date}-${month}-${year}?latitude=${this.location.latitude}&longitude=${this.location.longitude}&method=20`;
-
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.code === 200 && data.data) {
-        this.prayerTimes = {
-          Fajr: data.data.timings.Fajr,
-          Dhuhr: data.data.timings.Dhuhr,
-          Asr: data.data.timings.Asr,
-          Maghrib: data.data.timings.Maghrib,
-          Isha: data.data.timings.Isha,
-        };
-        await this.cachePrayerTimes(this.prayerTimes);
-      } else {
-        throw new Error("Failed to fetch prayer times");
-      }
-    } catch (error) {
-      console.error('Prayer times fetch error:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Calculate time to next prayer
-   */
-  calculateNextPrayer() {
-    if (!this.prayerTimes) return null;
-
-    const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-
-    const prayers = [
-      { name: "Fajr", time: this.prayerTimes.Fajr },
-      { name: "Dhuhr", time: this.prayerTimes.Dhuhr },
-      { name: "Asr", time: this.prayerTimes.Asr },
-      { name: "Maghrib", time: this.prayerTimes.Maghrib },
-      { name: "Isha", time: this.prayerTimes.Isha },
-    ];
-
-    // Convert prayer times to minutes
-    const prayerMinutes = prayers.map((prayer) => {
-      const [hours, minutes] = prayer.time.split(":").map(Number);
-      return {
-        name: prayer.name,
-        time: prayer.time,
-        minutes: hours * 60 + minutes,
-      };
-    });
-
-    // Find next prayer
-    let nextPrayer = null;
-    for (const prayer of prayerMinutes) {
-      if (prayer.minutes > currentTime) {
-        nextPrayer = prayer;
-        break;
-      }
-    }
-
-    // If no next prayer found today, use Fajr tomorrow
-    if (!nextPrayer) {
-      nextPrayer = prayerMinutes[0];
-      const minutesUntilMidnight = 24 * 60 - currentTime;
-      this.timeToNextPrayer = minutesUntilMidnight + nextPrayer.minutes;
-    } else {
-      this.timeToNextPrayer = nextPrayer.minutes - currentTime;
-    }
-
-    this.nextPrayer = nextPrayer;
-    return nextPrayer;
-  }
-
-  /**
-   * Format time to next prayer
-   */
-  formatTimeToNextPrayer() {
-    if (this.timeToNextPrayer === null) return "";
-
-    const hours = Math.floor(this.timeToNextPrayer / 60);
-    const minutes = this.timeToNextPrayer % 60;
-
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    } else {
-      return `${minutes}m`;
-    }
-  }
-
-  /**
-   * Format current date
-   */
-  formatDate() {
-    const now = new Date();
-    return now.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  }
-
-  /**
-   * Format current time
-   */
-  formatCurrentTime() {
-    const now = new Date();
-    return now.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  }
-
-  /**
    * Update the marquee display
    */
   updateDisplay() {
@@ -717,17 +235,26 @@ class Marquee {
     // Build widget section content with header
     let widgetSection = '';
     if (widgetEnabled) {
-      this.currentTime = this.formatCurrentTime();
-      const currentDate = this.formatDate();
-      this.calculateNextPrayer();
+      const state = prayerTimesService.getState();
+      
+      // Check for error state
+      if (state.error && !state.prayerTimes) {
+        this.showWarningState(state.error.message || 'Unable to load prayer times');
+        return;
+      }
+      
+      // Check for loading state
+      if (state.isLoading && !state.prayerTimes) {
+        this.showLoadingState();
+        return;
+      }
 
-      // Show fallback indicator if using fallback location
-      const fallbackIndicator = this.location?.isFallback ? ' (Fallback)' : '';
-      const locationText = `${this.location.city}, ${this.location.country}${fallbackIndicator}`;
-      const timeToNext = this.formatTimeToNextPrayer();
-      const nextPrayerName = this.nextPrayer ? this.nextPrayer.name : "Unknown";
+      // Build prayer times content
+      const locationText = state.formattedLocation;
+      const timeToNext = state.formattedTimeToNext;
+      const nextPrayerName = state.nextPrayer?.name || "Unknown";
 
-      const widgetContent = `<span class="prayer-item"><span class="prayer-label">📍</span> <span class="prayer-value">${locationText}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">📅</span> <span class="prayer-value">${currentDate}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🕐</span> <span class="prayer-value">${this.currentTime}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">⏰</span> <span class="prayer-value">${nextPrayerName} (${timeToNext})</span></span>`;
+      const widgetContent = `<span class="prayer-item"><span class="prayer-label">📍</span> <span class="prayer-value">${locationText}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">📅</span> <span class="prayer-value">${state.formattedDate}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">🕐</span> <span class="prayer-value">${state.formattedTime}</span></span> <span class="prayer-separator">•</span> <span class="prayer-item"><span class="prayer-label">⏰</span> <span class="prayer-value">${nextPrayerName} (${timeToNext})</span></span>`;
       widgetSection = `<span class="prayer-item"><span class="prayer-label">Prayer Time Widget:</span> <span class="prayer-value">${widgetContent}</span></span>`;
     }
 
@@ -802,10 +329,11 @@ class Marquee {
       // Use cached content, just update the time if widget is enabled
       if (widgetEnabled && this.cachedContent) {
         // Update time in cached content
-        const timeRegex = /<span class="prayer-value">(\d{1,2}:\d{2}:\d{2}\s[AP]M)<\/span>/;
+        const state = prayerTimesService.getState();
+        const timeRegex = /<span class="prayer-value">(\d{1,2}:\d{2}\s[AP]M)<\/span>/;
         const timeMatch = this.cachedContent.match(timeRegex);
         if (timeMatch) {
-          this.cachedContent = this.cachedContent.replace(timeMatch[0], `<span class="prayer-value">${this.currentTime}</span>`);
+          this.cachedContent = this.cachedContent.replace(timeMatch[0], `<span class="prayer-value">${state.formattedTime}</span>`);
         }
       }
       content = this.cachedContent;
@@ -823,7 +351,7 @@ class Marquee {
    */
   generateContentHash(widgetSection, carouselContent, bio) {
     // Create a simplified version of content for hashing (remove time)
-    const simplifiedWidget = widgetSection ? widgetSection.replace(/\d{1,2}:\d{2}:\d{2}\s[AP]M/g, 'TIME') : '';
+    const simplifiedWidget = widgetSection ? widgetSection.replace(/\d{1,2}:\d{2}\s[AP]M/g, 'TIME') : '';
     return `${simplifiedWidget}|${carouselContent}|${bio || ''}`;
   }
 
@@ -874,11 +402,11 @@ class Marquee {
   }
 
   /**
-   * Clean up intervals
+   * Clean up
    */
   destroy() {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
+    if (this.unsubscribe) {
+      this.unsubscribe();
     }
   }
 }

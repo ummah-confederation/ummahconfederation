@@ -247,6 +247,12 @@ body.has-profile .paper-sheet {
   transition: color var(--transition-fast);
 }
 
+/* Ensure links inside library-metadata stay inline for proper flex layout */
+.library-metadata a {
+  display: inline !important;
+  overflow: visible;
+}
+
 .library-profile-link:hover {
   color: #2563eb;
   text-decoration: underline;

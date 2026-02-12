@@ -1,34 +1,18 @@
 /**
  * Feed Page Module
  * Handles feed page logic and prayer times widget
- * Uses UnifiedCacheManager for consistent caching
+ * 
+ * REFACTORED: Now uses PrayerTimesService as single source of truth
+ * All location, geocoding, and prayer times logic has been moved to the service
  */
 
-import { unifiedCache, CACHE_NAMESPACES, CACHE_DEFAULT_TTL, LOCATION_PRECISION } from './unified-cache.js';
+import { prayerTimesService, LOCATION_QUALITY } from './prayer-times-service.js';
 
-// Dark Mode Toggle Functionality
+// ============================================================================
+// Dark Mode Toggle
+// ============================================================================
+
 const DARK_MODE_KEY = 'darkMode';
-
-// Geolocation configuration
-const GEOLOCATION_OPTIONS = {
-  enableHighAccuracy: false,
-  timeout: 10000,
-  maximumAge: 0               // Always get fresh position (don't use browser cache)
-};
-
-// CORS proxy fallbacks for geocoding
-const CORS_PROXIES = [
-  'https://corsproxy.io/?',
-  'https://api.allorigins.win/raw?url='
-];
-
-// Default fallback location (Jakarta)
-const DEFAULT_LOCATION = {
-  latitude: -6.2088,
-  longitude: 106.8456,
-  city: "Jakarta",
-  country: "Indonesia"
-};
 
 function initDarkMode() {
   const adminSeal = document.querySelector('.admin-seal');
@@ -48,6 +32,10 @@ function initDarkMode() {
   });
 }
 
+// ============================================================================
+// Feed Type Detection
+// ============================================================================
+
 /**
  * Parse URL parameters to determine feed type
  */
@@ -64,6 +52,10 @@ function getFeedType() {
   }
   return { type: 'global', name: 'Global Feed' };
 }
+
+// ============================================================================
+// Feed Header
+// ============================================================================
 
 /**
  * Update feed header based on feed type
@@ -87,6 +79,13 @@ function updateFeedHeader() {
   }
 }
 
+// ============================================================================
+// Prayer Times Widget
+// ============================================================================
+
+let widgetUpdateInterval = null;
+let unsubscribeFromService = null;
+
 /**
  * Initialize prayer times widget
  */
@@ -106,22 +105,22 @@ async function initPrayerTimesWidget() {
   `;
 
   try {
-    // Initialize unified cache
-    await unifiedCache.init();
+    // Subscribe to service updates
+    unsubscribeFromService = prayerTimesService.subscribe((state, event) => {
+      handleWidgetUpdate(state, event, widgetElement);
+    });
 
-    // Get user's location
-    const location = await getLocation();
+    // Initialize the service (if not already initialized)
+    await prayerTimesService.init();
 
-    // Fetch prayer times (with caching)
-    const prayerTimes = await fetchPrayerTimes(location);
+    // Initial render
+    renderWidget();
 
-    // Render widget
-    renderWidget(location, prayerTimes);
-
-    // Update every second
-    setInterval(() => {
-      renderWidget(location, prayerTimes);
+    // Setup update interval for clock (every second)
+    widgetUpdateInterval = setInterval(() => {
+      renderWidget();
     }, 1000);
+
   } catch (error) {
     console.error('Error initializing prayer times widget:', error);
     widgetElement.innerHTML = '<p class="text-center prayer-error">Unable to load prayer times.</p>';
@@ -129,427 +128,103 @@ async function initPrayerTimesWidget() {
 }
 
 /**
- * Get cache key for prayer times
+ * Handle updates from PrayerTimesService
+ * @param {Object} state - Service state
+ * @param {string} event - Event type
+ * @param {HTMLElement} widgetElement - Widget element
  */
-function getPrayerCacheKey(location) {
-  if (!location) return null;
-  
-  const today = new Date();
-  const dateStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-  
-  return unifiedCache.generateLocationKey(
-    CACHE_NAMESPACES.PRAYER_TIMES,
-    location.latitude,
-    location.longitude,
-    dateStr
-  );
-}
-
-/**
- * Get cached prayer times for today
- */
-async function getCachedPrayerTimes(location) {
-  const cacheKey = getPrayerCacheKey(location);
-  if (!cacheKey) return null;
-
-  try {
-    const cached = await unifiedCache.get(cacheKey);
-    if (cached) {
-      const cacheDate = new Date(cached.date);
-      const today = new Date();
-      if (cacheDate.toDateString() === today.toDateString()) {
-        return cached.prayerTimes;
-      }
-    }
-  } catch (error) {
-    console.warn('Error reading prayer cache:', error);
-  }
-  return null;
-}
-
-/**
- * Cache prayer times for today
- */
-async function cachePrayerTimes(location, prayerTimes) {
-  const cacheKey = getPrayerCacheKey(location);
-  if (!cacheKey) return;
-
-  try {
-    const data = {
-      date: new Date().toISOString(),
-      prayerTimes: prayerTimes,
-      location: {
-        latitude: location.latitude,
-        longitude: location.longitude
-      }
-    };
-
-    const now = new Date();
-    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    const ttl = endOfDay.getTime() - now.getTime();
-
-    await unifiedCache.set(cacheKey, data, ttl);
-  } catch (error) {
-    console.warn('Error writing prayer cache:', error);
-  }
-}
-
-/**
- * Fetch city name using reverse geocoding with fallback proxies
- */
-async function fetchCityName(location) {
-  if (!location || location.isFallback) return;
-
-  // Check geocoding cache first
-  const geocodingCacheKey = unifiedCache.generateLocationKey(
-    CACHE_NAMESPACES.GEOCODING,
-    location.latitude,
-    location.longitude
-  );
-
-  try {
-    const cachedGeocoding = await unifiedCache.get(geocodingCacheKey);
-    if (cachedGeocoding) {
-      location.city = cachedGeocoding.city;
-      location.country = cachedGeocoding.country;
-      return;
-    }
-  } catch (error) {
-    console.warn('Error reading geocoding cache:', error);
-  }
-
-  // Try each CORS proxy
-  const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.latitude}&lon=${location.longitude}`;
-
-  for (const proxy of CORS_PROXIES) {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-      const response = await fetch(
-        `${proxy}${encodeURIComponent(nominatimUrl)}`,
-        { signal: controller.signal }
-      );
-      
-      clearTimeout(timeoutId);
-
-      if (!response.ok) continue;
-
-      const data = await response.json();
-      
-      location.city =
-        data.address.city ||
-        data.address.town ||
-        data.address.village ||
-        data.address.county ||
-        "Unknown";
-      location.country = data.address.country || "Unknown";
-
-      // Cache the geocoding result
-      await unifiedCache.set(
-        geocodingCacheKey,
-        { city: location.city, country: location.country },
-        CACHE_DEFAULT_TTL.GEOCODING
-      );
-
-      return;
-    } catch (error) {
-      console.warn(`Geocoding proxy ${proxy} failed:`, error);
-    }
-  }
-
-  // All proxies failed
-  console.warn('All geocoding proxies failed');
-  location.city = "Unknown";
-  location.country = "Unknown";
-}
-
-/**
- * Get user's geolocation with proper error handling
- * Uses cached location if available to avoid repeated GPS requests
- */
-async function getLocation() {
-  // First, try to get cached location
-  const locationCacheKey = unifiedCache.generateKey(CACHE_NAMESPACES.LOCATION, 'current');
-  
-  try {
-    const cachedLocation = await unifiedCache.get(locationCacheKey);
-    if (cachedLocation && !cachedLocation.isFallback) {
-      console.log('Using cached location:', cachedLocation);
-      return cachedLocation;
-    }
-  } catch (error) {
-    console.warn('Error reading location cache:', error);
-  }
-
-  // No valid cache, request from GPS
-  return new Promise((resolve) => {
-    if (!navigator.geolocation) {
-      console.warn('Geolocation is not supported by this browser');
-      resolve({ ...DEFAULT_LOCATION, isFallback: true });
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const location = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          isFallback: false
-        };
-
-        // Fetch city name
-        await fetchCityName(location);
-
-        // Cache the location
-        await unifiedCache.set(locationCacheKey, location, CACHE_DEFAULT_TTL.LOCATION);
-
-        resolve(location);
-      },
-      async (error) => {
-        // Handle specific error types
-        let errorMessage = 'Unknown location error';
-        
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            errorMessage = 'Permission denied';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage = 'Position unavailable';
-            break;
-          case error.TIMEOUT:
-            errorMessage = 'Location request timed out';
-            break;
-          default:
-            errorMessage = error.message || 'Unknown error';
-        }
-
-        console.warn(`Geolocation failed (${errorMessage}), using fallback:`, error);
-
-        // Try to get expired cache as fallback before using Jakarta
-        try {
-          const expiredCache = await getExpiredLocationCache(locationCacheKey);
-          if (expiredCache && !expiredCache.isFallback) {
-            console.log('Using expired cache as fallback:', expiredCache);
-            resolve(expiredCache);
-            return;
-          }
-        } catch (cacheError) {
-          console.warn('Error reading expired cache:', cacheError);
-        }
-
-        resolve({ ...DEFAULT_LOCATION, isFallback: true });
-      },
-      GEOLOCATION_OPTIONS
-    );
-  });
-}
-
-/**
- * Get expired location cache (ignoring TTL)
- * @param {string} cacheKey - Cache key
- * @returns {Promise<Object|null>} Expired cached location or null
- */
-async function getExpiredLocationCache(cacheKey) {
-  try {
-    // Access the IndexedDB directly to get expired cache
-    if (!unifiedCache.idbCache || !unifiedCache.idbCache.db) {
-      return null;
-    }
-    
-    const db = unifiedCache.idbCache.db;
-    
-    return new Promise((resolve) => {
-      const transaction = db.transaction(['cache'], 'readonly');
-      const store = transaction.objectStore('cache');
-      const request = store.get(cacheKey);
-
-      request.onsuccess = () => {
-        const result = request.result;
-        if (result && result.value) {
-          resolve(result.value);
-        } else {
-          resolve(null);
-        }
-      };
-
-      request.onerror = () => {
-        resolve(null);
-      };
-    });
-  } catch (error) {
-    return null;
-  }
-}
-
-/**
- * Fetch prayer times from Aladhan API with caching
- */
-async function fetchPrayerTimes(location) {
-  // Try to get cached prayer times first
-  const cached = await getCachedPrayerTimes(location);
-  if (cached) {
-    return cached;
-  }
-
-  // If no cache, fetch from API
-  const today = new Date();
-  const date = today.getDate();
-  const month = today.getMonth() + 1;
-  const year = today.getFullYear();
-
-  const url = `https://api.aladhan.com/v1/timings/${date}-${month}-${year}?latitude=${location.latitude}&longitude=${location.longitude}&method=20`;
-
-  const response = await fetch(url);
-  const data = await response.json();
-
-  if (data.code === 200 && data.data) {
-    const prayerTimes = {
-      Fajr: data.data.timings.Fajr,
-      Dhuhr: data.data.timings.Dhuhr,
-      Asr: data.data.timings.Asr,
-      Maghrib: data.data.timings.Maghrib,
-      Isha: data.data.timings.Isha,
-    };
-    // Cache the prayer times
-    await cachePrayerTimes(location, prayerTimes);
-    return prayerTimes;
-  }
-  throw new Error('Failed to fetch prayer times');
-}
-
-/**
- * Calculate next prayer
- */
-function calculateNextPrayer(prayerTimes) {
-  const now = new Date();
-  const currentTime = now.getHours() * 60 + now.getMinutes();
-
-  const prayers = [
-    { name: 'Fajr', time: prayerTimes.Fajr },
-    { name: 'Dhuhr', time: prayerTimes.Dhuhr },
-    { name: 'Asr', time: prayerTimes.Asr },
-    { name: 'Maghrib', time: prayerTimes.Maghrib },
-    { name: 'Isha', time: prayerTimes.Isha },
-  ];
-
-  const prayerMinutes = prayers.map((prayer) => {
-    const [hours, minutes] = prayer.time.split(':').map(Number);
-    return {
-      name: prayer.name,
-      time: prayer.time,
-      minutes: hours * 60 + minutes,
-    };
-  });
-
-  let nextPrayer = null;
-  for (const prayer of prayerMinutes) {
-    if (prayer.minutes > currentTime) {
-      nextPrayer = prayer;
+function handleWidgetUpdate(state, event, widgetElement) {
+  switch (event) {
+    case 'loading':
+      widgetElement.innerHTML = `
+        <div class="prayer-widget-header">
+          <h3 class="prayer-widget-title">Prayer Time Widget</h3>
+        </div>
+        <div class="prayer-widget-loading">
+          <span class="loading-spinner"></span>
+          <span>Updating...</span>
+        </div>
+      `;
       break;
-    }
+    case 'error':
+      if (!state.prayerTimes) {
+        widgetElement.innerHTML = `
+          <div class="prayer-widget-header">
+            <h3 class="prayer-widget-title">Prayer Time Widget</h3>
+          </div>
+          <p class="text-center prayer-error">${state.error?.message || 'Unable to load prayer times.'}</p>
+        `;
+      }
+      break;
+    default:
+      // tick, initialized, refreshed, etc. - just re-render
+      renderWidget();
   }
-
-  if (!nextPrayer) {
-    nextPrayer = prayerMinutes[0];
-    const minutesUntilMidnight = 24 * 60 - currentTime;
-    return { nextPrayer, timeToNext: minutesUntilMidnight + nextPrayer.minutes };
-  }
-
-  return { nextPrayer, timeToNext: nextPrayer.minutes - currentTime };
-}
-
-/**
- * Format time to next prayer
- */
-function formatTimeToNextPrayer(minutes) {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-
-  if (hours > 0) {
-    return `${hours}h ${mins}m`;
-  }
-  return `${mins}m`;
-}
-
-/**
- * Format current date
- */
-function formatDate() {
-  const now = new Date();
-  return now.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
-
-/**
- * Format current time
- */
-function formatCurrentTime() {
-  const now = new Date();
-  return now.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true,
-  });
 }
 
 /**
  * Render prayer times widget
  */
-function renderWidget(location, prayerTimes) {
+function renderWidget() {
   const widgetElement = document.getElementById('prayer-times-widget');
   if (!widgetElement) return;
 
-  const currentDate = formatDate();
-  const currentTime = formatCurrentTime();
-  const { nextPrayer, timeToNext } = calculateNextPrayer(prayerTimes);
-  const timeToNextText = formatTimeToNextPrayer(timeToNext);
+  const state = prayerTimesService.getState();
+  
+  // Don't render if still loading
+  if (state.isLoading && !state.prayerTimes) {
+    return;
+  }
 
-  // Show fallback indicator if using fallback location
-  const fallbackIndicator = location.isFallback ? ' (Fallback)' : '';
-  const locationClass = location.isFallback ? 'prayer-widget-location prayer-widget-location-fallback' : 'prayer-widget-location';
+  // Don't render if error and no data
+  if (state.error && !state.prayerTimes) {
+    return;
+  }
+
+  // Check if location is fallback
+  const isFallback = state.location?.quality === LOCATION_QUALITY.FALLBACK;
+  const locationClass = isFallback ? 'prayer-widget-location prayer-widget-location-fallback' : 'prayer-widget-location';
 
   widgetElement.innerHTML = `
     <div class="prayer-widget-header">
       <h3 class="prayer-widget-title">Prayer Time Widget</h3>
     </div>
     <div class="prayer-widget-header">
-      <span class="prayer-widget-date">${currentDate}</span>
-      <span class="prayer-widget-clock">${currentTime}</span>
+      <span class="prayer-widget-date">${state.formattedDate}</span>
+      <span class="prayer-widget-clock">${state.formattedTime}</span>
     </div>
-    <div class="${locationClass}">📍 ${location.city}, ${location.country}${fallbackIndicator}</div>
+    <div class="${locationClass}">📍 ${state.formattedLocation}</div>
     <div class="prayer-widget-next">
-      <span class="prayer-widget-next-label">Next Prayer:</span> ${nextPrayer.name} (${timeToNextText})
+      <span class="prayer-widget-next-label">Next Prayer:</span> ${state.nextPrayer?.name || 'Unknown'} (${state.formattedTimeToNext || '--'})
     </div>
     <div class="prayer-widget-times">
       <div class="prayer-widget-column">
         <span class="prayer-widget-name">Fajr</span>
-        <span class="prayer-widget-time">${prayerTimes.Fajr}</span>
+        <span class="prayer-widget-time">${state.prayerTimes?.Fajr || '--:--'}</span>
       </div>
       <div class="prayer-widget-column">
         <span class="prayer-widget-name">Dhuhr</span>
-        <span class="prayer-widget-time">${prayerTimes.Dhuhr}</span>
+        <span class="prayer-widget-time">${state.prayerTimes?.Dhuhr || '--:--'}</span>
       </div>
       <div class="prayer-widget-column">
         <span class="prayer-widget-name">Asr</span>
-        <span class="prayer-widget-time">${prayerTimes.Asr}</span>
+        <span class="prayer-widget-time">${state.prayerTimes?.Asr || '--:--'}</span>
       </div>
       <div class="prayer-widget-column">
         <span class="prayer-widget-name">Maghrib</span>
-        <span class="prayer-widget-time">${prayerTimes.Maghrib}</span>
+        <span class="prayer-widget-time">${state.prayerTimes?.Maghrib || '--:--'}</span>
       </div>
       <div class="prayer-widget-column">
         <span class="prayer-widget-name">Isha</span>
-        <span class="prayer-widget-time">${prayerTimes.Isha}</span>
+        <span class="prayer-widget-time">${state.prayerTimes?.Isha || '--:--'}</span>
       </div>
     </div>
   `;
 }
+
+// ============================================================================
+// Feed Content Initialization
+// ============================================================================
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -575,7 +250,6 @@ async function initFeedContent(isBfcacheRestore = false) {
   const feedType = getFeedType();
   const widgetElement = document.getElementById('prayer-times-widget');
 
-
   if (feedType.type === 'institution') {
     await initInstitutionFeed(feedType.name, widgetElement, isBfcacheRestore);
   } else if (feedType.type === 'jurisdiction') {
@@ -596,7 +270,6 @@ async function initInstitutionFeed(institutionName, widgetElement, isBfcacheRest
   try {
     const { getInstitutionFeedConfig, getDocumentById } = await import('./config.js');
     const feedConfig = await getInstitutionFeedConfig(institutionName);
-
 
     // Show widget if enabled
     if (feedConfig?.widget?.enabled) {
@@ -648,7 +321,6 @@ async function initJurisdictionFeed(jurisdictionName, widgetElement, isBfcacheRe
     const { getJurisdictionFeedConfig, getJurisdictionCarousels } = await import('./config.js');
     const feedConfig = await getJurisdictionFeedConfig(jurisdictionName);
 
-
     // Show widget if enabled
     if (feedConfig?.widget?.enabled) {
       await initPrayerTimesWidget();
@@ -681,6 +353,10 @@ function clearCarousels() {
   const existingCarousels = feedContainer.querySelectorAll('.feed-carousel');
   existingCarousels.forEach(carousel => carousel.remove());
 }
+
+// ============================================================================
+// Carousel Rendering
+// ============================================================================
 
 /**
  * Render carousel
@@ -841,3 +517,22 @@ function initCarouselNavigation(carouselId, slideCount) {
     }
   }
 }
+
+// ============================================================================
+// Cleanup
+// ============================================================================
+
+/**
+ * Cleanup function for when leaving the page
+ */
+function cleanup() {
+  if (widgetUpdateInterval) {
+    clearInterval(widgetUpdateInterval);
+  }
+  if (unsubscribeFromService) {
+    unsubscribeFromService();
+  }
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', cleanup);
