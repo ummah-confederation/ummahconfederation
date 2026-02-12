@@ -608,7 +608,7 @@ export async function renderFeedCarousel(container) {
       groupMap.get(key).push(doc);
     });
     carouselGroups = Array.from(groupMap.entries()).map(([institution, docs]) => ({
-      title: institution.replace(/\s*\[.*?\]\s*/g, "").trim(),
+      title: docs[0]?.title || institution.replace(/\s*\[.*?\]\s*/g, "").trim(),
       sourceLabel: `Posted by ${institution.replace(/\s*\[.*?\]\s*/g, "").trim()}`,
       docs,
     }));
