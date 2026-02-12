@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build stats (regenerated on build)
+dist/stats/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local
+.env.*.local
