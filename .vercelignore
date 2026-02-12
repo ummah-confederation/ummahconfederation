@@ -1,13 +1,8 @@
-# Source files (only dist/ is needed for deployment)
-src/
+# .vercelignore
+# NOTE: Vercel removes ignored files BEFORE the build runs.
+# Do NOT exclude files needed by the build (src/, js/, rollup.config.mjs, etc.)
 
-# Build scripts and config
-scripts/
-rollup.config.mjs
-postcss.config.js
-tailwind.config.js
-
-# Build stats (development only)
+# Build stats (development only, generated during build)
 dist/stats/
 
 # Documentation and plans
@@ -16,10 +11,8 @@ md/
 *.md
 !README.md
 
-# Development files
-.git
-.gitignore
-node_modules/
+# Development-only scripts
+scripts/
 
 # Test pages
 pages/test-css.html
