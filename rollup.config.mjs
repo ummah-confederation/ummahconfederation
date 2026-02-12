@@ -49,6 +49,11 @@ const entryPoints = [
     input: 'js/feed.js',
     name: 'feed',
     statsFile: 'dist/stats/feed.html'
+  },
+  {
+    input: 'js/marquee.js',
+    name: 'marquee',
+    statsFile: 'dist/stats/marquee.html'
   }
 ];
 

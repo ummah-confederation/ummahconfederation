@@ -4,8 +4,8 @@
  * Uses cache-first strategy for static assets and network-first for API calls
  */
 
-const CACHE_NAME = 'ummah-confederation-v1.0.1';
-const RUNTIME_CACHE = 'ummah-runtime-v1.0.1';
+const CACHE_NAME = 'ummah-confederation-v1.1.0';
+const RUNTIME_CACHE = 'ummah-runtime-v1.1.0';
 
 // Assets to cache on install (static assets)
 const STATIC_CACHE_URLS = [
@@ -15,6 +15,10 @@ const STATIC_CACHE_URLS = [
   '/library.html',
   '/offline.html',
   '/dist/output.css',
+  '/dist/js/index-main.js',
+  '/dist/js/library-main.js',
+  '/dist/js/feed.js',
+  '/dist/js/marquee.js',
   '/images/admin-seal.webp',
   '/images/favicon.png'
 ];
@@ -134,9 +138,19 @@ function getCacheStrategy(url) {
     return CACHE_STRATEGIES.STALE_WHILE_REVALIDATE;
   }
 
-  // JS - network first (for development to get latest changes)
+  // Bundled JS in dist/ - cache first (immutable production builds)
+  if (pathname.startsWith('/dist/js/') && pathname.endsWith('.js')) {
+    return CACHE_STRATEGIES.CACHE_FIRST;
+  }
+
+  // Other JS (e.g., sw.js) - network first
   if (pathname.endsWith('.js')) {
     return CACHE_STRATEGIES.NETWORK_FIRST;
+  }
+
+  // Fonts - cache first (immutable)
+  if (pathname.startsWith('/fonts/') || pathname.match(/\.(woff2?|ttf|otf|eot)$/i)) {
+    return CACHE_STRATEGIES.CACHE_FIRST;
   }
 
   // Images - cache first

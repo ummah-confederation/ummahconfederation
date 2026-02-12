@@ -8,23 +8,17 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.png" />
 
     <!-- Performance: Preconnect to external resources -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://api.aladhan.com" />
     <link rel="preconnect" href="https://nominatim.openstreetmap.org" />
 
-    <!-- Performance: DNS prefetch for potential future connections -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-
     <!-- Performance: Preload critical resources -->
     <link rel="preload" href="dist/output.css" as="style" />
-    <link rel="preload" href="js/feed.js" as="script" crossorigin="anonymous" />
-    <link rel="preload" href="js/marquee.js" as="script" crossorigin="anonymous" />
+    <link rel="preload" href="dist/js/feed.js" as="script" crossorigin="anonymous" />
+    <link rel="preload" href="dist/js/marquee.js" as="script" crossorigin="anonymous" />
+    <link rel="preload" href="fonts/Spectral-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="images/admin-seal.webp" as="image" />
 
     <link rel="stylesheet" href="dist/output.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous" />
   </head>
   <body class="py-10 px-5">
     <!-- Prayer Times Marquee -->
@@ -50,8 +44,8 @@
         <!-- Widget content will be populated by JavaScript -->
       </div>
     </div>
-    <script type="module" src="js/feed.js"></script>
-    <script type="module" src="js/marquee.js"></script>
+    <script type="module" src="dist/js/feed.js"></script>
+    <script type="module" src="dist/js/marquee.js"></script>
 
     <!-- Service Worker Registration -->
     <script>

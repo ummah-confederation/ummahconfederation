@@ -1,0 +1,25 @@
+# Source files (only dist/ is needed for deployment)
+src/
+
+# Build scripts and config
+scripts/
+rollup.config.mjs
+postcss.config.js
+tailwind.config.js
+
+# Build stats (development only)
+dist/stats/
+
+# Documentation and plans
+plans/
+md/
+*.md
+!README.md
+
+# Development files
+.git
+.gitignore
+node_modules/
+
+# Test pages
+pages/test-css.html
