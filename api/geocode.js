@@ -7,7 +7,7 @@
  * Usage: GET /api/geocode?lat=<latitude>&lon=<longitude>
  */
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Only allow GET requests
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -66,4 +66,4 @@ export default async function handler(req, res) {
     console.error('Geocoding error:', error);
     return res.status(502).json({ error: 'Geocoding service unavailable' });
   }
-}
+};
