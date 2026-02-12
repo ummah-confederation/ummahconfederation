@@ -1,11 +1,8 @@
 /**
  * Configuration Module
  * 
- * Now uses Supabase as the data source instead of local JSON files.
+ * Uses Supabase as the data source.
  * Provides backward-compatible API for the rest of the codebase.
- * 
- * Set window.USE_SUPABASE = true to use Supabase (default)
- * Set window.USE_SUPABASE = false to fall back to local JSON files
  */
 
 import {
@@ -19,20 +16,10 @@ import {
   getCarouselsByInstitution,
   getCarouselsByJurisdiction,
   getSquircleIcons,
-  getSquircleIconByItemName,
   getInstitutionConfigLegacy,
   getJurisdictionConfigLegacy,
   getDocumentsConfigLegacy
 } from './supabase-client.js';
-
-// Feature flag - can be overridden via window.USE_SUPABASE
-const USE_SUPABASE = typeof window !== 'undefined' && window.USE_SUPABASE === false ? false : true;
-
-// Cache for local file fallback
-let localConfigCache = null;
-let localInstitutionConfigCache = null;
-let localJurisdictionConfigCache = null;
-let localSquircleIconsConfigCache = null;
 
 // =====================================================
 // DOCUMENT CONFIGURATION
@@ -43,26 +30,7 @@ let localSquircleIconsConfigCache = null;
  * @returns {Promise<Object>} The configuration object
  */
 export async function loadDocumentsConfig() {
-  if (USE_SUPABASE) {
-    return getDocumentsConfigLegacy();
-  }
-  
-  // Fallback to local JSON
-  if (localConfigCache) {
-    return localConfigCache;
-  }
-  
-  try {
-    const response = await fetch('config/documents-config.json');
-    if (!response.ok) {
-      throw new Error(`Failed to load config: ${response.status}`);
-    }
-    localConfigCache = await response.json();
-    return localConfigCache;
-  } catch (error) {
-    console.error('Error loading documents config:', error);
-    throw error;
-  }
+  return getDocumentsConfigLegacy();
 }
 
 /**
@@ -70,50 +38,45 @@ export async function loadDocumentsConfig() {
  * @returns {Promise<Array>} Array of document objects
  */
 export async function getDocumentsList() {
-  if (USE_SUPABASE) {
-    // Fetch both documents and carousels in parallel
-    const [docs, carousels] = await Promise.all([
-      getDocuments(),
-      getCarousels()
-    ]);
-    
-    // Transform documents to legacy format
-    const documents = docs.map(doc => ({
-      id: doc.doc_id,
-      title: doc.title,
-      item: doc.item_type,
-      institution: doc.institution?.full_name || '',
-      jurisdiction: doc.jurisdiction?.full_name || '',
-      version: doc.version,
-      date: doc.doc_date,
-      dateFormatted: formatDate(doc.doc_date),
-      visible: doc.visible,
-      // Use document-viewer.html for Supabase documents
-      filename: `document-viewer.html?doc=${doc.doc_id}`
-    }));
-    
-    // Transform carousels to Feed items (legacy format)
-    const feedItems = carousels.map(carousel => ({
-      id: `carousel-${carousel.id}`,
-      title: carousel.title,
-      item: 'Feed',
-      institution: carousel.institution?.full_name || '',
-      jurisdiction: carousel.jurisdiction?.full_name || '',
-      version: 1,
-      date: carousel.created_at,
-      dateFormatted: formatDate(carousel.created_at),
-      visible: carousel.visible,
-      carousel: {
-        images: carousel.slides?.map(s => s.image_url) || [],
-        image: carousel.slides?.[0]?.image_url || ''
-      }
-    }));
-    
-    return [...documents, ...feedItems];
-  }
+  // Fetch both documents and carousels in parallel
+  const [docs, carousels] = await Promise.all([
+    getDocuments(),
+    getCarousels()
+  ]);
   
-  const config = await loadDocumentsConfig();
-  return config.documents.filter(doc => doc.visible !== false);
+  // Transform documents to legacy format
+  const documents = docs.map(doc => ({
+    id: doc.doc_id,
+    title: doc.title,
+    item: doc.item_type,
+    institution: doc.institution?.full_name || '',
+    jurisdiction: doc.jurisdiction?.full_name || '',
+    version: doc.version,
+    date: doc.doc_date,
+    dateFormatted: formatDate(doc.doc_date),
+    visible: doc.visible,
+    // Use document-viewer.html for Supabase documents
+    filename: `document-viewer.html?doc=${doc.doc_id}`
+  }));
+  
+  // Transform carousels to Feed items (legacy format)
+  const feedItems = carousels.map(carousel => ({
+    id: `carousel-${carousel.id}`,
+    title: carousel.title,
+    item: 'Feed',
+    institution: carousel.institution?.full_name || '',
+    jurisdiction: carousel.jurisdiction?.full_name || '',
+    version: 1,
+    date: carousel.created_at,
+    dateFormatted: formatDate(carousel.created_at),
+    visible: carousel.visible,
+    carousel: {
+      images: carousel.slides?.map(s => s.image_url) || [],
+      image: carousel.slides?.[0]?.image_url || ''
+    }
+  }));
+  
+  return [...documents, ...feedItems];
 }
 
 /**
@@ -122,31 +85,26 @@ export async function getDocumentsList() {
  * @returns {Promise<Object|null>} The document object or null
  */
 export async function getDocumentById(documentId) {
-  if (USE_SUPABASE) {
-    const doc = await getDocumentByDocId(documentId);
-    if (!doc) return null;
-    
-    // Generate filename based on item type and doc_id
-    const itemFolder = doc.item_type?.toLowerCase() + 's'; // books, policies, etc.
-    const filename = `pages/${itemFolder}/${doc.doc_id}.html`;
-    
-    return {
-      id: doc.doc_id,
-      title: doc.title,
-      item: doc.item_type,
-      institution: doc.institution?.full_name || '',
-      jurisdiction: doc.jurisdiction?.full_name || '',
-      version: doc.version,
-      date: doc.doc_date,
-      dateFormatted: formatDate(doc.doc_date),
-      visible: doc.visible,
-      content: doc.content,
-      filename: filename
-    };
-  }
+  const doc = await getDocumentByDocId(documentId);
+  if (!doc) return null;
   
-  const config = await loadDocumentsConfig();
-  return config.documents.find(doc => doc.id === documentId) || null;
+  // Generate filename based on item type and doc_id
+  const itemFolder = doc.item_type?.toLowerCase() + 's'; // books, policies, etc.
+  const filename = `pages/${itemFolder}/${doc.doc_id}.html`;
+  
+  return {
+    id: doc.doc_id,
+    title: doc.title,
+    item: doc.item_type,
+    institution: doc.institution?.full_name || '',
+    jurisdiction: doc.jurisdiction?.full_name || '',
+    version: doc.version,
+    date: doc.doc_date,
+    dateFormatted: formatDate(doc.doc_date),
+    visible: doc.visible,
+    content: doc.content,
+    filename: filename
+  };
 }
 
 // =====================================================
@@ -158,26 +116,7 @@ export async function getDocumentById(documentId) {
  * @returns {Promise<Object>} The institution configuration object
  */
 export async function loadInstitutionConfig() {
-  if (USE_SUPABASE) {
-    return getInstitutionConfigLegacy();
-  }
-  
-  // Fallback to local JSON
-  if (localInstitutionConfigCache) {
-    return localInstitutionConfigCache;
-  }
-  
-  try {
-    const response = await fetch('config/institution-config.json');
-    if (!response.ok) {
-      throw new Error(`Failed to load institution config: ${response.status}`);
-    }
-    localInstitutionConfigCache = await response.json();
-    return localInstitutionConfigCache;
-  } catch (error) {
-    console.error('Error loading institution config:', error);
-    return { institutions: {} };
-  }
+  return getInstitutionConfigLegacy();
 }
 
 /**
@@ -186,31 +125,26 @@ export async function loadInstitutionConfig() {
  * @returns {Promise<Object|null>} The institution metadata or null
  */
 export async function getInstitutionMetadata(institutionName) {
-  if (USE_SUPABASE) {
-    const inst = await getInstitutionByFullName(institutionName);
-    if (!inst) return null;
-    
-    return {
-      avatar: inst.avatar_url,
-      cover: inst.cover_url,
-      bio: inst.bio,
-      contact: {
-        email: inst.contact_email,
-        phone: inst.contact_phone,
-        address: inst.contact_address,
-        website: inst.contact_website
-      },
-      feed_config: {
-        widget: {
-          enabled: inst.feed_widget_enabled,
-          type: inst.feed_widget_type
-        }
-      }
-    };
-  }
+  const inst = await getInstitutionByFullName(institutionName);
+  if (!inst) return null;
   
-  const config = await loadInstitutionConfig();
-  return config.institutions?.[institutionName] || null;
+  return {
+    avatar: inst.avatar_url,
+    cover: inst.cover_url,
+    bio: inst.bio,
+    contact: {
+      email: inst.contact_email,
+      phone: inst.contact_phone,
+      address: inst.contact_address,
+      website: inst.contact_website
+    },
+    feed_config: {
+      widget: {
+        enabled: inst.feed_widget_enabled,
+        type: inst.feed_widget_type
+      }
+    }
+  };
 }
 
 /**
@@ -242,26 +176,7 @@ export async function getInstitutionFeedConfig(institutionName) {
  * @returns {Promise<Object>} The jurisdiction configuration object
  */
 export async function loadJurisdictionConfig() {
-  if (USE_SUPABASE) {
-    return getJurisdictionConfigLegacy();
-  }
-  
-  // Fallback to local JSON
-  if (localJurisdictionConfigCache) {
-    return localJurisdictionConfigCache;
-  }
-  
-  try {
-    const response = await fetch('config/jurisdiction-config.json');
-    if (!response.ok) {
-      throw new Error(`Failed to load jurisdiction config: ${response.status}`);
-    }
-    localJurisdictionConfigCache = await response.json();
-    return localJurisdictionConfigCache;
-  } catch (error) {
-    console.error('Error loading jurisdiction config:', error);
-    return { jurisdictions: {} };
-  }
+  return getJurisdictionConfigLegacy();
 }
 
 /**
@@ -270,25 +185,20 @@ export async function loadJurisdictionConfig() {
  * @returns {Promise<Object|null>} The jurisdiction metadata or null
  */
 export async function getJurisdictionMetadata(jurisdictionName) {
-  if (USE_SUPABASE) {
-    const jur = await getJurisdictionByFullName(jurisdictionName);
-    if (!jur) return null;
-    
-    return {
-      avatar: jur.avatar_url,
-      cover: jur.cover_url,
-      bio: jur.bio,
-      feed_config: {
-        widget: {
-          enabled: jur.feed_widget_enabled,
-          type: jur.feed_widget_type
-        }
-      }
-    };
-  }
+  const jur = await getJurisdictionByFullName(jurisdictionName);
+  if (!jur) return null;
   
-  const config = await loadJurisdictionConfig();
-  return config.jurisdictions?.[jurisdictionName] || null;
+  return {
+    avatar: jur.avatar_url,
+    cover: jur.cover_url,
+    bio: jur.bio,
+    feed_config: {
+      widget: {
+        enabled: jur.feed_widget_enabled,
+        type: jur.feed_widget_type
+      }
+    }
+  };
 }
 
 /**
@@ -334,37 +244,18 @@ export async function getItems() {
  * @returns {Promise<Object>} The squircle icons configuration object
  */
 export async function loadSquircleIconsConfig() {
-  if (USE_SUPABASE) {
-    const icons = await getSquircleIcons();
-    return {
-      version: '2.0.0',
-      icons: icons.reduce((acc, icon) => {
-        acc[icon.item_name] = {
-          emoji: icon.emoji,
-          icon_url: icon.icon_url,
-          icon_svg: icon.icon_svg
-        };
-        return acc;
-      }, {})
-    };
-  }
-  
-  // Fallback to local JSON
-  if (localSquircleIconsConfigCache) {
-    return localSquircleIconsConfigCache;
-  }
-  
-  try {
-    const response = await fetch('config/squircle-icons-config.json');
-    if (!response.ok) {
-      throw new Error(`Failed to load squircle icons config: ${response.status}`);
-    }
-    localSquircleIconsConfigCache = await response.json();
-    return localSquircleIconsConfigCache;
-  } catch (error) {
-    console.error('Error loading squircle icons config:', error);
-    return { icons: {} };
-  }
+  const icons = await getSquircleIcons();
+  return {
+    version: '2.0.0',
+    icons: icons.reduce((acc, icon) => {
+      acc[icon.item_name] = {
+        emoji: icon.emoji,
+        icon_url: icon.icon_url,
+        icon_svg: icon.icon_svg
+      };
+      return acc;
+    }, {})
+  };
 }
 
 /**
@@ -388,70 +279,44 @@ export async function getSquircleIconMetadata(itemName) {
  * @returns {Promise<Array>} Array of Feed document objects
  */
 export async function getFeedDocuments(profileType, profileName) {
-  if (USE_SUPABASE) {
-    let carousels;
-    if (profileType === 'institution') {
-      carousels = await getCarouselsByInstitution(profileName);
-    } else {
-      carousels = await getCarouselsByJurisdiction(profileName);
-    }
-    
-    // Transform to legacy format and resolve linked documents
-    const resolved = await Promise.all(
-      carousels.map(async (carousel) => {
-        // Resolve linked document for the first slide
-        const firstSlide = carousel.slides?.[0];
-        let linkedDocument = null;
-        if (firstSlide?.linked_document?.doc_id) {
-          linkedDocument = await getDocumentById(firstSlide.linked_document.doc_id);
-        }
-        
-        return {
-          id: `carousel-${carousel.id}`,
-          title: carousel.title,
-          item: 'Feed',
-          institution: carousel.institution?.full_name || '',
-          jurisdiction: carousel.jurisdiction?.full_name || '',
-          version: 1,
-          date: carousel.created_at,
-          dateFormatted: formatDate(carousel.created_at),
-          visible: carousel.visible,
-          carousel: {
-            images: carousel.slides?.map(s => s.image_url) || [],
-            image: carousel.slides?.[0]?.image_url || '', // First image for compatibility
-            linked_document_id: firstSlide?.linked_document?.doc_id || null
-          },
-          slides: carousel.slides,
-          linkedDocument: linkedDocument ? {
-            id: linkedDocument.id,
-            title: linkedDocument.title,
-            filename: linkedDocument.filename || `pages/${linkedDocument.item_type?.toLowerCase()}s/${linkedDocument.id}.html`
-          } : null
-        };
-      })
-    );
-    
-    return resolved;
+  let carousels;
+  if (profileType === 'institution') {
+    carousels = await getCarouselsByInstitution(profileName);
+  } else {
+    carousels = await getCarouselsByJurisdiction(profileName);
   }
   
-  // Fallback to local
-  const allDocs = await getDocumentsList();
-  const feedDocs = allDocs.filter(doc => {
-    if (doc.item !== 'Feed') return false;
-    if (profileType === 'institution') return doc.institution === profileName;
-    if (profileType === 'jurisdiction') return doc.jurisdiction === profileName;
-    return false;
-  });
-  
-  // Resolve linked documents
+  // Transform to legacy format and resolve linked documents
   const resolved = await Promise.all(
-    feedDocs.map(async (feedDoc) => {
-      const linkedDoc = feedDoc.carousel?.linked_document_id
-        ? await getDocumentById(feedDoc.carousel.linked_document_id)
-        : null;
+    carousels.map(async (carousel) => {
+      // Resolve linked document for the first slide
+      const firstSlide = carousel.slides?.[0];
+      let linkedDocument = null;
+      if (firstSlide?.linked_document?.doc_id) {
+        linkedDocument = await getDocumentById(firstSlide.linked_document.doc_id);
+      }
+      
       return {
-        ...feedDoc,
-        linkedDocument: linkedDoc
+        id: `carousel-${carousel.id}`,
+        title: carousel.title,
+        item: 'Feed',
+        institution: carousel.institution?.full_name || '',
+        jurisdiction: carousel.jurisdiction?.full_name || '',
+        version: 1,
+        date: carousel.created_at,
+        dateFormatted: formatDate(carousel.created_at),
+        visible: carousel.visible,
+        carousel: {
+          images: carousel.slides?.map(s => s.image_url) || [],
+          image: carousel.slides?.[0]?.image_url || '', // First image for compatibility
+          linked_document_id: firstSlide?.linked_document?.doc_id || null
+        },
+        slides: carousel.slides,
+        linkedDocument: linkedDocument ? {
+          id: linkedDocument.id,
+          title: linkedDocument.title,
+          filename: linkedDocument.filename || `pages/${linkedDocument.item_type?.toLowerCase()}s/${linkedDocument.id}.html`
+        } : null
       };
     })
   );
@@ -500,26 +365,9 @@ export async function preloadAllConfigs() {
   };
 }
 
-/**
- * Clear all caches
- */
-export function clearConfigCache() {
-  localConfigCache = null;
-  localInstitutionConfigCache = null;
-  localJurisdictionConfigCache = null;
-  localSquircleIconsConfigCache = null;
-}
-
 // =====================================================
 // BACKWARD COMPATIBILITY RE-EXPORTS
 // =====================================================
 // Re-export functions from supabase-client.js for backward compatibility
-// These are imported at the top of this file and re-exported here
 
 export { getInstitutions, getJurisdictions, getDocuments };
-
-// Expose utilities globally for development
-if (typeof window !== 'undefined') {
-  window.clearConfigCache = clearConfigCache;
-  window.USE_SUPABASE = USE_SUPABASE;
-}
