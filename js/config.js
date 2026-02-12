@@ -87,7 +87,9 @@ export async function getDocumentsList() {
       version: doc.version,
       date: doc.doc_date,
       dateFormatted: formatDate(doc.doc_date),
-      visible: doc.visible
+      visible: doc.visible,
+      // Use document-viewer.html for Supabase documents
+      filename: `document-viewer.html?doc=${doc.doc_id}`
     }));
     
     // Transform carousels to Feed items (legacy format)

@@ -74,12 +74,12 @@ function getDocumentIdFromUrl() {
 
 /**
  * Render document content
- * @param {Object} document - Document object from Supabase
+ * @param {Object} doc - Document object from Supabase
  */
-function renderDocument(document) {
-  const loadingState = document.getElementById('loading-state');
-  const errorState = document.getElementById('error-state');
-  const documentBody = document.getElementById('document-body');
+function renderDocument(doc) {
+  const loadingState = window.document.getElementById('loading-state');
+  const errorState = window.document.getElementById('error-state');
+  const documentBody = window.document.getElementById('document-body');
   
   // Hide loading and error states
   loadingState.classList.add('hidden');
@@ -89,14 +89,14 @@ function renderDocument(document) {
   documentBody.classList.remove('hidden');
   
   // Build document HTML
-  const html = buildDocumentHtml(document);
+  const html = buildDocumentHtml(doc);
   documentBody.innerHTML = html;
   
   // Initialize dark mode toggle on admin seal
   initAdminSealToggle();
   
   // Update page title
-  document.title = `DAARUSSALAAM — ${document.title}`;
+  window.document.title = `DAARUSSALAAM — ${doc.title}`;
 }
 
 /**
@@ -172,9 +172,9 @@ function getAdminSealUrl() {
  * @param {string} message - Error message
  */
 function showError(message) {
-  const loadingState = document.getElementById('loading-state');
-  const errorState = document.getElementById('error-state');
-  const errorDetails = document.getElementById('error-details');
+  const loadingState = window.document.getElementById('loading-state');
+  const errorState = window.document.getElementById('error-state');
+  const errorDetails = window.document.getElementById('error-details');
   
   loadingState.classList.add('hidden');
   errorState.classList.remove('hidden');
@@ -217,14 +217,14 @@ function escapeHtml(str) {
  * Initialize dark mode toggle on admin seal click
  */
 function initAdminSealToggle() {
-  const adminSeal = document.querySelector('.admin-seal');
+  const adminSeal = window.document.querySelector('.admin-seal');
   if (!adminSeal) return;
   
   const DARK_MODE_KEY = 'darkMode';
   
   adminSeal.addEventListener('click', () => {
-    document.documentElement.classList.toggle('dark');
-    const isDark = document.documentElement.classList.contains('dark');
+    window.document.documentElement.classList.toggle('dark');
+    const isDark = window.document.documentElement.classList.contains('dark');
     localStorage.setItem(DARK_MODE_KEY, isDark);
   });
 }
@@ -234,4 +234,4 @@ function initAdminSealToggle() {
 // =====================================================
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', initDocumentViewer);
+window.document.addEventListener('DOMContentLoaded', initDocumentViewer);
