@@ -755,6 +755,30 @@ function initCarouselNavigation(carouselId, slideCount) {
   let currentIndex = 0;
   let autoPlayInterval;
 
+  // Dynamic button visibility based on slide count and current position
+  function updateButtonVisibility() {
+    // If only 1 slide, hide both buttons
+    if (slideCount <= 1) {
+      prevBtn.classList.add("hidden");
+      nextBtn.classList.add("hidden");
+      return;
+    }
+
+    // On first slide, hide prev button; otherwise show it
+    if (currentIndex === 0) {
+      prevBtn.classList.add("hidden");
+    } else {
+      prevBtn.classList.remove("hidden");
+    }
+
+    // On last slide, hide next button; otherwise show it
+    if (currentIndex === slideCount - 1) {
+      nextBtn.classList.add("hidden");
+    } else {
+      nextBtn.classList.remove("hidden");
+    }
+  }
+
   function updateCaption(index) {
     if (!captionEl || !slides[index]) return;
     const slide = slides[index];
@@ -764,8 +788,9 @@ function initCarouselNavigation(carouselId, slideCount) {
   }
 
   function goToSlide(index) {
-    if (index < 0) index = slideCount - 1;
-    if (index >= slideCount) index = 0;
+    // Clamp index to valid range (no wrapping for dynamic buttons)
+    if (index < 0) index = 0;
+    if (index >= slideCount) index = slideCount - 1;
     currentIndex = index;
     track.style.transform = `translateX(-${currentIndex * 100}%)`;
 
@@ -774,15 +799,23 @@ function initCarouselNavigation(carouselId, slideCount) {
     });
 
     updateCaption(currentIndex);
+    updateButtonVisibility();
   }
 
   function nextSlide() {
-    goToSlide(currentIndex + 1);
+    if (currentIndex < slideCount - 1) {
+      goToSlide(currentIndex + 1);
+    }
   }
 
   function prevSlide() {
-    goToSlide(currentIndex - 1);
+    if (currentIndex > 0) {
+      goToSlide(currentIndex - 1);
+    }
   }
+
+  // Initialize button visibility on load
+  updateButtonVisibility();
 
   prevBtn.addEventListener("click", () => {
     prevSlide();
@@ -802,7 +835,10 @@ function initCarouselNavigation(carouselId, slideCount) {
   });
 
   function startAutoPlay() {
-    autoPlayInterval = setInterval(nextSlide, 5000);
+    // Only autoplay if there's more than 1 slide
+    if (slideCount > 1) {
+      autoPlayInterval = setInterval(nextSlide, 5000);
+    }
   }
 
   function stopAutoPlay() {
