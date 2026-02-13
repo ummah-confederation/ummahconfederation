@@ -170,12 +170,15 @@ async function renderContentGallery(items) {
     iconMetadataLowerMap[key.toLowerCase()] = iconMetadataMap[key];
   });
 
-  for (const item of items) {
+  // Filter out "Feed" items - Feed should only be accessible from profile pages
+  const filteredItems = items.filter(item => item.toLowerCase() !== 'feed');
+
+  for (const item of filteredItems) {
     const link = document.createElement('a');
     link.href = buildFilterUrl('item', item);
     link.className = 'squircle-item';
 
-  
+   
    
   const emoji =
    iconMetadataMap[item]?.emoji ||

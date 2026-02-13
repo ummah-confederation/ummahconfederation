@@ -72,6 +72,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const urlFilteredDocs = filterDocuments(allDocuments, urlFilters);
   let docs = urlFilteredDocs;
 
+  // In non-profile mode, exclude Feed items - Feed should only be accessible from profile pages
+  if (!profileInfo) {
+    docs = docs.filter(doc => doc.item !== "Feed");
+  }
+
   if (profileInfo) {
     // 2️⃣ Initialize profile UI
     await initializeProfileUI(async () => {

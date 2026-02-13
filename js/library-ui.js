@@ -238,6 +238,11 @@ export async function initializeLibrary(urlFilters = {}, profileInfo = null) {
       // Filter documents
       currentDocuments = filterDocuments(allDocuments, urlFilters);
 
+      // In non-profile mode, exclude Feed items - Feed should only be accessible from profile pages
+      if (!isProfileMode) {
+        currentDocuments = currentDocuments.filter(doc => doc.item !== "Feed");
+      }
+
       // Sort by default
       currentDocuments = sortDocuments(currentDocuments, currentSort);
     }
