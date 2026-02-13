@@ -88,10 +88,6 @@ export async function getDocumentById(documentId) {
   const doc = await getDocumentByDocId(documentId);
   if (!doc) return null;
   
-  // Generate filename based on item type and doc_id
-  const itemFolder = doc.item_type?.toLowerCase() + 's'; // books, policies, etc.
-  const filename = `pages/${itemFolder}/${doc.doc_id}.html`;
-  
   return {
     id: doc.doc_id,
     title: doc.title,
@@ -103,7 +99,7 @@ export async function getDocumentById(documentId) {
     dateFormatted: formatDate(doc.doc_date),
     visible: doc.visible,
     content: doc.content,
-    filename: filename
+    filename: `document-viewer.html?doc=${doc.doc_id}`
   };
 }
 
@@ -315,7 +311,7 @@ export async function getFeedDocuments(profileType, profileName) {
         linkedDocument: linkedDocument ? {
           id: linkedDocument.id,
           title: linkedDocument.title,
-          filename: linkedDocument.filename || `pages/${linkedDocument.item_type?.toLowerCase()}s/${linkedDocument.id}.html`
+          filename: `document-viewer.html?doc=${linkedDocument.id}`
         } : null
       };
     })

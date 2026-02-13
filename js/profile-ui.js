@@ -674,7 +674,7 @@ export async function renderFeedCarousel(container) {
           slides.push({
             caption: slide.linked_document?.title || feedDoc.title || "Untitled",
             docLink: slide.linked_document?.doc_id 
-              ? `pages/${slide.linked_document.doc_id}.html` 
+              ? `document-viewer.html?doc=${slide.linked_document.doc_id}` 
               : "#",
             imageUrl: slide.image_url || "",
             index: slides.length
@@ -703,15 +703,15 @@ export async function renderFeedCarousel(container) {
             ${slides
               .map(
                 (slide) => `
-              <div class="carousel-slide">
+              <div class="carousel-slide" data-caption="${escapeHtml(slide.caption)}" data-link="${escapeHtml(slide.docLink)}">
                 <img src="${escapeHtml(slide.imageUrl)}" alt="${escapeHtml(slide.caption)}" loading="${slide.index === 0 ? "eager" : "lazy"}" decoding="async" fetchpriority="${slide.index === 0 ? "high" : "auto"}">
-                <div class="carousel-caption">
-                  <a href="${escapeHtml(slide.docLink)}" class="carousel-caption-link">${escapeHtml(slide.caption)}</a>
-                </div>
               </div>
             `,
               )
               .join("")}
+          </div>
+          <div class="carousel-caption" id="${carouselId}-caption">
+            <a href="${escapeHtml(slides[0]?.docLink || "#")}" class="carousel-caption-link">${escapeHtml(slides[0]?.caption || "Untitled")}</a>
           </div>
           <button class="carousel-nav prev" aria-label="Previous slide">‹</button>
           <button class="carousel-nav next" aria-label="Next slide">›</button>
@@ -746,12 +746,22 @@ function initCarouselNavigation(carouselId, slideCount) {
   if (!carousel) return;
 
   const track = document.getElementById(`${carouselId}-track`);
+  const captionEl = document.getElementById(`${carouselId}-caption`);
   const prevBtn = carousel.querySelector(".carousel-nav.prev");
   const nextBtn = carousel.querySelector(".carousel-nav.next");
   const indicators = carousel.querySelectorAll(".carousel-indicator");
+  const slides = track.querySelectorAll(".carousel-slide");
 
   let currentIndex = 0;
   let autoPlayInterval;
+
+  function updateCaption(index) {
+    if (!captionEl || !slides[index]) return;
+    const slide = slides[index];
+    const caption = slide.dataset.caption || "Untitled";
+    const link = slide.dataset.link || "#";
+    captionEl.innerHTML = `<a href="${escapeHtml(link)}" class="carousel-caption-link">${escapeHtml(caption)}</a>`;
+  }
 
   function goToSlide(index) {
     if (index < 0) index = slideCount - 1;
@@ -762,6 +772,8 @@ function initCarouselNavigation(carouselId, slideCount) {
     indicators.forEach((indicator, i) => {
       indicator.classList.toggle("active", i === currentIndex);
     });
+
+    updateCaption(currentIndex);
   }
 
   function nextSlide() {

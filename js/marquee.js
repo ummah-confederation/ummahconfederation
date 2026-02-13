@@ -31,12 +31,6 @@ class Marquee {
       return;
     }
 
-    // Add click handler for navigation to feed page
-    this.marqueeElement.style.cursor = "pointer";
-    this.marqueeElement.addEventListener("click", () => {
-      this.navigateToFeed();
-    });
-
     try {
       // Get feed type and entity name from URL
       this.getFeedContext();
@@ -368,12 +362,12 @@ class Marquee {
     const institution = params.get('institution');
     const jurisdiction = params.get('jurisdiction');
 
-    let feedUrl = 'feed.html';
+    let feedUrl = 'widgets.html';
     
     if (institution) {
-      feedUrl = `feed.html?institution=${encodeURIComponent(institution)}`;
+      feedUrl = `widgets.html?institution=${encodeURIComponent(institution)}`;
     } else if (jurisdiction) {
-      feedUrl = `feed.html?jurisdiction=${encodeURIComponent(jurisdiction)}`;
+      feedUrl = `widgets.html?jurisdiction=${encodeURIComponent(jurisdiction)}`;
     }
 
     window.location.href = feedUrl;

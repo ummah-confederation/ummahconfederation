@@ -11,7 +11,6 @@ const RUNTIME_CACHE = 'ummah-runtime-v1.3.0';
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
-  '/feed.html',
   '/library.html',
   '/offline.html',
   '/dist/output.css',

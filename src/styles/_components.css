@@ -1903,6 +1903,7 @@ body.has-profile #main-container {
 .carousel-slide {
   min-width: 100%;
   position: relative;
+  height: 100%;
 }
 
 .carousel-slide img {
@@ -1918,7 +1919,7 @@ body.has-profile #main-container {
   left: 0;
   right: 0;
   padding: 0.75rem 1rem;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
   color: white;
   font-size: 0.875rem;
   font-weight: 500;
@@ -1926,6 +1927,7 @@ body.has-profile #main-container {
   overflow: hidden;
   text-overflow: ellipsis;
   z-index: 10;
+  pointer-events: auto;
 }
 
 /* Carousel Caption Link */
