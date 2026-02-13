@@ -173,6 +173,9 @@ export async function initializeProfileUI(onFilterChange) {
   // Render profile
   renderProfile();
   renderFilterPills();
+  
+  // Update sort controls visibility for initial filter (hide if Feed)
+  updateSortControlsVisibility(profileState.currentFilter);
 }
 
 /**
@@ -337,9 +340,28 @@ function setFilter(type) {
     btn.classList.toggle("active", btn.dataset.type === type);
   });
 
+  // Update sort controls visibility (hide for Feed filter)
+  updateSortControlsVisibility(type);
+
   // Notify callback
   if (onFilterChangeCallback) {
     onFilterChangeCallback(type);
+  }
+}
+
+/**
+ * Update sort controls visibility based on current filter
+ * @param {string} currentFilter - The current active filter
+ */
+function updateSortControlsVisibility(currentFilter) {
+  const sortControls = document.querySelector(".sort-controls-wrapper");
+  if (!sortControls) return;
+
+  // Hide sort controls when Feed filter is active (Feed is sorted by date)
+  if (currentFilter && currentFilter.toLowerCase() === "feed") {
+    sortControls.classList.add("hidden");
+  } else {
+    sortControls.classList.remove("hidden");
   }
 }
 

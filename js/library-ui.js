@@ -12,7 +12,7 @@ import {
   escapeHtml,
   showError,
 } from "./utils.js";
-import { getFilteredDocuments, detectProfileMode } from "./profile-ui.js";
+import { getFilteredDocuments, detectProfileMode, getCurrentFilter } from "./profile-ui.js";
 
 // Current sort state
 let currentSort = "name";
@@ -178,6 +178,22 @@ function updateBodyProfileClass(hasProfile) {
 }
 
 /**
+ * Update sort controls visibility based on current filter
+ * @param {string} currentFilter - The current active filter
+ */
+export function updateSortControlsVisibility(currentFilter) {
+  const sortControls = document.querySelector(".sort-controls-wrapper");
+  if (!sortControls) return;
+
+  // Hide sort controls when Feed filter is active (Feed is sorted by date)
+  if (currentFilter && currentFilter.toLowerCase() === "feed") {
+    sortControls.classList.add("hidden");
+  } else {
+    sortControls.classList.remove("hidden");
+  }
+}
+
+/**
  * Initialize the library page
  * @param {Object} urlFilters - URL-derived filters to use for context display
  * @param {Object} profileInfo - Profile mode info
@@ -197,7 +213,14 @@ export async function initializeLibrary(urlFilters = {}, profileInfo = null) {
       if (isProfileMode) {
         // Show sort controls in profile mode with appropriate buttons
         const isInstitutionProfile = detectedProfile?.type === "institution";
-        sortControls.classList.remove("hidden");
+        
+        // Check if current filter is Feed - hide sort controls if so
+        const currentFilter = getCurrentFilter();
+        if (currentFilter && currentFilter.toLowerCase() === "feed") {
+          sortControls.classList.add("hidden");
+        } else {
+          sortControls.classList.remove("hidden");
+        }
         
         // Update sort buttons for profile mode
         const sortContainer = sortControls.querySelector(".sort-controls");
