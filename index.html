@@ -60,9 +60,9 @@
           <div class="inline-flex bg-gray-100 rounded-lg p-1">
             <button
               class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all text-gray-600 hover:text-gray-900"
-              data-tab="account"
+              data-tab="space"
             >
-              Account
+              Space
             </button>
             <button
               class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all bg-white shadow-sm text-gray-900"
@@ -72,10 +72,18 @@
             </button>
             <button
               class="tab-btn px-6 py-2 rounded-md text-sm font-medium transition-all text-gray-600 hover:text-gray-900"
-              data-tab="space"
+              data-tab="account"
             >
-              Space
+              Account
             </button>
+          </div>
+        </div>
+
+        <!-- Space Tab -->
+        <div id="space-tab" class="tab-content hidden">
+          <h3 class="text-2xl font-semibold text-gray-900 mb-6">All Spaces</h3>
+          <div id="space-gallery" class="card-gallery">
+            <!-- Dynamically populated -->
           </div>
         </div>
 
@@ -93,14 +101,6 @@
             All Accounts
           </h3>
           <div id="account-gallery" class="card-gallery">
-            <!-- Dynamically populated -->
-          </div>
-        </div>
-
-        <!-- Space Tab -->
-        <div id="space-tab" class="tab-content hidden">
-          <h3 class="text-2xl font-semibold text-gray-900 mb-6">All Spaces</h3>
-          <div id="space-gallery" class="card-gallery">
             <!-- Dynamically populated -->
           </div>
         </div>
