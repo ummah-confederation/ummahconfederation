@@ -20,7 +20,7 @@ let currentDocuments = [];
 let isProfileMode = false;
 
 /**
- * Create a library row element
+ * Create a library row element (card-style layout)
  * @param {Object} doc - Document object
  * @returns {HTMLElement} Row element
  */
@@ -31,13 +31,7 @@ function createLibraryRow(doc) {
   const isProfileMode = isInstitutionProfile || isJurisdictionProfile;
 
   const row = document.createElement("div");
-
-  // Use 2-column layout for profile mode, 3-column for non-profile
-  const gridClass = isProfileMode
-    ? "library-grid-profile"
-    : "library-grid-default";
-
-  row.className = `library-row ${gridClass} gap-3 items-start border-b border-gray-200 py-2`;
+  row.className = "library-card border-b border-gray-200 py-2";
 
   row.dataset.name = doc.title;
   row.dataset.version = doc.version;
@@ -46,53 +40,62 @@ function createLibraryRow(doc) {
   row.dataset.institution = doc.institution;
   row.dataset.jurisdiction = doc.jurisdiction;
 
-  // Title cell with link
-  const titleCell = document.createElement("span");
-  titleCell.className =
-    "overflow-hidden text-ellipsis whitespace-nowrap min-w-0";
+  // Title row with link
+  const titleRow = document.createElement("div");
+  titleRow.className = "library-card-title";
   const link = document.createElement("a");
   link.href = doc.filename;
   link.textContent = doc.title;
-  link.className = "block overflow-hidden text-ellipsis whitespace-nowrap";
-  titleCell.appendChild(link);
+  link.className = "library-card-link";
+  titleRow.appendChild(link);
 
-  // Metadata cell - conditionally rendered based on profile mode
-  const metadataCell = document.createElement("span");
+  // Metadata row
+  const metadataRow = document.createElement("div");
+  metadataRow.className = "library-card-metadata";
 
   if (isInstitutionProfile) {
-    // Institution Profile: Show "Posted in {Jurisdiction Name}" (without [type]) - clickable
-    metadataCell.className =
-      "library-metadata text-right whitespace-nowrap overflow-hidden text-sm text-ellipsis shrink-0";
+    // Institution Profile: Show "Posted in {Jurisdiction Name}" - clickable
     const jurisdictionName = (doc.jurisdiction || "").replace(/\s*\[.*?\]\s*/g, "");
     const jurisdictionLink = doc.jurisdiction ? `?jurisdiction=${encodeURIComponent(doc.jurisdiction)}` : "#";
-    metadataCell.innerHTML = `<span class="sm:hidden">Posted in </span><a href="${escapeHtml(jurisdictionLink)}" class="library-profile-link">${escapeHtml(jurisdictionName)}</a>`;
+    metadataRow.innerHTML = `<span class="library-card-label">Posted in</span> <a href="${escapeHtml(jurisdictionLink)}" class="library-profile-link">${escapeHtml(jurisdictionName) || "-"}</a>`;
   } else if (isJurisdictionProfile) {
-    // Jurisdiction Profile: Show "Posted by {Institution Name}" (without [type]) - clickable
-    metadataCell.className =
-      "library-metadata text-right whitespace-nowrap overflow-hidden text-sm text-ellipsis shrink-0";
+    // Jurisdiction Profile: Show "Posted by {Institution Name}" - clickable
     const institutionName = (doc.institution || "").replace(/\s*\[.*?\]\s*/g, "");
     const institutionLink = doc.institution ? `?institution=${encodeURIComponent(doc.institution)}` : "#";
-    metadataCell.innerHTML = `<span class="sm:hidden">Posted by </span><a href="${escapeHtml(institutionLink)}" class="library-profile-link">${escapeHtml(institutionName)}</a>`;
+    metadataRow.innerHTML = `<span class="library-card-label">Posted by</span> <a href="${escapeHtml(institutionLink)}" class="library-profile-link">${escapeHtml(institutionName) || "-"}</a>`;
   } else {
-    // Non-profile mode: Show version and date (default behavior)
-    const versionCell = document.createElement("span");
-    versionCell.className = "library-version text-center text-sm   tabular-nums";
-    versionCell.innerHTML = `<span class="sm:hidden text-sm">Version </span>${doc.version}`;
-
-    const dateCell = document.createElement("span");
-    dateCell.className = "library-date text-right whitespace-nowrap";
-    dateCell.textContent = doc.dateFormatted;
-
-    row.appendChild(titleCell);
-    row.appendChild(versionCell);
-    row.appendChild(dateCell);
+    // Non-profile mode: Show both Posted In and Posted By on separate rows
+    const jurisdictionName = (doc.jurisdiction || "").replace(/\s*\[.*?\]\s*/g, "");
+    const jurisdictionLink = doc.jurisdiction ? `?jurisdiction=${encodeURIComponent(doc.jurisdiction)}` : "#";
+    const institutionName = (doc.institution || "").replace(/\s*\[.*?\]\s*/g, "");
+    const institutionLink = doc.institution ? `?institution=${encodeURIComponent(doc.institution)}` : "#";
+    
+    metadataRow.innerHTML = `
+      <span class="library-card-meta-item">
+        <span class="library-card-label">Posted in</span> 
+        <a href="${escapeHtml(jurisdictionLink)}" class="library-profile-link">${escapeHtml(jurisdictionName) || "-"}</a>
+      </span>
+    `;
+    
+    // Create separate row for Posted By
+    const postedByRow = document.createElement("div");
+    postedByRow.className = "library-card-metadata";
+    postedByRow.innerHTML = `
+      <span class="library-card-meta-item">
+        <span class="library-card-label">Posted by</span> 
+        <a href="${escapeHtml(institutionLink)}" class="library-profile-link">${escapeHtml(institutionName) || "-"}</a>
+      </span>
+    `;
+    
+    row.appendChild(titleRow);
+    row.appendChild(metadataRow);
+    row.appendChild(postedByRow);
 
     return row;
   }
 
-  // For profile mode, only append title and metadata cells
-  row.appendChild(titleCell);
-  row.appendChild(metadataCell);
+  row.appendChild(titleRow);
+  row.appendChild(metadataRow);
 
   return row;
 }
@@ -108,48 +111,10 @@ function renderLibraryTable(documents) {
     return;
   }
 
-  // Detect profile mode for header
-  const profileInfo = detectProfileMode();
-  const isInstitutionProfile = profileInfo?.type === "institution";
-  const isJurisdictionProfile = profileInfo?.type === "jurisdiction";
-  const isProfileMode = isInstitutionProfile || isJurisdictionProfile;
-
   // Clear container
   container.innerHTML = "";
 
-  // Build header based on profile mode
-  let headerHTML = "";
-
-  if (isProfileMode) {
-    const gridClass = "library-grid-profile";
-
-    if (isInstitutionProfile) {
-      headerHTML = `
-<div class="library-row library-header ${gridClass} gap-3 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
-  <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
-  <span class="text-right whitespace-nowrap">Posted in</span>
-</div>`;
-    } else {
-      headerHTML = `
-<div class="library-row library-header ${gridClass} gap-3 items-baseline text-left font-bold border-b border-black pb-1 mb-3">
-  <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
-  <span class="text-right whitespace-nowrap">Posted by</span>
-</div>`;
-    }
-  } else {
-    // Non-profile mode header
-    const gridClass = "library-grid-default";
-    headerHTML = `
-<div class="library-row library-header ${gridClass} gap-4 items-start text-left font-bold border-b border-black pb-1 mb-3">
-  <span class="overflow-hidden text-ellipsis whitespace-nowrap">Title</span>
-  <span class="text-center tabular-nums">Version</span>
-  <span class="text-right whitespace-nowrap">Updated Date</span>
-</div>`;
-  }
-
-  container.innerHTML = headerHTML;
-
-  // Add document rows
+  // Add document rows (card-style, no header needed)
   documents.forEach((doc) => {
     const row = createLibraryRow(doc);
     container.appendChild(row);
@@ -220,16 +185,35 @@ function updateBodyProfileClass(hasProfile) {
 export async function initializeLibrary(urlFilters = {}, profileInfo = null) {
   try {
     // Check if we're in profile mode
-    isProfileMode = !!profileInfo || !!detectProfileMode();
+    const detectedProfile = detectProfileMode();
+    isProfileMode = !!profileInfo || !!detectedProfile;
 
     // Update body class for UI mode styling
     updateBodyProfileClass(isProfileMode);
 
-    // Hide sort controls in profile mode
+    // Update sort controls based on mode
     const sortControls = document.querySelector(".sort-controls-wrapper");
     if (sortControls) {
       if (isProfileMode) {
-        sortControls.classList.add("hidden");
+        // Show sort controls in profile mode with appropriate buttons
+        const isInstitutionProfile = detectedProfile?.type === "institution";
+        sortControls.classList.remove("hidden");
+        
+        // Update sort buttons for profile mode
+        const sortContainer = sortControls.querySelector(".sort-controls");
+        if (sortContainer) {
+          if (isInstitutionProfile) {
+            sortContainer.innerHTML = `
+              <button data-sort="name" class="sort-btn active">Title</button>
+              <button data-sort="postedIn" class="sort-btn">Posted In</button>
+            `;
+          } else {
+            sortContainer.innerHTML = `
+              <button data-sort="name" class="sort-btn active">Title</button>
+              <button data-sort="postedBy" class="sort-btn">Posted By</button>
+            `;
+          }
+        }
       } else {
         sortControls.classList.remove("hidden");
       }
@@ -263,17 +247,15 @@ export async function initializeLibrary(urlFilters = {}, profileInfo = null) {
     updateContext(urlFilters);
     updateSortButtons(currentSort);
 
-    // Setup sort button handlers (only in non-profile mode)
-    if (!isProfileMode) {
-      document.querySelectorAll(".sort-controls button").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const sortType = btn.dataset.sort;
-          if (sortType) {
-            sortLibrary(sortType);
-          }
-        });
+    // Setup sort button handlers
+    document.querySelectorAll(".sort-controls button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const sortType = btn.dataset.sort;
+        if (sortType) {
+          sortLibrary(sortType);
+        }
       });
-    }
+    });
   } catch (error) {
     console.error("Failed to initialize library:", error);
     showError("Unable to load document library. Please try again later.");

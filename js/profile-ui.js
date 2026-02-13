@@ -70,11 +70,27 @@ function countJurisdictionContributors(documents, jurisdictionName) {
 /**
  * Get unique document types from documents
  * @param {Array} documents - Filtered documents
- * @returns {Array} Sorted array of unique types
+ * @returns {Array} Sorted array of unique types with Feed first, then All, then alphabetically sorted types
  */
 function getDocumentTypes(documents) {
   const types = new Set(documents.map((doc) => doc.item));
-  return ["all", ...[...types].sort((a, b) => a.localeCompare(b))];
+  const sortedTypes = [...types].sort((a, b) => a.localeCompare(b));
+  
+  // Check if "Feed" exists in types
+  const hasFeed = sortedTypes.includes("Feed");
+  
+  // Remove "Feed" from sortedTypes if present (we'll add it at the beginning)
+  const filteredTypes = sortedTypes.filter(t => t !== "Feed");
+  
+  // Build result: Feed first (if exists), then All, then remaining types alphabetically
+  const result = [];
+  if (hasFeed) {
+    result.push("Feed");
+  }
+  result.push("all");
+  result.push(...filteredTypes);
+  
+  return result;
 }
 
 /**

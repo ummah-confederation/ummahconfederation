@@ -65,7 +65,7 @@ export function formatDate(dateString) {
 /**
  * Sort documents by field
  * @param {Array} documents - Array of document objects
- * @param {string} sortBy - Field to sort by (name, version, date)
+ * @param {string} sortBy - Field to sort by (name, postedIn, postedBy, version, date)
  * @returns {Array} Sorted array
  */
 export function sortDocuments(documents, sortBy) {
@@ -75,7 +75,24 @@ export function sortDocuments(documents, sortBy) {
     case 'name':
       return sorted.sort((a, b) => a.title.localeCompare(b.title));
 
+    case 'postedIn':
+      // Sort by jurisdiction name (without [type] suffix)
+      return sorted.sort((a, b) => {
+        const aJurisdiction = (a.jurisdiction || "").replace(/\s*\[.*?\]\s*/g, "");
+        const bJurisdiction = (b.jurisdiction || "").replace(/\s*\[.*?\]\s*/g, "");
+        return aJurisdiction.localeCompare(bJurisdiction);
+      });
+
+    case 'postedBy':
+      // Sort by institution name (without [type] suffix)
+      return sorted.sort((a, b) => {
+        const aInstitution = (a.institution || "").replace(/\s*\[.*?\]\s*/g, "");
+        const bInstitution = (b.institution || "").replace(/\s*\[.*?\]\s*/g, "");
+        return aInstitution.localeCompare(bInstitution);
+      });
+
     case 'version':
+      // Keep for backward compatibility with profile mode
       return sorted.sort((a, b) => {
         const versionDiff = b.version - a.version;
         if (versionDiff !== 0) return versionDiff;
@@ -83,6 +100,7 @@ export function sortDocuments(documents, sortBy) {
       });
 
     case 'date':
+      // Keep for backward compatibility with profile mode
       return sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     default:

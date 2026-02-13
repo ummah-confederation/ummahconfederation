@@ -124,133 +124,89 @@ body.has-profile .paper-sheet {
   overflow: hidden;
 }
 
-/* Library Row Component */
-.library-row {
-  display: grid;
-  align-items: start;
-  gap: 1rem;
-  margin: 0.25rem 0;
+/* Library Card Component (Card-style layout) */
+.library-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem 0;
   text-align: left;
 }
 
-.dark .library-row {
+.dark .library-card {
   color: #e5e7eb;
 }
 
-/* Dark mode for library row borders */
-.dark .library-row.border-b {
+/* Dark mode for library card borders */
+.dark .library-card.border-b {
   border-bottom-color: #374151 !important;
 }
 
-/* Dark mode for library row links */
-.dark .library-row a {
-  color: #e5e7eb;
+/* Library card title row */
+.library-card-title {
+  font-weight: 500;
 }
 
-.dark .library-row a:hover {
+.library-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library-card-link:hover {
+  text-decoration: underline;
+  color: #2563eb;
+}
+
+.dark .library-card-link:hover {
   color: #60a5fa;
 }
 
-/* Dark mode for library metadata */
-.dark .library-metadata {
-  color: #9ca3af;
-}
-
-/* Dark mode for library version */
-.dark .library-version {
-  color: #9ca3af;
-}
-
-/* Dark mode for library date */
-.dark .library-date {
-  color: #9ca3af;
-}
-/* Default (non-profile) */
-.library-grid-default {
-  grid-template-columns: 1fr 80px 140px;
-}
-
-/* Profile mode */
-.library-grid-profile {
-  grid-template-columns: 1fr 140px;
-}
-
-
-.library-header {
-  font-weight: bold;
-  border-bottom: 1px solid #000;
-  padding-bottom: 0.25rem;
-  margin-bottom: 0.75rem;
-}
-
-.dark .library-header {
-  border-bottom-color: #4b5563;
-}
-
-.library-row a,
-.library-header span:first-child {
-  justify-self: start;
-  text-align: left;
-}
-
-.library-row a {
-  text-decoration: none;
-  color: inherit;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  line-height: 1.4;
-}
-
-.library-row a:hover {
-  text-decoration: underline;
-}
-
-.library-version {
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-}
-
-.dark .library-version {
-  color: #9ca3af;
-}
-
-.library-date {
-  text-align: right;
-  white-space: nowrap;
-}
-
-.dark .library-date {
-  color: #9ca3af;
-}
-
-.library-metadata {
-  width: auto;
-  text-align: right;
-  justify-self: end;
-  min-width: 0;
+/* Library card metadata row */
+.library-card-metadata {
   display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 0.25rem;
-  flex-wrap: nowrap;
-  white-space: nowrap;
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
 }
 
-/* Profile link styling in library rows */
+.dark .library-card-metadata {
+  color: #9ca3af;
+}
+
+.library-card-label {
+  color: var(--color-gray-500);
+}
+
+.dark .library-card-label {
+  color: #9ca3af;
+}
+
+.library-card-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.library-card-meta-separator {
+  color: var(--color-gray-400);
+  margin: 0 0.25rem;
+}
+
+.dark .library-card-meta-separator {
+  color: #6b7280;
+}
+
+/* Profile link styling in library cards */
 .library-profile-link {
   text-decoration: none;
   color: inherit;
   transition: color var(--transition-fast);
-}
-
-/* Ensure links inside library-metadata stay inline for proper flex layout */
-.library-metadata a {
-  display: inline !important;
-  overflow: visible;
 }
 
 .library-profile-link:hover {
